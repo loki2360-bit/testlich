@@ -15,20 +15,10 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root {
---bg: #F0F1F3;
---card: #CDD0D9;
---text: #3B4256;
---text-muted: #6B7285;
---accent-blue: #3B4256;
---accent-blue-dark: #2D3344;
---accent-white: #F0F1F3;
---accent-solid: #3B4256;
---accent-red: #DC2626;
---accent-green: #16A34A;
---accent-orange: #F59E0B;
---border: #9CA1B4;
---shadow-light: #FFFFFF;
---shadow-dark: #9CA1B4;
+--bg: #F0F1F3; --card: #CDD0D9; --text: #3B4256; --text-muted: #6B7285;
+--accent-blue: #3B4256; --accent-blue-dark: #2D3344; --accent-white: #F0F1F3;
+--accent-solid: #3B4256; --accent-red: #DC2626; --accent-green: #16A34A;
+--accent-orange: #F59E0B; --border: #9CA1B4; --shadow-light: #FFFFFF; --shadow-dark: #9CA1B4;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
 body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh; line-height: 1.4; overflow-x: hidden; }
@@ -51,7 +41,7 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 .neu-btn-accent:hover { background: var(--accent-blue-dark); }
 .neu-btn-danger { background: var(--accent-red); color: #F0F1F3; border-color: var(--accent-red); }
 .neu-input, .neu-select { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: var(--text); box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); width: 100%; }
-.progress-container { height: 24px; background: var(--card); border-radius: 12px; overflow: hidden; margin: 12px 0; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); position: relative; }
+.progress-container { height: 24px; background: var(--card); border-radius: 12px; overflow: hidden; margin: 12px 0; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); }
 .progress-fill { height: 100%; border-radius: 12px; background: var(--accent-solid); width: 0; transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1); }
 .bar-container { height: 28px; background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); }
 .bar-fill { height: 100%; background: var(--accent-solid); border-radius: 14px; width: 0; transition: width 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
@@ -177,6 +167,7 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 .chart-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--accent-solid); display: flex; align-items: center; gap: 8px; }
 .bar-item { margin-bottom: 12px; }
 .bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
+.dynamic-unit-label { font-weight: 600; color: var(--accent-solid); }
 @media (max-width: 480px) {
 .glass-panel { bottom: 16px; height: 56px; width: calc(100% - 32px); }
 .panel-item { font-size: 0.6rem; gap: 1px; }
@@ -247,16 +238,25 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="detail" class="neu-input" placeholder="Название" autocomplete="off"></div>
 <div><label style="display: block; margin-bottom: 6px;">Кол-во</label><input type="number" id="qty" value="1" min="1" class="neu-input"></div>
 </div>
-<div id="mainSizeContainer" class="size-rows-container hidden">
-<div id="mainSizeRows"></div>
-<button type="button" id="mainAddSizeBtn" class="add-size-btn hidden" onclick="addMainSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
-<div id="mainSizeTotal" class="size-total-display hidden"></div>
+
+<!-- ДИНАМИЧЕСКОЕ ПОЛЕ ВВОДА (одно универсальное поле) -->
+<div style="margin: 12px 0;" id="mainValueGroup">
+    <label style="display: block; margin-bottom: 6px;" id="mainValueLabel">Значение (<span id="mainValueUnit">м²</span>)</label>
+    <input type="number" step="0.01" id="mainValue" class="neu-input" placeholder="0.00">
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="mainOtherInputs">
-<div id="mainLengthGroup"><label style="display: block; margin-bottom: 6px;">Длина (<span id="mainLengthUnit">м</span>)</label><input type="number" step="0.01" id="length" class="neu-input" placeholder="0.00"></div>
-<div id="mainWidthGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Ширина (<span id="mainWidthUnit">м</span>)</label><input type="number" step="0.01" id="width" class="neu-input" placeholder="0.00"></div>
-<div id="mainHoursGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Часы</label><input type="number" step="0.1" id="hours" class="neu-input" placeholder="0.0"></div>
+
+<!-- Дополнительное поле для квадратных метров (ширина) -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="mainAreaInputs" class="hidden">
+    <div><label style="display: block; margin-bottom: 6px;" id="mainAreaLabel1">Длина (<span id="mainAreaUnit1">м</span>)</label><input type="number" step="0.01" id="mainArea1" class="neu-input" placeholder="0.00"></div>
+    <div><label style="display: block; margin-bottom: 6px;" id="mainAreaLabel2">Ширина (<span id="mainAreaUnit2">м</span>)</label><input type="number" step="0.01" id="mainArea2" class="neu-input" placeholder="0.00"></div>
 </div>
+
+<!-- Поле для времени -->
+<div style="margin: 12px 0;" id="mainTimeGroup" class="hidden">
+    <label style="display: block; margin-bottom: 6px;">Часы работы</label>
+    <input type="number" step="0.1" id="mainTime" class="neu-input" placeholder="0.0">
+</div>
+
 <button class="neu-btn neu-btn-accent" onclick="createMainOrderWithSound()" style="margin-top: 12px;"><i class="fas fa-check"></i> Создать заказ</button>
 
 <div class="progress-title" style="margin-top: 24px;"><i class="fas fa-history"></i> Заказы по дате</div>
@@ -282,20 +282,25 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="preDetail" class="neu-input" placeholder="Название" autocomplete="off"></div>
 <div><label style="display: block; margin-bottom: 6px;">Кол-во</label><input type="number" id="preQty" value="1" min="1" class="neu-input"></div>
 </div>
-<div id="preSizeContainer" class="size-rows-container hidden">
-<div id="preSizeRows"></div>
-<button type="button" id="preAddSizeBtn" class="add-size-btn hidden" onclick="addPreSizeRow()" title="Добавить размеры"><i class="fas fa-plus"></i></button>
-<div id="preSizeTotal" class="size-total-display hidden"></div>
+
+<!-- ДИНАМИЧЕСКОЕ ПОЛЕ ВВОДА для предзаказов -->
+<div style="margin: 12px 0;" id="preValueGroup">
+    <label style="display: block; margin-bottom: 6px;" id="preValueLabel">Значение (<span id="preValueUnit">м²</span>)</label>
+    <input type="number" step="0.01" id="preValue" class="neu-input" placeholder="0.00">
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="preOtherInputs">
-<div id="preLengthGroup"><label style="display: block; margin-bottom: 6px;">Длина (<span id="preLengthUnit">м</span>)</label><input type="number" step="0.01" id="preLength" class="neu-input" placeholder="0.00"></div>
-<div id="preWidthGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Ширина (<span id="preWidthUnit">м</span>)</label><input type="number" step="0.01" id="preWidth" class="neu-input" placeholder="0.00"></div>
-<div id="preHoursGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Часы</label><input type="number" step="0.1" id="preHours" class="neu-input" placeholder="0.0"></div>
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="preAreaInputs" class="hidden">
+    <div><label style="display: block; margin-bottom: 6px;" id="preAreaLabel1">Длина (<span id="preAreaUnit1">м</span>)</label><input type="number" step="0.01" id="preArea1" class="neu-input" placeholder="0.00"></div>
+    <div><label style="display: block; margin-bottom: 6px;" id="preAreaLabel2">Ширина (<span id="preAreaUnit2">м</span>)</label><input type="number" step="0.01" id="preArea2" class="neu-input" placeholder="0.00"></div>
 </div>
+<div style="margin: 12px 0;" id="preTimeGroup" class="hidden">
+    <label style="display: block; margin-bottom: 6px;">Часы работы</label>
+    <input type="number" step="0.1" id="preTime" class="neu-input" placeholder="0.0">
+</div>
+
 <div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
 <button class="neu-btn neu-btn-accent" onclick="createPreorder()"><i class="fas fa-save"></i> Сохранить предзаказ</button>
-<button class="neu-btn" onclick="document.getElementById('jsonImportInput').click()"><i class="fas fa-upload"></i> Загрузить в предзаказы</button>
-<button class="neu-btn neu-btn-accent" onclick="document.getElementById('jsonImportInput').click(); autoAcceptMode = true; updateImportModeIndicator();"><i class="fas fa-bolt"></i> Загрузить и принять сразу</button>
+<button class="neu-btn" onclick="document.getElementById('jsonImportInput').click()"><i class="fas fa-upload"></i> Загрузить</button>
+<button class="neu-btn neu-btn-accent" onclick="document.getElementById('jsonImportInput').click(); autoAcceptMode=true; updateImportModeIndicator();"><i class="fas fa-bolt"></i> Загрузить и принять</button>
 </div>
 <input type="file" id="jsonImportInput" accept=".txt,.json" multiple style="display: none;" />
 <small style="color: var(--text-muted); display: block; margin-top: 8px;"><i class="fas fa-info-circle"></i> Дата берётся из файла</small>
@@ -317,7 +322,7 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-muted);">
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:4px; background:var(--accent-green);"></div> Были заказы</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:4px; background:var(--card); border:1px solid var(--border);"></div> Нет заказов</div>
-<div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:4px; border:2px solid var(--accent-red);"></div> Выходной/Праздник</div>
+<div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:4px; border:2px solid var(--accent-red);"></div> Выходной</div>
 <div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:4px; border:2px solid var(--accent-solid);"></div> Сегодня</div>
 </div>
 </div>
@@ -326,7 +331,7 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div id="photos" class="content-block">
 <div class="container">
 <h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-camera"></i> Фото заказов</h2>
-<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; text-align: center;"><i class="fas fa-info-circle"></i> Выберите тариф на фото, чтобы появился ярлык</p>
+<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; text-align: center;"><i class="fas fa-info-circle"></i> Выберите тариф на фото для ярлыка</p>
 <div class="capture-btn-container">
 <label for="cameraInput" class="capture-btn" title="Сделать фото"><i class="fas fa-camera"></i></label>
 <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" />
@@ -338,22 +343,22 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 
 <div id="stats" class="content-block">
 <div class="container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-chart-bar"></i> Общая статистика</h2>
+<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-chart-bar"></i> Статистика</h2>
 <div class="progress-title" style="margin-top: 24px;"><i class="fas fa-file-export"></i> Экспорт отчета</div>
 <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; margin: 12px 0;">
     <div><label style="display: block; margin-bottom: 6px; font-size: 0.9rem;">С даты</label><input type="date" id="reportDateFrom" class="neu-input" value=""></div>
     <div><label style="display: block; margin-bottom: 6px; font-size: 0.9rem;">По дату</label><input type="date" id="reportDateTo" class="neu-input" value=""></div>
     <button class="neu-btn neu-btn-accent" onclick="exportReportToExcel()" style="height: 42px; white-space: nowrap;"><i class="fas fa-file-excel"></i> Скачать</button>
 </div>
-<div class="progress-title"><i class="fas fa-ruler-horizontal"></i> Единицы тарифов</div>
+<div class="progress-title"><i class="fas fa-ruler-horizontal"></i> Линейные</div>
 <div class="progress-container"><div class="progress-fill" id="linearProgress"></div></div>
-<div class="progress-label"><span>Линейные</span><span><b id="linearTotal">0.0</b> <span id="linearUnit">м</span></span></div>
+<div class="progress-label"><span>Всего</span><span><b id="linearTotal">0.0</b> <span id="linearUnit">м</span></span></div>
 <div class="progress-title"><i class="fas fa-border-all"></i> Квадратные</div>
 <div class="progress-container"><div class="progress-fill" id="areaProgress"></div></div>
-<div class="progress-label"><span>Площадь</span><span><b id="areaTotal">0.0</b> <span id="areaUnit">м²</span></span></div>
+<div class="progress-label"><span>Всего</span><span><b id="areaTotal">0.0</b> <span id="areaUnit">м²</span></span></div>
 <div class="progress-title"><i class="fas fa-clock"></i> Время</div>
 <div class="progress-container"><div class="progress-fill" id="timeProgress"></div></div>
-<div class="progress-label"><span>Часы</span><span><b id="timeTotal">0.0</b> <span id="timeUnit">ч</span></span></div>
+<div class="progress-label"><span>Всего</span><span><b id="timeTotal">0.0</b> <span id="timeUnit">ч</span></span></div>
 <div class="chart-container">
 <div class="chart-title"><i class="fas fa-tasks"></i> Популярность операций</div>
 <div id="operationsChart"><p style="color: var(--text-muted); text-align: center;">Данные появятся после создания заказов</p></div>
@@ -391,13 +396,23 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div class="modal-row"><label>Деталь</label><input type="text" id="editDetail" class="neu-input" autocomplete="off"></div>
 <div class="modal-row"><label>Тариф</label><select id="editTariff" class="neu-select"></select></div>
 <div class="modal-row"><label>Кол-во</label><input type="number" id="editQty" min="1" class="neu-input"></div>
-<div id="editSizeContainer" class="size-rows-container hidden">
-<div id="editSizeRows"></div>
-<button type="button" id="editAddSizeBtn" class="add-size-btn hidden" onclick="addEditSizeRow()"><i class="fas fa-plus"></i></button>
+
+<!-- ДИНАМИЧЕСКИЕ ПОЛЯ для редактирования -->
+<div class="modal-row" id="editValueGroup">
+    <label id="editValueLabel">Значение (<span id="editValueUnit">м²</span>)</label>
+    <input type="number" step="0.01" id="editValue" class="neu-input">
 </div>
-<div class="modal-row hidden" id="editLengthGroup"><label>Длина (<span id="editLengthUnit">м</span>)</label><input type="number" step="0.01" id="editLength" class="neu-input"></div>
-<div class="modal-row hidden" id="editWidthGroup"><label>Ширина (<span id="editWidthUnit">м</span>)</label><input type="number" step="0.01" id="editWidth" class="neu-input"></div>
-<div class="modal-row hidden" id="editHoursGroup"><label>Часы</label><input type="number" step="0.1" id="editHours" class="neu-input"></div>
+<div class="modal-row hidden" id="editAreaInputs">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div><label id="editAreaLabel1">Длина (<span id="editAreaUnit1">м</span>)</label><input type="number" step="0.01" id="editArea1" class="neu-input"></div>
+        <div><label id="editAreaLabel2">Ширина (<span id="editAreaUnit2">м</span>)</label><input type="number" step="0.01" id="editArea2" class="neu-input"></div>
+    </div>
+</div>
+<div class="modal-row hidden" id="editTimeGroup">
+    <label>Часы работы</label>
+    <input type="number" step="0.1" id="editTime" class="neu-input">
+</div>
+
 <div class="modal-buttons"><button class="neu-btn" onclick="closeEditModal()">Отмена</button><button class="neu-btn neu-btn-accent" onclick="saveEditedOrder()">Сохранить</button></div>
 </div>
 </div>
@@ -422,7 +437,7 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div class="modal-content">
 <div class="modal-title">Редактирование дня</div>
 <input type="hidden" id="editDayDate">
-<div class="modal-row"><label>Дата</label><div id="displayDayDate" style="font-weight:600; color:var(--text);"></div></div>
+<div class="modal-row"><label>Дата</label><div id="displayDayDate" style="font-weight:600;"></div></div>
 <div class="modal-row"><label>Отработано часов</label><input type="number" id="dayHours" step="0.5" min="0" class="neu-input" placeholder="0"></div>
 <div class="checkbox-row"><input type="checkbox" id="dayHoliday"><label for="dayHoliday" style="margin:0; cursor:pointer;">Праздничный день</label></div>
 <div class="modal-buttons"><button class="neu-btn" onclick="closeDayModal()">Отмена</button><button class="neu-btn neu-btn-accent" onclick="saveDayData()">Сохранить</button></div>
@@ -440,15 +455,23 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 <div class="modal-row"><label>Тариф</label><select id="photoTariff" class="neu-select"></select></div>
 <div class="modal-row"><label>Деталь</label><input type="text" id="photoDetail" class="neu-input" placeholder="Название" autocomplete="off"></div>
 <div class="modal-row"><label>Кол-во</label><input type="number" id="photoQty" value="1" min="1" class="neu-input"></div>
-<div id="photoSizeContainer" class="size-rows-container hidden">
-<div id="photoSizeRows"></div>
-<button type="button" id="photoAddSizeBtn" class="add-size-btn hidden" onclick="addPhotoSizeRow()"><i class="fas fa-plus"></i></button>
+
+<!-- ДИНАМИЧЕСКИЕ ПОЛЯ для фото -->
+<div class="modal-row" id="photoValueGroup">
+    <label id="photoValueLabel">Значение (<span id="photoValueUnit">м²</span>)</label>
+    <input type="number" step="0.01" id="photoValue" class="neu-input" placeholder="0.00">
 </div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="photoOtherInputs">
-<div id="photoLengthGroup"><label style="display: block; margin-bottom: 6px;">Длина (<span id="photoLengthUnit">м</span>)</label><input type="number" step="0.01" id="photoLength" class="neu-input" placeholder="0.00"></div>
-<div id="photoWidthGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Ширина (<span id="photoWidthUnit">м</span>)</label><input type="number" step="0.01" id="photoWidth" class="neu-input" placeholder="0.00"></div>
-<div id="photoHoursGroup" class="hidden"><label style="display: block; margin-bottom: 6px;">Часы</label><input type="number" step="0.1" id="photoHours" class="neu-input" placeholder="0.0"></div>
+<div class="modal-row hidden" id="photoAreaInputs">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div><label id="photoAreaLabel1">Длина (<span id="photoAreaUnit1">м</span>)</label><input type="number" step="0.01" id="photoArea1" class="neu-input" placeholder="0.00"></div>
+        <div><label id="photoAreaLabel2">Ширина (<span id="photoAreaUnit2">м</span>)</label><input type="number" step="0.01" id="photoArea2" class="neu-input" placeholder="0.00"></div>
+    </div>
 </div>
+<div class="modal-row hidden" id="photoTimeGroup">
+    <label>Часы работы</label>
+    <input type="number" step="0.1" id="photoTime" class="neu-input" placeholder="0.0">
+</div>
+
 <div class="modal-buttons"><button class="neu-btn" onclick="closePhotoOrderModal()">Отмена</button><button class="neu-btn neu-btn-accent" onclick="confirmPhotoOrder()">Оформить</button></div>
 </div>
 </div>
@@ -489,7 +512,7 @@ body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh;
 </div>
 
 <script>
-// === ГЛОБАЛЬНЫЕ КОНСТАНТЫ ===
+// === КОНСТАНТЫ ===
 const DEFAULT_TARIFFS = [
     { id: 'RASPIL_M2', name: 'Распил', unit: 'm2', unitLabel: 'м²', price: 65, isDefault: true },
     { id: 'LINEAR_RASPIL', name: 'Лин. распил', unit: 'linear', unitLabel: 'пог. м', price: 26, isDefault: true },
@@ -529,93 +552,211 @@ let cachedTariffs = null, cacheTariffTimestamp = 0;
 function loadTariffs() {
     try {
         const saved = localStorage.getItem('operator_tariffs');
-        if (saved) {
-            return JSON.parse(saved).map(t => ({
-                ...t,
-                unitLabel: t.unitLabel || getUnitLabel(t.unit),
-                isDefault: t.isDefault || false
-            }));
-        }
-    } catch (e) { console.error('Tariff load error:', e); }
+        if (saved) return JSON.parse(saved).map(t => ({...t, unitLabel: t.unitLabel || getUnitLabel(t.unit), isDefault: t.isDefault||false}));
+    } catch (e) {}
     return DEFAULT_TARIFFS.map(t => ({...t}));
 }
 
 function saveTariffs(tariffs) {
     localStorage.setItem('operator_tariffs', JSON.stringify(tariffs));
-    cachedTariffs = tariffs;
-    cacheTariffTimestamp = Date.now();
+    cachedTariffs = tariffs; cacheTariffTimestamp = Date.now();
 }
 
 function getTariffs() {
     const now = Date.now();
     if (cachedTariffs && (now - cacheTariffTimestamp) < 10000) return cachedTariffs;
-    cachedTariffs = loadTariffs();
-    cacheTariffTimestamp = now;
+    cachedTariffs = loadTariffs(); cacheTariffTimestamp = now;
     return cachedTariffs;
 }
 
-function getTariffById(id) {
-    return getTariffs().find(t => t.id === id);
-}
+function getTariffById(id) { return getTariffs().find(t => t.id === id); }
 
 function populateTariffSelect(selectId) {
     const select = document.getElementById(selectId);
     if (!select) return;
-    const tariffs = getTariffs();
-    select.innerHTML = tariffs.map(t => `<option value="${t.id}">${t.name} — ${t.price} ₽/${t.unitLabel}</option>`).join('');
+    select.innerHTML = getTariffs().map(t => `<option value="${t.id}">${t.name} — ${t.price} ₽/${t.unitLabel}</option>`).join('');
 }
 
-// === РЕКЛАМНАЯ СИСТЕМА (5 раз в день) ===
+// === ДИНАМИЧЕСКИЕ ПОЛЯ ВВОДА ===
+// Определяем тип тарифа для правильного отображения полей
+function getTariffInputType(tariff) {
+    if (!tariff) return 'value';
+    if (tariff.unit === 'time') return 'time';
+    if (tariff.unit === 'm2') return 'area'; // Для m2 показываем два поля (длина x ширина)
+    return 'value'; // Для всех остальных (linear, km, m, l, pcs, kg) — одно поле
+}
+
+function getTariffInputLabel(tariff) {
+    if (!tariff) return 'Значение';
+    if (tariff.unit === 'time') return 'Часы работы';
+    if (tariff.unit === 'm2') return 'Площадь (расчёт по размерам)';
+    // Для остальных единиц измерения
+    return `Количество (${tariff.unitLabel})`;
+}
+
+function getTariffInputPlaceholder(tariff) {
+    if (!tariff) return '0.00';
+    if (tariff.unit === 'time') return '0.0';
+    if (tariff.unit === 'pcs') return '0';
+    return '0.00';
+}
+
+// Обновляем поля основной формы
+function updateMainFormFields() {
+    const tariff = getTariffById(document.getElementById('tariff').value);
+    if (!tariff) return;
+    const type = getTariffInputType(tariff);
+    
+    const valueGroup = document.getElementById('mainValueGroup');
+    const areaInputs = document.getElementById('mainAreaInputs');
+    const timeGroup = document.getElementById('mainTimeGroup');
+    
+    valueGroup.classList.add('hidden');
+    areaInputs.classList.add('hidden');
+    timeGroup.classList.add('hidden');
+    
+    if (type === 'time') {
+        timeGroup.classList.remove('hidden');
+    } else if (type === 'area') {
+        areaInputs.classList.remove('hidden');
+        document.getElementById('mainAreaUnit1').textContent = tariff.unitLabel;
+        document.getElementById('mainAreaUnit2').textContent = tariff.unitLabel;
+        document.getElementById('mainAreaLabel1').innerHTML = `Длина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+        document.getElementById('mainAreaLabel2').innerHTML = `Ширина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+    } else {
+        valueGroup.classList.remove('hidden');
+        document.getElementById('mainValueLabel').innerHTML = getTariffInputLabel(tariff) + ` (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+        document.getElementById('mainValueUnit').textContent = tariff.unitLabel;
+        document.getElementById('mainValue').placeholder = getTariffInputPlaceholder(tariff);
+    }
+}
+
+// Обновляем поля формы предзаказов
+function updatePreorderFormFields() {
+    const tariff = getTariffById(document.getElementById('preTariff').value);
+    if (!tariff) return;
+    const type = getTariffInputType(tariff);
+    
+    const valueGroup = document.getElementById('preValueGroup');
+    const areaInputs = document.getElementById('preAreaInputs');
+    const timeGroup = document.getElementById('preTimeGroup');
+    
+    valueGroup.classList.add('hidden');
+    areaInputs.classList.add('hidden');
+    timeGroup.classList.add('hidden');
+    
+    if (type === 'time') {
+        timeGroup.classList.remove('hidden');
+    } else if (type === 'area') {
+        areaInputs.classList.remove('hidden');
+        document.getElementById('preAreaUnit1').textContent = tariff.unitLabel;
+        document.getElementById('preAreaUnit2').textContent = tariff.unitLabel;
+        document.getElementById('preAreaLabel1').innerHTML = `Длина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+        document.getElementById('preAreaLabel2').innerHTML = `Ширина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+    } else {
+        valueGroup.classList.remove('hidden');
+        document.getElementById('preValueLabel').innerHTML = getTariffInputLabel(tariff) + ` (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+        document.getElementById('preValueUnit').textContent = tariff.unitLabel;
+        document.getElementById('preValue').placeholder = getTariffInputPlaceholder(tariff);
+    }
+}
+
+// Обновляем поля формы редактирования
+function updateEditFormFields() {
+    const tariff = getTariffById(document.getElementById('editTariff').value);
+    if (!tariff) return;
+    const type = getTariffInputType(tariff);
+    
+    const valueGroup = document.getElementById('editValueGroup');
+    const areaInputs = document.getElementById('editAreaInputs');
+    const timeGroup = document.getElementById('editTimeGroup');
+    
+    valueGroup.classList.add('hidden');
+    areaInputs.classList.add('hidden');
+    timeGroup.classList.add('hidden');
+    
+    if (type === 'time') {
+        timeGroup.classList.remove('hidden');
+    } else if (type === 'area') {
+        areaInputs.classList.remove('hidden');
+        document.getElementById('editAreaUnit1').textContent = tariff.unitLabel;
+        document.getElementById('editAreaUnit2').textContent = tariff.unitLabel;
+        document.getElementById('editAreaLabel1').innerHTML = `Длина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+        document.getElementById('editAreaLabel2').innerHTML = `Ширина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+    } else {
+        valueGroup.classList.remove('hidden');
+        document.getElementById('editValueLabel').innerHTML = getTariffInputLabel(tariff) + ` (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+        document.getElementById('editValueUnit').textContent = tariff.unitLabel;
+        document.getElementById('editValue').placeholder = getTariffInputPlaceholder(tariff);
+    }
+}
+
+// Обновляем поля формы фото
+function updatePhotoFormFields() {
+    const tariff = getTariffById(document.getElementById('photoTariff').value);
+    if (!tariff) return;
+    const type = getTariffInputType(tariff);
+    
+    const valueGroup = document.getElementById('photoValueGroup');
+    const areaInputs = document.getElementById('photoAreaInputs');
+    const timeGroup = document.getElementById('photoTimeGroup');
+    
+    valueGroup.classList.add('hidden');
+    areaInputs.classList.add('hidden');
+    timeGroup.classList.add('hidden');
+    
+    if (type === 'time') {
+        timeGroup.classList.remove('hidden');
+    } else if (type === 'area') {
+        areaInputs.classList.remove('hidden');
+        document.getElementById('photoAreaUnit1').textContent = tariff.unitLabel;
+        document.getElementById('photoAreaUnit2').textContent = tariff.unitLabel;
+        document.getElementById('photoAreaLabel1').innerHTML = `Длина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+        document.getElementById('photoAreaLabel2').innerHTML = `Ширина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+    } else {
+        valueGroup.classList.remove('hidden');
+        document.getElementById('photoValueLabel').innerHTML = getTariffInputLabel(tariff) + ` (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
+        document.getElementById('photoValueUnit').textContent = tariff.unitLabel;
+        document.getElementById('photoValue').placeholder = getTariffInputPlaceholder(tariff);
+    }
+}
+
+// === РЕКЛАМНАЯ СИСТЕМА ===
 function checkAdWatched() {
     const today = new Date().toDateString();
-    const storedData = localStorage.getItem(AD_STORAGE_KEY);
     let data = { date: today, count: 0 };
-    if (storedData) {
-        try {
-            data = JSON.parse(storedData);
-            if (data.date !== today) data = { date: today, count: 0 };
-        } catch (e) { data = { date: today, count: 0 }; }
-    }
-    if (data.count >= AD_VIEWS_PER_DAY) {
-        updateMonthEarningsDisplay();
-    } else {
-        showLockIcon();
-    }
+    try {
+        const stored = JSON.parse(localStorage.getItem(AD_STORAGE_KEY));
+        if (stored && stored.date === today) data = stored;
+    } catch(e) {}
+    updateMonthEarningsDisplay(data.count >= AD_VIEWS_PER_DAY ? data.count : 0);
 }
 
 function markAdWatched() {
     const today = new Date().toDateString();
-    const storedData = localStorage.getItem(AD_STORAGE_KEY);
     let data = { date: today, count: 0 };
-    if (storedData) {
-        try {
-            data = JSON.parse(storedData);
-            if (data.date !== today) data = { date: today, count: 0 };
-        } catch (e) {}
-    }
+    try {
+        const stored = JSON.parse(localStorage.getItem(AD_STORAGE_KEY));
+        if (stored && stored.date === today) data = stored;
+    } catch(e) {}
     data.count++;
     localStorage.setItem(AD_STORAGE_KEY, JSON.stringify(data));
-    if (data.count >= AD_VIEWS_PER_DAY) {
-        updateMonthEarningsDisplay();
-    }
+    if (data.count >= AD_VIEWS_PER_DAY) updateMonthEarningsDisplay(data.count);
 }
 
 function getAdViewsCount() {
     const today = new Date().toDateString();
-    const storedData = localStorage.getItem(AD_STORAGE_KEY);
-    if (storedData) {
-        try {
-            const data = JSON.parse(storedData);
-            if (data.date === today) return data.count;
-        } catch (e) {}
-    }
+    try {
+        const data = JSON.parse(localStorage.getItem(AD_STORAGE_KEY));
+        if (data && data.date === today) return data.count;
+    } catch(e) {}
     return 0;
 }
 
-function updateMonthEarningsDisplay() {
+function updateMonthEarningsDisplay(forceCount) {
     const locked = document.getElementById('monthEarnedLocked');
     const unlocked = document.getElementById('monthEarnedUnlocked');
-    const viewsCount = getAdViewsCount();
+    const viewsCount = forceCount !== undefined ? forceCount : getAdViewsCount();
     if (viewsCount >= AD_VIEWS_PER_DAY) {
         locked.classList.add('hidden');
         unlocked.classList.remove('hidden');
@@ -626,418 +767,220 @@ function updateMonthEarningsDisplay() {
     }
 }
 
-function showLockIcon() {
-    const viewsCount = getAdViewsCount();
-    if (viewsCount < AD_VIEWS_PER_DAY) {
-        showAdForMonthEarnings();
-    }
-}
-
 function showAdForMonthEarnings() {
     const viewsCount = getAdViewsCount();
-    if (viewsCount >= AD_VIEWS_PER_DAY) {
-        updateMonthEarningsDisplay();
-        return;
-    }
-    const modal = document.getElementById('adModal');
-    const timerEl = document.getElementById('adTimer');
-    modal.classList.add('active');
+    if (viewsCount >= AD_VIEWS_PER_DAY) { updateMonthEarningsDisplay(); return; }
+    document.getElementById('adModal').classList.add('active');
     let seconds = 5;
-    timerEl.textContent = seconds;
+    document.getElementById('adTimer').textContent = seconds;
     const interval = setInterval(() => {
         seconds--;
-        timerEl.textContent = seconds;
+        document.getElementById('adTimer').textContent = seconds;
         if (seconds <= 0) {
             clearInterval(interval);
-            modal.classList.remove('active');
+            document.getElementById('adModal').classList.remove('active');
             markAdWatched();
-            const newViewsCount = getAdViewsCount();
-            if (newViewsCount >= AD_VIEWS_PER_DAY) {
-                showToast('✅', '#16A34A', 'Отлично!', 'Сумма за месяц отображена');
-            } else {
-                showToast('📺', '#3B82F6', `Просмотр ${newViewsCount}/${AD_VIEWS_PER_DAY}`, `Осталось: ${AD_VIEWS_PER_DAY - newViewsCount}`);
-            }
+            const nc = getAdViewsCount();
+            showToast(nc >= AD_VIEWS_PER_DAY ? '✅' : '📺', nc >= AD_VIEWS_PER_DAY ? '#16A34A' : '#3B82F6',
+                nc >= AD_VIEWS_PER_DAY ? 'Отлично!' : `Просмотр ${nc}/${AD_VIEWS_PER_DAY}`,
+                nc >= AD_VIEWS_PER_DAY ? 'Сумма за месяц отображена' : `Осталось: ${AD_VIEWS_PER_DAY - nc}`);
         }
     }, 1000);
 }
 
-// === УТИЛИТЫ ДАТ ===
-function formatDateYMD(dateStr) { 
-    if (!dateStr) return '';
-    const p = dateStr.split('-');
-    if (p.length === 3) return `${p[2]}.${p[1]}.${p[0]}`;
-    return dateStr;
-}
+// === УТИЛИТЫ ===
+function formatDateYMD(dateStr) { if (!dateStr) return ''; const p = dateStr.split('-'); return p.length===3 ? `${p[2]}.${p[1]}.${p[0]}` : dateStr; }
 function todayYMD() { return new Date().toISOString().split('T')[0]; }
-
-function extractDateFromFilename(filename) {
-    let m = filename.match(/(\d{4})-(\d{2})-(\d{2})/);
+function extractDateFromFilename(fn) {
+    let m = fn.match(/(\d{4})-(\d{2})-(\d{2})/);
     if (m) return `${m[1]}-${m[2]}-${m[3]}`;
-    m = filename.match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/);
-    if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-    return null;
+    m = fn.match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/);
+    return m ? `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}` : null;
 }
-function normalizeDate(dateStr) {
-    if (!dateStr) return todayYMD();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-    if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(dateStr)) {
-        const [d, m, y] = dateStr.split('.');
-        return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
-    }
+function normalizeDate(ds) {
+    if (!ds) return todayYMD();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(ds)) return ds;
+    if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(ds)) { const [d,m,y]=ds.split('.'); return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`; }
     return todayYMD();
 }
-function isValidDate(dateStr) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
-    const [y, m, d] = dateStr.split('-').map(Number);
-    const date = new Date(y, m - 1, d);
-    return date.getFullYear() === y && date.getMonth() === m - 1 && date.getDate() === d;
+function isValidDate(ds) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) return false;
+    const [y,m,d] = ds.split('-').map(Number);
+    const date = new Date(y,m-1,d);
+    return date.getFullYear()===y && date.getMonth()===m-1 && date.getDate()===d;
 }
 
 // === ХРАНИЛИЩЕ ===
-let cachedOrders = null, cachedPreorders = null, cachedPhotos = null, cacheTimestamp = 0;
-function loadOrders() {
-    const now = Date.now();
-    if (cachedOrders && (now - cacheTimestamp) < 5000) return cachedOrders;
-    try { cachedOrders = JSON.parse(localStorage.getItem('operator_orders') || '[]'); cacheTimestamp = now; return cachedOrders; }
-    catch (e) { return []; }
-}
-function saveOrders(orders) { localStorage.setItem('operator_orders', JSON.stringify(orders)); cachedOrders = orders; cacheTimestamp = Date.now(); }
-function loadPreorders() {
-    const now = Date.now();
-    if (cachedPreorders && (now - cacheTimestamp) < 5000) return cachedPreorders;
-    try { cachedPreorders = JSON.parse(localStorage.getItem('operator_preorders') || '[]'); cacheTimestamp = now; return cachedPreorders; }
-    catch (e) { return []; }
-}
-function savePreorders(preorders) { localStorage.setItem('operator_preorders', JSON.stringify(preorders)); cachedPreorders = preorders; cacheTimestamp = Date.now(); }
-function loadPhotos() {
-    const now = Date.now();
-    if (cachedPhotos && (now - cacheTimestamp) < 5000) return cachedPhotos;
-    try { cachedPhotos = JSON.parse(localStorage.getItem('operator_photos') || '[]'); cacheTimestamp = now; return cachedPhotos; }
-    catch (e) { return []; }
-}
-function savePhotos(photos) {
-    try { localStorage.setItem('operator_photos', JSON.stringify(photos)); cachedPhotos = photos; cacheTimestamp = Date.now(); }
-    catch (e) { showToast('⚠️', '#DC2626', 'Память переполнена', 'Удалите старые фото'); }
-}
-function getCurrentShift() { try { return JSON.parse(localStorage.getItem('current_shift') || 'null'); } catch (e) { return null; } }
-function setCurrentShift(shift) { if (shift === null) localStorage.removeItem('current_shift'); else localStorage.setItem('current_shift', JSON.stringify(shift)); }
-
-function cleanupOldPhotos(max = 20) {
-    try {
-        const photos = loadPhotos();
-        if (photos.length > max) { savePhotos(photos.slice(0, max)); return true; }
-        return false;
-    } catch (e) { return false; }
-}
+let cachedOrders=null, cachedPreorders=null, cachedPhotos=null, cacheTs=0;
+function loadOrders() { const n=Date.now(); if(cachedOrders&&(n-cacheTs)<5000) return cachedOrders; try{cachedOrders=JSON.parse(localStorage.getItem('operator_orders')||'[]');cacheTs=n;return cachedOrders;}catch(e){return[];} }
+function saveOrders(o) { localStorage.setItem('operator_orders',JSON.stringify(o)); cachedOrders=o; cacheTs=Date.now(); }
+function loadPreorders() { const n=Date.now(); if(cachedPreorders&&(n-cacheTs)<5000) return cachedPreorders; try{cachedPreorders=JSON.parse(localStorage.getItem('operator_preorders')||'[]');cacheTs=n;return cachedPreorders;}catch(e){return[];} }
+function savePreorders(p) { localStorage.setItem('operator_preorders',JSON.stringify(p)); cachedPreorders=p; cacheTs=Date.now(); }
+function loadPhotos() { const n=Date.now(); if(cachedPhotos&&(n-cacheTs)<5000) return cachedPhotos; try{cachedPhotos=JSON.parse(localStorage.getItem('operator_photos')||'[]');cacheTs=n;return cachedPhotos;}catch(e){return[];} }
+function savePhotos(p) { try{localStorage.setItem('operator_photos',JSON.stringify(p));cachedPhotos=p;cacheTs=Date.now();}catch(e){showToast('⚠️','#DC2626','Память переполнена','Удалите старые фото');} }
+function getCurrentShift() { try{return JSON.parse(localStorage.getItem('current_shift')||'null');}catch(e){return null;} }
+function setCurrentShift(s) { if(s===null)localStorage.removeItem('current_shift');else localStorage.setItem('current_shift',JSON.stringify(s)); }
+function cleanupOldPhotos(max=20) { try{const p=loadPhotos();if(p.length>max){savePhotos(p.slice(0,max));return true;}return false;}catch(e){return false;} }
 
 // === ЗВУК ===
 function playSuccessSound() {
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator(), gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.type = 'sine'; osc.frequency.value = 800;
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3);
-    } catch (e) {}
+    try { const ctx=new(window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=800;g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.3); }catch(e){}
 }
 
-// === РАСЧЁТ СУММЫ ===
-function calculateAmount(tariffKey, length, width, hours, qty, dimensions = null) {
-    const tariff = getTariffById(tariffKey);
-    if (!tariff) return 0;
+// === РАСЧЁТЫ ===
+function calculateAmount(tariffKey, value, area1, area2, time, qty) {
+    const t = getTariffById(tariffKey); if(!t) return 0;
     let amount = 0;
-    if (tariff.unit === 'm2' && dimensions && dimensions.length > 0) {
-        let totalArea = dimensions.reduce((s, d) => s + d.length * d.width, 0);
-        amount = tariff.price * totalArea * qty;
-    } else if (tariff.unit === 'time') {
-        amount = tariff.price * (hours || 0) * qty;
-    } else if (tariff.unit === 'm2') {
-        amount = tariff.price * (length || 0) * (width || 0) * qty;
+    if (t.unit === 'm2') {
+        // Для m2 расчёт: длина * ширина * цена * кол-во
+        amount = t.price * (area1||0) * (area2||0) * qty;
+    } else if (t.unit === 'time') {
+        amount = t.price * (time||0) * qty;
     } else {
-        amount = tariff.price * (length || 0) * qty;
+        // Для всех остальных: значение * цена * кол-во
+        amount = t.price * (value||0) * qty;
     }
-    return Math.round(amount * 100) / 100;
+    return Math.round(amount*100)/100;
 }
 
-function calculateUnits(tariffKey, length, width, hours, qty, dimensions = null) {
-    const tariff = getTariffById(tariffKey); if (!tariff) return { value: 0, unit: '', linear: 0, area: 0, time: 0 };
-    let value = 0, unit = tariff.unitLabel, linear = 0, area = 0, time = 0;
-    if (tariff.unit === 'm2' && dimensions?.length > 0) {
-        dimensions.forEach(d => area += d.length * d.width);
-        area *= qty; value = area;
-    } else if (tariff.unit === 'time') {
-        time = (hours || 0) * qty; value = time;
-    } else if (tariff.unit === 'm2') {
-        area = (length || 0) * (width || 0) * qty; value = area;
-    } else {
-        linear = (length || 0) * qty; value = linear;
-    }
-    return { value: Math.round(value*100)/100, unit, linear: Math.round(linear*100)/100, area: Math.round(area*100)/100, time: Math.round(time*100)/100 };
+function calculateUnits(tariffKey, value, area1, area2, time, qty) {
+    const t = getTariffById(tariffKey); if(!t) return {value:0, unit:'', linear:0, area:0, time:0};
+    let v=0, linear=0, area=0, tm=0;
+    if (t.unit==='m2') { area=(area1||0)*(area2||0)*qty; v=area; }
+    else if (t.unit==='time') { tm=(time||0)*qty; v=tm; }
+    else { linear=(value||0)*qty; v=linear; }
+    return {value:Math.round(v*100)/100, unit:t.unitLabel, linear:Math.round(linear*100)/100, area:Math.round(area*100)/100, time:Math.round(tm*100)/100};
 }
 
 // === TOAST ===
 function showToast(emoji, color, title, message) {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = 'toast'; toast.style.borderLeftColor = color;
-    toast.innerHTML = `<div class="toast-icon">${emoji}</div><div class="toast-content"><div class="toast-title" style="color:${color}">${title}</div><div class="toast-msg">${message}</div></div>`;
-    container.appendChild(toast);
-    setTimeout(() => { toast.style.animation = 'fadeOut 0.3s ease-in forwards'; setTimeout(() => toast.remove(), 300); }, 4000);
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div'); t.className='toast'; t.style.borderLeftColor=color;
+    t.innerHTML = `<div class="toast-icon">${emoji}</div><div class="toast-content"><div class="toast-title" style="color:${color}">${title}</div><div class="toast-msg">${message}</div></div>`;
+    c.appendChild(t);
+    setTimeout(()=>{t.style.animation='fadeOut 0.3s ease-in forwards';setTimeout(()=>t.remove(),300);},4000);
 }
 
-// === ВЕХИ ЗАРАБОТКА ===
+// === ВЕХИ ===
 function checkMilestones(amount) {
-    const shift = getCurrentShift(); if (!shift || !shift.active) return;
-    const key = `notified_milestones_${shift.id}`;
-    let notified = JSON.parse(localStorage.getItem(key) || '[]');
-    const milestones = [
-        { amount: 500, emoji: '😡', color: '#DC2626', text: 'Разгон...' },
-        { amount: 1000, emoji: '😢', color: '#3B82F6', text: 'Первая тысяча' },
-        { amount: 1500, emoji: '😐', color: '#6B7285', text: 'Половина пути' },
-        { amount: 2000, emoji: '🙂', color: '#16A34A', text: 'Хороший результат' },
-        { amount: 2500, emoji: '😄', color: '#F59E0B', text: 'Почти план!' }
-    ];
-    milestones.forEach(m => {
-        if (amount >= m.amount && !notified.includes(m.amount)) {
-            showToast(m.emoji, m.color, `Заработано ${m.amount} ₽`, m.text);
-            notified.push(m.amount); localStorage.setItem(key, JSON.stringify(notified));
-        }
+    const shift = getCurrentShift(); if(!shift||!shift.active) return;
+    const key = `milestones_${shift.id}`;
+    let notified = JSON.parse(localStorage.getItem(key)||'[]');
+    [{amount:500,emoji:'😡',color:'#DC2626',text:'Разгон...'},{amount:1000,emoji:'😢',color:'#3B82F6',text:'Первая тысяча'},{amount:1500,emoji:'😐',color:'#6B7285',text:'Половина пути'},{amount:2000,emoji:'🙂',color:'#16A34A',text:'Хороший результат'},{amount:2500,emoji:'😄',color:'#F59E0B',text:'Почти план!'}].forEach(m=>{
+        if(amount>=m.amount&&!notified.includes(m.amount)){showToast(m.emoji,m.color,`Заработано ${m.amount} ₽`,m.text);notified.push(m.amount);localStorage.setItem(key,JSON.stringify(notified));}
     });
 }
 
-// === ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ===
+// === UI ===
 function getCurrentMonthEarnings() {
-    const orders = loadOrders();
-    const now = new Date();
-    return orders.filter(o => {
-        if (!o.date) return false;
-        const d = new Date(o.date + 'T00:00:00');
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }).reduce((s, o) => s + (parseFloat(o.amount) || 0), 0);
+    const orders = loadOrders(), now = new Date();
+    return orders.filter(o=>{if(!o.date)return false;const d=new Date(o.date+'T00:00:00');return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).reduce((s,o)=>s+(parseFloat(o.amount)||0),0);
 }
 
 function updateUI() {
     const orders = loadOrders();
-    const totalAll = orders.reduce((s, o) => s + (parseFloat(o.amount) || 0), 0);
-    const monthEarned = getCurrentMonthEarnings();
-    document.getElementById('monthEarned').textContent = monthEarned.toFixed(2);
-    
+    document.getElementById('totalAll').textContent = orders.reduce((s,o)=>s+(parseFloat(o.amount)||0),0).toFixed(2);
+    document.getElementById('monthEarned').textContent = getCurrentMonthEarnings().toFixed(2);
     const shift = getCurrentShift();
-    let currentShiftAmount = 0, statusText = 'Смена не начата';
-    if (shift && shift.active) {
-        currentShiftAmount = orders.filter(o => o.shiftId === shift.id).reduce((s, o) => s + (parseFloat(o.amount) || 0), 0);
-        statusText = 'Смена активна';
-    } else if (shift && !shift.active) {
-        currentShiftAmount = shift.finalAmount || 0; statusText = 'Смена завершена';
-    }
-    document.getElementById('totalAll').textContent = totalAll.toFixed(2);
-    document.getElementById('todayEarned').textContent = currentShiftAmount.toFixed(2);
-    document.getElementById('shiftStatus').textContent = statusText;
-    
+    let sa=0, st='Смена не начата';
+    if(shift&&shift.active){sa=orders.filter(o=>o.shiftId===shift.id).reduce((s,o)=>s+(parseFloat(o.amount)||0),0);st='Смена активна';}
+    else if(shift&&!shift.active){sa=shift.finalAmount||0;st='Смена завершена';}
+    document.getElementById('todayEarned').textContent = sa.toFixed(2);
+    document.getElementById('shiftStatus').textContent = st;
     const steps = document.querySelectorAll('#planStatusBar .step');
-    const targetStep = Math.min(19, Math.floor((currentShiftAmount / 3000) * 20));
-    steps.forEach((step, i) => {
-        step.classList.remove('active', 'current', 'completed');
-        if (i < targetStep) step.classList.add('active');
-        else if (i === targetStep) step.classList.add('current');
-        if (currentShiftAmount >= 3000 && i === 19) { step.classList.remove('current'); step.classList.add('completed'); }
-    });
-    checkMilestones(currentShiftAmount);
+    const ts = Math.min(19, Math.floor((sa/3000)*20));
+    steps.forEach((s,i)=>{s.classList.remove('active','current','completed');if(i<ts)s.classList.add('active');else if(i===ts)s.classList.add('current');if(sa>=3000&&i===19){s.classList.remove('current');s.classList.add('completed');}});
+    checkMilestones(sa);
     updateMonthEarningsDisplay();
 }
 
-// === ОБНОВЛЕНИЕ ПОЛЕЙ ФОРМ ===
-function updateFormFieldsByTariff(selectId, lengthGroup, widthGroup, hoursGroup, lengthUnitEl, widthUnitEl, sizeContainer, addSizeBtn, otherInputs) {
-    const tariff = getTariffById(document.getElementById(selectId).value);
-    if (!tariff) return;
-    if (lengthUnitEl) lengthUnitEl.textContent = tariff.unitLabel;
-    if (widthUnitEl) widthUnitEl.textContent = tariff.unitLabel;
-    if (tariff.unit === 'm2') {
-        if (sizeContainer) sizeContainer.classList.remove('hidden');
-        if (addSizeBtn) addSizeBtn.classList.remove('hidden');
-        if (otherInputs) otherInputs.classList.add('hidden');
-    } else {
-        if (sizeContainer) sizeContainer.classList.add('hidden');
-        if (addSizeBtn) addSizeBtn.classList.add('hidden');
-        if (otherInputs) otherInputs.classList.remove('hidden');
-        if (tariff.unit === 'time') {
-            if (lengthGroup) lengthGroup.classList.add('hidden');
-            if (hoursGroup) hoursGroup.classList.remove('hidden');
-        } else {
-            if (lengthGroup) lengthGroup.classList.remove('hidden');
-            if (hoursGroup) hoursGroup.classList.add('hidden');
-        }
-        if (widthGroup) widthGroup.classList.add('hidden');
-    }
-}
-
-function updateMainFormFields() {
-    updateFormFieldsByTariff('tariff', document.getElementById('mainLengthGroup'), document.getElementById('mainWidthGroup'), document.getElementById('mainHoursGroup'), document.getElementById('mainLengthUnit'), document.getElementById('mainWidthUnit'), document.getElementById('mainSizeContainer'), document.getElementById('mainAddSizeBtn'), document.getElementById('mainOtherInputs'));
-}
-function updatePreorderFormFields() {
-    updateFormFieldsByTariff('preTariff', document.getElementById('preLengthGroup'), document.getElementById('preWidthGroup'), document.getElementById('preHoursGroup'), document.getElementById('preLengthUnit'), document.getElementById('preWidthUnit'), document.getElementById('preSizeContainer'), document.getElementById('preAddSizeBtn'), document.getElementById('preOtherInputs'));
-}
-function updateEditFormFields() {
-    const tariff = getTariffById(document.getElementById('editTariff').value);
-    if (!tariff) return;
-    document.getElementById('editLengthUnit').textContent = tariff.unitLabel;
-    document.getElementById('editWidthUnit').textContent = tariff.unitLabel;
-    updateFormFieldsByTariff('editTariff', document.getElementById('editLengthGroup'), document.getElementById('editWidthGroup'), document.getElementById('editHoursGroup'), null, null, document.getElementById('editSizeContainer'), document.getElementById('editAddSizeBtn'), null);
-}
-function updatePhotoFormFields() {
-    updateFormFieldsByTariff('photoTariff', document.getElementById('photoLengthGroup'), document.getElementById('photoWidthGroup'), document.getElementById('photoHoursGroup'), document.getElementById('photoLengthUnit'), document.getElementById('photoWidthUnit'), document.getElementById('photoSizeContainer'), document.getElementById('photoAddSizeBtn'), document.getElementById('photoOtherInputs'));
-}
-
 // === СМЕНА ===
-function startShift() {
-    const shift = getCurrentShift(); if (shift && shift.active) { alert('Смена уже активна!'); return; }
-    setCurrentShift({ id: Date.now(), startedAt: new Date().toISOString(), active: true });
-    alert('✅ Смена начата!'); updateUI();
-}
-function endShift() {
-    const shift = getCurrentShift(); if (!shift || !shift.active) { alert('Нет активной смены!'); return; }
-    const orders = loadOrders();
-    const finalAmount = orders.filter(o => o.shiftId === shift.id).reduce((s, o) => s + (parseFloat(o.amount) || 0), 0);
-    shift.active = false; shift.finishedAt = new Date().toISOString(); shift.finalAmount = finalAmount;
-    setCurrentShift(shift); alert(`✅ Смена завершена!\nЗаработано: ${finalAmount.toFixed(2)} ₽`); updateUI();
-}
+function startShift() { const s=getCurrentShift();if(s&&s.active){alert('Смена уже активна!');return;}setCurrentShift({id:Date.now(),startedAt:new Date().toISOString(),active:true});alert('✅ Смена начата!');updateUI(); }
+function endShift() { const s=getCurrentShift();if(!s||!s.active){alert('Нет активной смены!');return;}const o=loadOrders();const fa=o.filter(x=>x.shiftId===s.id).reduce((sum,x)=>sum+(parseFloat(x.amount)||0),0);s.active=false;s.finishedAt=new Date().toISOString();s.finalAmount=fa;setCurrentShift(s);alert(`✅ Смена завершена!\nЗаработано: ${fa.toFixed(2)} ₽`);updateUI(); }
 
 // === УДАЛЕНИЕ ===
-function deleteOrder(orderId) {
-    if (!confirm('Удалить заказ?')) return;
-    const orders = loadOrders(); const idx = orders.findIndex(o => o.id === orderId);
-    if (idx === -1) return; orders.splice(idx, 1); saveOrders(orders);
-    if (getCurrentShift()?.active) updateUI(); showOrdersByDate(); renderCalendar(); alert('✅ Удалено');
-}
-function deletePreorder(preorderId) {
-    if (!confirm('Удалить предзаказ?')) return;
-    const preorders = loadPreorders(); const idx = preorders.findIndex(p => p.id === preorderId);
-    if (idx === -1) return; preorders.splice(idx, 1); savePreorders(preorders); renderPreorders(); alert('✅ Удалено');
-}
+function deleteOrder(id) { if(!confirm('Удалить заказ?'))return;const o=loadOrders();const i=o.findIndex(x=>x.id===id);if(i===-1)return;o.splice(i,1);saveOrders(o);if(getCurrentShift()?.active)updateUI();showOrdersByDate();renderCalendar();alert('✅ Удалено'); }
+function deletePreorder(id) { if(!confirm('Удалить предзаказ?'))return;const p=loadPreorders();const i=p.findIndex(x=>x.id===id);if(i===-1)return;p.splice(i,1);savePreorders(p);renderPreorders();alert('✅ Удалено'); }
 
-// === МОДАЛЬНЫЕ ОКНА ДАТ ===
-let pendingPreorderId = null;
-function openDateModal(preorderId) { pendingPreorderId = preorderId; document.getElementById('modalDate').value = todayYMD(); document.getElementById('dateModal').classList.add('active'); }
-function closeDateModal() { document.getElementById('dateModal').classList.remove('active'); pendingPreorderId = null; }
-function confirmDateSelection() {
-    const date = document.getElementById('modalDate').value; if (!date) { alert('Выберите дату'); return; }
-    if (pendingPreorderId !== null) acceptPreorder(pendingPreorderId, date); closeDateModal();
-}
+// === ДАТЫ ===
+let pendingPreorderId=null;
+function openDateModal(pid){pendingPreorderId=pid;document.getElementById('modalDate').value=todayYMD();document.getElementById('dateModal').classList.add('active');}
+function closeDateModal(){document.getElementById('dateModal').classList.remove('active');pendingPreorderId=null;}
+function confirmDateSelection(){const d=document.getElementById('modalDate').value;if(!d){alert('Выберите дату');return;}if(pendingPreorderId!==null)acceptPreorder(pendingPreorderId,d);closeDateModal();}
 
-// === ДЕТАЛИ ЗАКАЗА ===
+// === ДЕТАЛИ ===
 function viewOrderDetails(orderId) {
     const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
     const tariff = getTariffById(order.tariff);
-    const units = calculateUnits(order.tariff, order.length, order.width, order.hours, order.qty, order.dimensions);
+    const units = calculateUnits(order.tariff, order.value, order.area1, order.area2, order.time, order.qty);
     let html = `<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">${order.orderNumber}</span></div>`;
     html += `<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">${order.detail}</span></div>`;
-    html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariff?.name || order.tariff}</span></div>`;
+    html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariff?.name||order.tariff}</span></div>`;
     html += `<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">${order.qty}</span></div>`;
-    if (order.dimensions?.length > 0) {
-        order.dimensions.forEach((dim, idx) => html += `<div class="details-item"><span class="details-label">Размер ${idx+1}:</span><span class="details-value">${dim.length} × ${dim.width} ${tariff?.unitLabel||'м'}</span></div>`);
-        html += `<div class="details-item"><span class="details-label">Общая площадь:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
-    } else {
-        if (order.length !== null) html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.length} ${tariff?.unitLabel||'м'}</span></div>`;
-        if (order.width !== null) html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.width} ${tariff?.unitLabel||'м'}</span></div>`;
-        if (order.hours !== null) html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.hours} ч</span></div>`;
-        html += `<div class="details-item"><span class="details-label">Объем работ:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
+    if (tariff) {
+        if (tariff.unit === 'm2') {
+            html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.area1||0} ${tariff.unitLabel}</span></div>`;
+            html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.area2||0} ${tariff.unitLabel}</span></div>`;
+            html += `<div class="details-item"><span class="details-label">Площадь:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
+        } else if (tariff.unit === 'time') {
+            html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.time||0} ч</span></div>`;
+        } else {
+            html += `<div class="details-item"><span class="details-label">Значение:</span><span class="details-value">${order.value||0} ${tariff.unitLabel}</span></div>`;
+        }
     }
     html += `<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">${order.amount.toFixed(2)} ₽</span></div>`;
-    document.getElementById('detailsContent').innerHTML = html; document.getElementById('detailsModal').classList.add('active');
+    document.getElementById('detailsContent').innerHTML = html;
+    document.getElementById('detailsModal').classList.add('active');
 }
 function closeDetailsModal() { document.getElementById('detailsModal').classList.remove('active'); }
 
-// === РАЗМЕРЫ ===
-let mainSizeRowCount = 1, preSizeRowCount = 1, editSizeRowCount = 1, photoSizeRowCount = 1;
-
-function addMainSizeRow() {
-    mainSizeRowCount++;
-    const c = document.getElementById('mainSizeRows');
-    const row = document.createElement('div'); row.className = 'size-row'; row.id = `mainSizeRow${mainSizeRowCount}`;
-    row.innerHTML = `<div class="size-input-wrapper"><label>Длина ${mainSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-length" placeholder="0.00"></div><div class="size-input-wrapper"><label>Ширина ${mainSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-width" placeholder="0.00"></div><button type="button" class="remove-size-btn" onclick="removeMainSizeRow(${mainSizeRowCount})"><i class="fas fa-minus"></i></button>`;
-    c.appendChild(row); updateMainSizeTotal();
+// === РЕДАКТИРОВАНИЕ ===
+let editingOrder = null;
+function openEditModal(orderId) {
+    const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
+    editingOrder = order;
+    document.getElementById('editOrderId').value = order.id;
+    document.getElementById('editOrderNum').value = order.orderNumber;
+    document.getElementById('editDetail').value = order.detail;
+    populateTariffSelect('editTariff');
+    document.getElementById('editTariff').value = order.tariff;
+    document.getElementById('editQty').value = order.qty;
+    
+    const tariff = getTariffById(order.tariff);
+    const type = getTariffInputType(tariff);
+    
+    // Заполняем соответствующие поля
+    document.getElementById('editValue').value = order.value || '';
+    document.getElementById('editArea1').value = order.area1 || '';
+    document.getElementById('editArea2').value = order.area2 || '';
+    document.getElementById('editTime').value = order.time || '';
+    
+    updateEditFormFields();
+    document.getElementById('editModal').classList.add('active');
 }
-function removeMainSizeRow(n) { const r = document.getElementById(`mainSizeRow${n}`); if (r && mainSizeRowCount > 1) { r.remove(); mainSizeRowCount--; updateMainSizeTotal(); } }
-function updateMainSizeTotal() {
-    const l = document.querySelectorAll('#mainSizeRows .size-length'), w = document.querySelectorAll('#mainSizeRows .size-width');
-    let total = 0; l.forEach((inp, i) => { total += (parseFloat(inp.value)||0) * (parseFloat(w[i]?.value)||0); });
-    const td = document.getElementById('mainSizeTotal');
-    if (td) { if (total > 0) { td.textContent = `Всего: ${total.toFixed(2)} м²`; td.classList.remove('hidden'); } else td.classList.add('hidden'); }
-}
-
-function addPreSizeRow() {
-    preSizeRowCount++;
-    const c = document.getElementById('preSizeRows');
-    const row = document.createElement('div'); row.className = 'size-row'; row.id = `preSizeRow${preSizeRowCount}`;
-    row.innerHTML = `<div class="size-input-wrapper"><label>Длина ${preSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-length" placeholder="0.00"></div><div class="size-input-wrapper"><label>Ширина ${preSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-width" placeholder="0.00"></div><button type="button" class="remove-size-btn" onclick="removePreSizeRow(${preSizeRowCount})"><i class="fas fa-minus"></i></button>`;
-    c.appendChild(row); updatePreSizeTotal();
-}
-function removePreSizeRow(n) { const r = document.getElementById(`preSizeRow${n}`); if (r && preSizeRowCount > 1) { r.remove(); preSizeRowCount--; updatePreSizeTotal(); } }
-function updatePreSizeTotal() {
-    const l = document.querySelectorAll('#preSizeRows .size-length'), w = document.querySelectorAll('#preSizeRows .size-width');
-    let total = 0; l.forEach((inp, i) => { total += (parseFloat(inp.value)||0) * (parseFloat(w[i]?.value)||0); });
-    const td = document.getElementById('preSizeTotal');
-    if (td) { if (total > 0) { td.textContent = `Всего: ${total.toFixed(2)} м²`; td.classList.remove('hidden'); } else td.classList.add('hidden'); }
-}
-
-function addEditSizeRow() {
-    editSizeRowCount++;
-    const c = document.getElementById('editSizeRows');
-    const row = document.createElement('div'); row.className = 'size-row'; row.id = `editSizeRow${editSizeRowCount}`;
-    row.innerHTML = `<div class="size-input-wrapper"><label>Длина ${editSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-length" placeholder="0.00"></div><div class="size-input-wrapper"><label>Ширина ${editSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-width" placeholder="0.00"></div><button type="button" class="remove-size-btn" onclick="removeEditSizeRow(${editSizeRowCount})"><i class="fas fa-minus"></i></button>`;
-    c.appendChild(row);
-}
-function removeEditSizeRow(n) { const r = document.getElementById(`editSizeRow${n}`); if (r && editSizeRowCount > 1) { r.remove(); editSizeRowCount--; } }
-
-function addPhotoSizeRow() {
-    photoSizeRowCount++;
-    const c = document.getElementById('photoSizeRows');
-    const row = document.createElement('div'); row.className = 'size-row'; row.id = `photoSizeRow${photoSizeRowCount}`;
-    row.innerHTML = `<div class="size-input-wrapper"><label>Длина ${photoSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-length" placeholder="0.00"></div><div class="size-input-wrapper"><label>Ширина ${photoSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-width" placeholder="0.00"></div><button type="button" class="remove-size-btn" onclick="removePhotoSizeRow(${photoSizeRowCount})"><i class="fas fa-minus"></i></button>`;
-    c.appendChild(row);
-}
-function removePhotoSizeRow(n) { const r = document.getElementById(`photoSizeRow${n}`); if (r && photoSizeRowCount > 1) { r.remove(); photoSizeRowCount--; } }
-
-function resetMainSizeRows() {
-    mainSizeRowCount = 1;
-    const c = document.getElementById('mainSizeRows');
-    if (c) c.innerHTML = `<div class="size-row" id="mainSizeRow1"><div class="size-input-wrapper"><label>Длина 1 (м)</label><input type="number" step="0.01" class="neu-input size-length" placeholder="0.00"></div><div class="size-input-wrapper"><label>Ширина 1 (м)</label><input type="number" step="0.01" class="neu-input size-width" placeholder="0.00"></div><div></div></div>`;
-    const td = document.getElementById('mainSizeTotal'); if (td) td.classList.add('hidden');
-}
-function resetPreSizeRows() {
-    preSizeRowCount = 1;
-    const c = document.getElementById('preSizeRows');
-    if (c) c.innerHTML = `<div class="size-row" id="preSizeRow1"><div class="size-input-wrapper"><label>Длина 1 (м)</label><input type="number" step="0.01" class="neu-input size-length" placeholder="0.00"></div><div class="size-input-wrapper"><label>Ширина 1 (м)</label><input type="number" step="0.01" class="neu-input size-width" placeholder="0.00"></div><div></div></div>`;
-    const td = document.getElementById('preSizeTotal'); if (td) td.classList.add('hidden');
-}
-function resetEditSizeRows() {
-    editSizeRowCount = 1;
-    const c = document.getElementById('editSizeRows');
-    if (c) c.innerHTML = `<div class="size-row" id="editSizeRow1"><div class="size-input-wrapper"><label>Длина 1 (м)</label><input type="number" step="0.01" class="neu-input size-length" placeholder="0.00"></div><div class="size-input-wrapper"><label>Ширина 1 (м)</label><input type="number" step="0.01" class="neu-input size-width" placeholder="0.00"></div><div></div></div>`;
-}
-function resetPhotoSizeRows() {
-    photoSizeRowCount = 1;
-    const c = document.getElementById('photoSizeRows');
-    if (c) c.innerHTML = `<div class="size-row" id="photoSizeRow1"><div class="size-input-wrapper"><label>Длина 1 (м)</label><input type="number" step="0.01" class="neu-input size-length" placeholder="0.00"></div><div class="size-input-wrapper"><label>Ширина 1 (м)</label><input type="number" step="0.01" class="neu-input size-width" placeholder="0.00"></div><div></div></div>`;
-}
-
-function getMainSizeDimensions() {
-    const l = document.querySelectorAll('#mainSizeRows .size-length'), w = document.querySelectorAll('#mainSizeRows .size-width');
-    const dims = []; l.forEach((inp, i) => { const lv = parseFloat(inp.value)||0, wv = parseFloat(w[i]?.value)||0; if (lv>0&&wv>0) dims.push({length:lv, width:wv}); }); return dims;
-}
-function getPreSizeDimensions() {
-    const l = document.querySelectorAll('#preSizeRows .size-length'), w = document.querySelectorAll('#preSizeRows .size-width');
-    const dims = []; l.forEach((inp, i) => { const lv = parseFloat(inp.value)||0, wv = parseFloat(w[i]?.value)||0; if (lv>0&&wv>0) dims.push({length:lv, width:wv}); }); return dims;
-}
-function getEditSizeDimensions() {
-    const l = document.querySelectorAll('#editSizeRows .size-length'), w = document.querySelectorAll('#editSizeRows .size-width');
-    const dims = []; l.forEach((inp, i) => { const lv = parseFloat(inp.value)||0, wv = parseFloat(w[i]?.value)||0; if (lv>0&&wv>0) dims.push({length:lv, width:wv}); }); return dims;
-}
-function getPhotoSizeDimensions() {
-    const l = document.querySelectorAll('#photoSizeRows .size-length'), w = document.querySelectorAll('#photoSizeRows .size-width');
-    const dims = []; l.forEach((inp, i) => { const lv = parseFloat(inp.value)||0, wv = parseFloat(w[i]?.value)||0; if (lv>0&&wv>0) dims.push({length:lv, width:wv}); }); return dims;
+function closeEditModal() { document.getElementById('editModal').classList.remove('active'); editingOrder = null; }
+function saveEditedOrder() {
+    if (!editingOrder) return;
+    const orderId = parseInt(document.getElementById('editOrderId').value);
+    const num = document.getElementById('editOrderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
+    const tariffKey = document.getElementById('editTariff').value;
+    const detail = document.getElementById('editDetail').value.trim() || '—';
+    const qty = parseInt(document.getElementById('editQty').value) || 1;
+    const tariff = getTariffById(tariffKey);
+    const type = getTariffInputType(tariff);
+    
+    const value = type==='value' ? (parseFloat(document.getElementById('editValue').value)||0) : null;
+    const area1 = type==='area' ? (parseFloat(document.getElementById('editArea1').value)||0) : null;
+    const area2 = type==='area' ? (parseFloat(document.getElementById('editArea2').value)||0) : null;
+    const time = type==='time' ? (parseFloat(document.getElementById('editTime').value)||0) : null;
+    
+    const amount = calculateAmount(tariffKey, value, area1, area2, time, qty);
+    
+    const orders = loadOrders(); const idx = orders.findIndex(o => o.id === orderId);
+    if (idx !== -1) {
+        orders[idx] = { ...orders[idx], orderNumber: num, tariff: tariffKey, detail, qty, value, area1, area2, time, amount };
+        saveOrders(orders); updateUI(); showOrdersByDate(); renderCalendar(); closeEditModal(); alert('✅ Обновлён');
+    }
 }
 
 // === СОЗДАНИЕ ЗАКАЗА ===
@@ -1046,17 +989,24 @@ function createMainOrder() {
     const tariffKey = document.getElementById('tariff').value;
     const detail = document.getElementById('detail').value.trim() || '—';
     const qty = parseInt(document.getElementById('qty').value) || 1;
-    const length = parseFloat(document.getElementById('length').value) || 0;
-    const width = parseFloat(document.getElementById('width').value) || 0;
-    const hours = parseFloat(document.getElementById('hours').value) || 0;
-    const dimensions = getMainSizeDimensions();
-    const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
+    const tariff = getTariffById(tariffKey);
+    const type = getTariffInputType(tariff);
+    
+    const value = type==='value' ? (parseFloat(document.getElementById('mainValue').value)||0) : null;
+    const area1 = type==='area' ? (parseFloat(document.getElementById('mainArea1').value)||0) : null;
+    const area2 = type==='area' ? (parseFloat(document.getElementById('mainArea2').value)||0) : null;
+    const time = type==='time' ? (parseFloat(document.getElementById('mainTime').value)||0) : null;
+    
+    const amount = calculateAmount(tariffKey, value, area1, area2, time, qty);
     const shift = getCurrentShift(); if (!shift || !shift.active) { alert('⚠️ Начните смену!'); return; }
-    const order = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail, qty, length: length||null, width: width||null, hours: hours||null, dimensions: dimensions.length>0?dimensions:null, amount, date: todayYMD(), shiftId: shift.id, timestamp: new Date().toISOString() };
+    
+    const order = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail, qty, value, area1, area2, time, amount, date: todayYMD(), shiftId: shift.id, timestamp: new Date().toISOString() };
     const orders = loadOrders(); orders.push(order); saveOrders(orders); updateUI(); renderCalendar();
+    
+    // Сброс
     document.getElementById('orderNum').value = ''; document.getElementById('detail').value = ''; document.getElementById('qty').value = '1';
-    document.getElementById('length').value = ''; document.getElementById('width').value = ''; document.getElementById('hours').value = '';
-    resetMainSizeRows(); updateMainFormFields();
+    document.getElementById('mainValue').value = ''; document.getElementById('mainArea1').value = ''; document.getElementById('mainArea2').value = ''; document.getElementById('mainTime').value = '';
+    updateMainFormFields();
 }
 function createMainOrderWithSound() { createMainOrder(); setTimeout(playSuccessSound, 100); }
 
@@ -1066,17 +1016,22 @@ function createPreorder() {
     const tariffKey = document.getElementById('preTariff').value;
     const detail = document.getElementById('preDetail').value.trim() || '—';
     const qty = parseInt(document.getElementById('preQty').value) || 1;
-    const length = parseFloat(document.getElementById('preLength').value) || 0;
-    const width = parseFloat(document.getElementById('preWidth').value) || 0;
-    const hours = parseFloat(document.getElementById('preHours').value) || 0;
-    const dimensions = getPreSizeDimensions();
-    const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
-    const preorder = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail, qty, length: length||null, width: width||null, hours: hours||null, dimensions: dimensions.length>0?dimensions:null, amount, date: todayYMD(), timestamp: new Date().toISOString() };
+    const tariff = getTariffById(tariffKey);
+    const type = getTariffInputType(tariff);
+    
+    const value = type==='value' ? (parseFloat(document.getElementById('preValue').value)||0) : null;
+    const area1 = type==='area' ? (parseFloat(document.getElementById('preArea1').value)||0) : null;
+    const area2 = type==='area' ? (parseFloat(document.getElementById('preArea2').value)||0) : null;
+    const time = type==='time' ? (parseFloat(document.getElementById('preTime').value)||0) : null;
+    
+    const amount = calculateAmount(tariffKey, value, area1, area2, time, qty);
+    const preorder = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail, qty, value, area1, area2, time, amount, date: todayYMD(), timestamp: new Date().toISOString() };
     const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
     alert('✅ Предзаказ сохранён!'); renderPreorders();
+    
     document.getElementById('preOrderNum').value = ''; document.getElementById('preDetail').value = ''; document.getElementById('preQty').value = '1';
-    document.getElementById('preLength').value = ''; document.getElementById('preWidth').value = ''; document.getElementById('preHours').value = '';
-    resetPreSizeRows(); updatePreorderFormFields();
+    document.getElementById('preValue').value = ''; document.getElementById('preArea1').value = ''; document.getElementById('preArea2').value = ''; document.getElementById('preTime').value = '';
+    updatePreorderFormFields();
 }
 
 function acceptPreorder(preorderId, selectedDate = null) {
@@ -1094,9 +1049,7 @@ function renderPreorders() {
     const preorders = loadPreorders(); const container = document.getElementById('preordersListContainer');
     if (preorders.length === 0) { container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>'; return; }
     let html = `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-    preorders.forEach(p => {
-        html += `<tr><td>${p.orderNumber}</td><td>${p.detail}</td><td class="amount">${p.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button><button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-    });
+    preorders.forEach(p => { html += `<tr><td>${p.orderNumber}</td><td>${p.detail}</td><td class="amount">${p.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button><button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`; });
     html += '</tbody></table>'; container.innerHTML = html;
 }
 
@@ -1104,14 +1057,11 @@ function renderPreorders() {
 function showOrdersByDate() {
     const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
     const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
-    const formattedDate = formatDateYMD(dateInput);
-    let html = `<div class="progress-title">Заказы за ${formattedDate}</div>`;
+    let html = `<div class="progress-title">Заказы за ${formatDateYMD(dateInput)}</div>`;
     if (filtered.length === 0) { html += '<div class="empty-msg">Нет заказов</div>'; }
     else {
         html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-        filtered.forEach(o => {
-            html += `<tr><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-        });
+        filtered.forEach(o => { html += `<tr><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`; });
         html += '</tbody></table>';
     }
     document.getElementById('ordersListContainer').innerHTML = html;
@@ -1125,9 +1075,7 @@ document.getElementById('orderSearch').addEventListener('keypress', function(e) 
         if (matched.length === 0) { html += '<div class="empty-msg">Не найдено</div>'; }
         else {
             html += `<table class="orders-table"><thead><tr><th>Дата</th><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-            matched.forEach(o => {
-                html += `<tr><td style="font-size:0.85rem; color:var(--text-muted);">${o.date?formatDateYMD(o.date):'—'}</td><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`;
-            });
+            matched.forEach(o => { html += `<tr><td style="font-size:0.85rem; color:var(--text-muted);">${o.date?formatDateYMD(o.date):'—'}</td><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`; });
             html += '</tbody></table>';
         }
         document.getElementById('ordersListContainer').innerHTML = html;
@@ -1140,76 +1088,21 @@ document.getElementById('orderSearch').addEventListener('keypress', function(e) 
     }
 });
 
-// === РЕДАКТИРОВАНИЕ ЗАКАЗА ===
-let editingOrder = null;
-function openEditModal(orderId) {
-    const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
-    editingOrder = order;
-    document.getElementById('editOrderId').value = order.id;
-    document.getElementById('editOrderNum').value = order.orderNumber;
-    document.getElementById('editDetail').value = order.detail;
-    populateTariffSelect('editTariff');
-    document.getElementById('editTariff').value = order.tariff;
-    document.getElementById('editQty').value = order.qty;
-    document.getElementById('editLength').value = order.length || '';
-    document.getElementById('editWidth').value = order.width || '';
-    document.getElementById('editHours').value = order.hours || '';
-    resetEditSizeRows();
-    if (order.dimensions?.length > 0) {
-        const c = document.getElementById('editSizeRows');
-        if (c) {
-            c.innerHTML = '';
-            order.dimensions.forEach((dim, idx) => {
-                editSizeRowCount = idx + 1;
-                const row = document.createElement('div'); row.className = 'size-row'; row.id = `editSizeRow${editSizeRowCount}`;
-                row.innerHTML = `<div class="size-input-wrapper"><label>Длина ${editSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-length" placeholder="0.00" value="${dim.length}"></div><div class="size-input-wrapper"><label>Ширина ${editSizeRowCount} (м)</label><input type="number" step="0.01" class="neu-input size-width" placeholder="0.00" value="${dim.width}"></div><button type="button" class="remove-size-btn" onclick="removeEditSizeRow(${editSizeRowCount})"><i class="fas fa-minus"></i></button>`;
-                c.appendChild(row);
-            });
-        }
-    }
-    updateEditFormFields();
-    document.getElementById('editModal').classList.add('active');
-}
-function closeEditModal() { document.getElementById('editModal').classList.remove('active'); editingOrder = null; }
-function saveEditedOrder() {
-    if (!editingOrder) return;
-    const orderId = parseInt(document.getElementById('editOrderId').value);
-    const num = document.getElementById('editOrderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
-    const tariffKey = document.getElementById('editTariff').value;
-    const detail = document.getElementById('editDetail').value.trim() || '—';
-    const qty = parseInt(document.getElementById('editQty').value) || 1;
-    const length = parseFloat(document.getElementById('editLength').value) || 0;
-    const width = parseFloat(document.getElementById('editWidth').value) || 0;
-    const hours = parseFloat(document.getElementById('editHours').value) || 0;
-    const dimensions = getEditSizeDimensions();
-    const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
-    const orders = loadOrders(); const idx = orders.findIndex(o => o.id === orderId);
-    if (idx !== -1) {
-        orders[idx] = { ...orders[idx], orderNumber: num, tariff: tariffKey, detail, qty, length: length||null, width: width||null, hours: hours||null, dimensions: dimensions.length>0?dimensions:null, amount };
-        saveOrders(orders); updateUI(); showOrdersByDate(); renderCalendar(); closeEditModal(); alert('✅ Обновлён');
-    }
-}
-
 // === ЭКСПОРТ ===
 function saveOrdersToFile() {
     const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
     const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
     if (filtered.length === 0) { alert('Нет заказов'); return; }
-    const formattedDate = formatDateYMD(dateInput);
-    let content = `ЗАКАЗЫ ЗА ${formattedDate}\n========================\n`;
+    const fd = formatDateYMD(dateInput);
+    let content = `ЗАКАЗЫ ЗА ${fd}\n========================\n`;
     let totalSum = 0;
     filtered.forEach((o, idx) => {
         const tariff = getTariffById(o.tariff);
-        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
         content += `№${idx+1}. ${o.orderNumber}\n${o.detail} (${tariff?.name||o.tariff})\n`;
-        if (o.dimensions?.length > 0) {
-            o.dimensions.forEach((d, i) => content += `   Размер ${i+1}: ${d.length} × ${d.width} ${tariff?.unitLabel||'м'}\n`);
-            content += `   Общая площадь: ${units.value} ${units.unit}\n`;
-        } else {
-            if (o.length) content += `   Длина: ${o.length} ${tariff?.unitLabel||'м'}\n`;
-            if (o.width) content += `   Ширина: ${o.width} ${tariff?.unitLabel||'м'}\n`;
-            if (o.hours) content += `   Часы: ${o.hours} ч\n`;
-            content += `   Объем: ${units.value} ${units.unit}\n`;
+        if (tariff) {
+            if (tariff.unit==='m2') content += `   ${o.area1||0} × ${o.area2||0} ${tariff.unitLabel}\n`;
+            else if (tariff.unit==='time') content += `   ${o.time||0} ч\n`;
+            else content += `   ${o.value||0} ${tariff.unitLabel}\n`;
         }
         content += `   Кол-во: ${o.qty}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
         totalSum += o.amount;
@@ -1217,7 +1110,7 @@ function saveOrdersToFile() {
     content += `\nИТОГО: ${totalSum.toFixed(2)} ₽\nЭкспорт: ${new Date().toLocaleString('ru-RU')}`;
     const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
     const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${formattedDate}.txt`; a.click();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${fd}.txt`; a.click();
     URL.revokeObjectURL(a.href);
 }
 
@@ -1235,46 +1128,46 @@ function parseTxtOrders(txtContent) {
     const orders = []; const blocks = txtContent.split('---');
     for (const block of blocks) {
         const lines = block.trim().split('\n').filter(l => l.trim() !== ''); if (lines.length < 3) continue;
-        const order = { orderNumber: '', detail: '', tariff: '', qty: 1, length: null, width: null, hours: null, dimensions: null, amount: 0, date: null };
-        let currentDetail = '', currentTariff = ''; let dimensions = [];
+        const order = { orderNumber: '', detail: '', tariff: '', qty: 1, value: null, area1: null, area2: null, time: null, amount: 0, date: null };
+        let currentDetail = '', currentTariff = '';
         for (const line of lines) {
             const c = line.trim();
             if (c.startsWith('№') && c.includes('.')) { const m = c.match(/№\d+\.\s*(.+)/); if (m) order.orderNumber = m[1].trim(); }
             if (c.includes('(') && c.includes(')') && !c.includes('Сумма')) { const m = c.match(/(.+)\s*\((.+)\)/); if (m) { currentDetail = m[1].trim(); currentTariff = m[2].trim(); } }
-            if (c.startsWith('Размер')) { const m = c.match(/Размер\s*\d+:\s*([\d.]+)\s*×\s*([\d.]+)/); if (m) dimensions.push({ length: parseFloat(m[1]), width: parseFloat(m[2]) }); }
-            if (c.startsWith('Длина:')) { const m = c.match(/Длина:\s*([\d.]+)/); if (m) order.length = parseFloat(m[1]); }
-            if (c.startsWith('Ширина:')) { const m = c.match(/Ширина:\s*([\d.]+)/); if (m) order.width = parseFloat(m[1]); }
-            if (c.startsWith('Часы:')) { const m = c.match(/Часы:\s*([\d.]+)/); if (m) order.hours = parseFloat(m[1]); }
             if (c.startsWith('Кол-во:')) { const m = c.match(/Кол-во:\s*(\d+)/); if (m) order.qty = parseInt(m[1]); }
             if (c.startsWith('Сумма:')) { const m = c.match(/Сумма:\s*([\d.]+)/); if (m) order.amount = parseFloat(m[1]); }
+            // Пробуем распарсить размеры
+            if (c.match(/[\d.]+\s*×\s*[\d.]+/)) { const m = c.match(/([\d.]+)\s*×\s*([\d.]+)/); if (m) { order.area1 = parseFloat(m[1]); order.area2 = parseFloat(m[2]); } }
+            if (c.startsWith('Часы:')) { const m = c.match(/Часы:\s*([\d.]+)/); if (m) order.time = parseFloat(m[1]); }
             if (c.match(/^Дата[:\s]/i)) { const m = c.match(/Дата[:\s]+([\d.\-\/]+)/i); if (m) order.date = normalizeDate(m[1].trim()); }
         }
-        if (dimensions.length > 0) order.dimensions = dimensions;
         if (currentTariff) {
             const tariffs = getTariffs();
             const found = tariffs.find(t => t.name === currentTariff || t.id === currentTariff);
             order.tariff = found?.id || tariffs[0]?.id || 'RASPIL_M2';
         }
-        order.detail = currentDetail || '—'; if (order.orderNumber) orders.push(order);
+        order.detail = currentDetail || '—';
+        // Если нет размеров, но есть значение в строке
+        if (!order.area1 && !order.area2 && !order.time) {
+            // Ищем числовое значение
+            const valMatch = lines.find(l => l.match(/^\s*[\d.]+$/));
+            if (valMatch) order.value = parseFloat(valMatch.trim());
+        }
+        if (order.orderNumber) orders.push(order);
     }
     return orders;
 }
 
 // === СТАТИСТИКА ===
 function calculateStats() {
-    const orders = loadOrders(); let totalLinear = 0, totalArea = 0, totalTime = 0;
-    const operationCount = {};
+    const orders = loadOrders(); let totalLinear=0, totalArea=0, totalTime=0;
+    const opCount = {};
     orders.forEach(o => {
-        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
+        const units = calculateUnits(o.tariff, o.value, o.area1, o.area2, o.time, o.qty);
         totalLinear += units.linear; totalArea += units.area; totalTime += units.time;
-        operationCount[o.tariff] = (operationCount[o.tariff] || 0) + 1;
+        opCount[o.tariff] = (opCount[o.tariff]||0)+1;
     });
-    return {
-        linear: { value: totalLinear, percent: Math.min(100, totalLinear/1000*100) },
-        area: { value: totalArea, percent: Math.min(100, totalArea/200*100) },
-        time: { value: totalTime, percent: Math.min(100, totalTime/100*100) },
-        operations: operationCount
-    };
+    return { linear:{value:totalLinear,percent:Math.min(100,totalLinear/1000*100)}, area:{value:totalArea,percent:Math.min(100,totalArea/200*100)}, time:{value:totalTime,percent:Math.min(100,totalTime/100*100)}, operations:opCount };
 }
 
 function renderStats() {
@@ -1306,7 +1199,7 @@ function renderStats() {
 
 // === КАЛЕНДАРЬ ===
 let currentCalendarDate = new Date();
-function loadCalendarData() { try { return JSON.parse(localStorage.getItem('operator_calendar') || '{}'); } catch (e) { return {}; } }
+function loadCalendarData() { try{return JSON.parse(localStorage.getItem('operator_calendar')||'{}');}catch(e){return{};} }
 function saveCalendarData(data) { localStorage.setItem('operator_calendar', JSON.stringify(data)); }
 function renderCalendar() {
     const year = currentCalendarDate.getFullYear(), month = currentCalendarDate.getMonth();
@@ -1359,8 +1252,7 @@ function compressImage(file, callback) {
         img.onload = () => {
             const canvas = document.createElement('canvas');
             const MAX = 800; let {width, height} = img;
-            if (width>height) { if(width>MAX){height*=MAX/width;width=MAX;} }
-            else { if(height>MAX){width*=MAX/height;height=MAX;} }
+            if (width>height) { if(width>MAX){height*=MAX/width;width=MAX;} } else { if(height>MAX){width*=MAX/height;height=MAX;} }
             canvas.width = width; canvas.height = height;
             canvas.getContext('2d').drawImage(img, 0, 0, width, height);
             callback(canvas.toDataURL('image/jpeg', 0.7));
@@ -1392,14 +1284,12 @@ document.getElementById('cameraInput').addEventListener('change', function(e) {
     const file = e.target.files[0]; if (!file) return;
     compressImage(file, (compressedDataUrl) => {
         const photos = loadPhotos();
-        photos.unshift({ id: Date.now(), data: compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" });
+        photos.unshift({ id: Date.now(),  compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" });
         savePhotos(photos); renderPhotos(); this.value = '';
     });
 });
-function deletePhoto(photoId) {
-    if (!confirm('Удалить фото?')) return;
-    savePhotos(loadPhotos().filter(p => p.id !== photoId)); renderPhotos();
-}
+function deletePhoto(photoId) { if (!confirm('Удалить фото?')) return; savePhotos(loadPhotos().filter(p => p.id !== photoId)); renderPhotos(); }
+
 let currentPhotoIdForOrder = null;
 function openPhotoOrderModal(photoId) {
     const photos = loadPhotos(), photo = photos.find(p => p.id === photoId); if (!photo) return;
@@ -1407,8 +1297,7 @@ function openPhotoOrderModal(photoId) {
     document.getElementById('photoPreviewImg').src = photo.data;
     document.getElementById('photoOrderNum').value = ''; document.getElementById('photoDetail').value = '';
     document.getElementById('photoQty').value = '1';
-    document.getElementById('photoLength').value = ''; document.getElementById('photoWidth').value = '';
-    document.getElementById('photoHours').value = '';
+    document.getElementById('photoValue').value = ''; document.getElementById('photoArea1').value = ''; document.getElementById('photoArea2').value = ''; document.getElementById('photoTime').value = '';
     resetPhotoSizeRows();
     populateTariffSelect('photoTariff');
     document.getElementById('photoTariff').value = photo.tagType || getTariffs()[0]?.id || '';
@@ -1416,22 +1305,24 @@ function openPhotoOrderModal(photoId) {
     document.getElementById('photoOrderModal').classList.add('active');
 }
 function closePhotoOrderModal() { document.getElementById('photoOrderModal').classList.remove('active'); currentPhotoIdForOrder = null; }
-function openPhotoZoom() {
-    document.getElementById('zoomedImage').src = document.getElementById('photoPreviewImg').src;
-    document.getElementById('photoZoomModal').classList.add('active');
-}
+function openPhotoZoom() { document.getElementById('zoomedImage').src = document.getElementById('photoPreviewImg').src; document.getElementById('photoZoomModal').classList.add('active'); }
 function closePhotoZoom() { document.getElementById('photoZoomModal').classList.remove('active'); }
+
 function confirmPhotoOrder() {
     const num = document.getElementById('photoOrderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
     const tariffKey = document.getElementById('photoTariff').value;
     const detail = document.getElementById('photoDetail').value.trim() || '—';
     const qty = parseInt(document.getElementById('photoQty').value) || 1;
-    const length = parseFloat(document.getElementById('photoLength').value)||0;
-    const width = parseFloat(document.getElementById('photoWidth').value)||0;
-    const hours = parseFloat(document.getElementById('photoHours').value)||0;
-    const dimensions = getPhotoSizeDimensions();
-    const amount = calculateAmount(tariffKey, length, width, hours, qty, dimensions);
-    const preorder = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail, qty, length: length||null, width: width||null, hours: hours||null, dimensions: dimensions.length>0?dimensions:null, amount, date: todayYMD(), timestamp: new Date().toISOString(), hasPhoto: true };
+    const tariff = getTariffById(tariffKey);
+    const type = getTariffInputType(tariff);
+    
+    const value = type==='value' ? (parseFloat(document.getElementById('photoValue').value)||0) : null;
+    const area1 = type==='area' ? (parseFloat(document.getElementById('photoArea1').value)||0) : null;
+    const area2 = type==='area' ? (parseFloat(document.getElementById('photoArea2').value)||0) : null;
+    const time = type==='time' ? (parseFloat(document.getElementById('photoTime').value)||0) : null;
+    
+    const amount = calculateAmount(tariffKey, value, area1, area2, time, qty);
+    const preorder = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail, qty, value, area1, area2, time, amount, date: todayYMD(), timestamp: new Date().toISOString(), hasPhoto: true };
     const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
     savePhotos(loadPhotos().filter(p => p.id !== currentPhotoIdForOrder));
     alert('✅ Оформлен в предзаказ! Фото удалено.');
@@ -1442,11 +1333,13 @@ function confirmPhotoOrder() {
     document.getElementById('preorders').classList.add('active');
 }
 
+// Совместимость со старой функцией
+function resetPhotoSizeRows() {}
+
 // === НАСТРОЙКИ ТАРИФОВ ===
 function renderTariffEditor() {
     const tariffs = getTariffs();
-    const list = document.getElementById('tariffList');
-    list.innerHTML = tariffs.map(t => `
+    document.getElementById('tariffList').innerHTML = tariffs.map(t => `
     <div class="tariff-item" data-id="${t.id}">
         <input type="text" class="neu-input tariff-name" value="${t.name}" placeholder="Название" ${t.isDefault?'readonly':''}>
         <select class="neu-select tariff-unit">
@@ -1494,8 +1387,7 @@ function saveTariffSettings() {
 }
 function updateTariffSummary() {
     const tariffs = getTariffs();
-    const summary = document.getElementById('tariffSummary');
-    summary.innerHTML = tariffs.slice(0, 4).map(t => `<span style="display:inline-block; padding:4px 8px; background:var(--bg); border-radius:6px; margin:2px; font-size:0.8rem;">${t.name}: ${t.price} ₽/${t.unitLabel}</span>`).join('') + (tariffs.length>4?`<span style="font-size:0.8rem; color:var(--text-muted);">+ ещё ${tariffs.length-4}</span>`:'');
+    document.getElementById('tariffSummary').innerHTML = tariffs.slice(0, 4).map(t => `<span style="display:inline-block; padding:4px 8px; background:var(--bg); border-radius:6px; margin:2px; font-size:0.8rem;">${t.name}: ${t.price} ₽/${t.unitLabel}</span>`).join('') + (tariffs.length>4?`<span style="font-size:0.8rem; color:var(--text-muted);">+ ещё ${tariffs.length-4}</span>`:'');
 }
 function exportTariffs() {
     const blob = new Blob([JSON.stringify(getTariffs(), null, 2)], {type: 'application/json'});
@@ -1538,29 +1430,25 @@ async function exportReportToExcel() {
     const orders = loadOrders(), tariffs = getTariffs();
     const filtered = orders.filter(o => o.date && o.date >= dateFrom && o.date <= dateTo);
     if (filtered.length === 0) { alert('📭 Нет заказов за выбранный период'); return; }
-    const data = [['№ заказа','Дата','Деталь','Тариф','Кол-во','Длина','Ширина','Часы','Размеры','Пог. м','М²','Часы','Сумма (₽)']];
+    const data = [['№ заказа','Дата','Деталь','Тариф','Кол-во','Значение','Длина','Ширина','Часы','Сумма (₽)']];
     filtered.forEach(o => {
         const tariff = tariffs.find(t => t.id === o.tariff);
-        const units = calculateUnits(o.tariff, o.length, o.width, o.hours, o.qty, o.dimensions);
-        const sizesStr = o.dimensions?.length>0 ? o.dimensions.map(d=>`${d.length}×${d.width}`).join('; ') : '';
-        data.push([o.orderNumber, formatDateYMD(o.date), o.detail, tariff?.name||o.tariff, o.qty||1, o.length??'', o.width??'', o.hours??'', sizesStr, units.linear>0?units.linear:'', units.area>0?units.area:'', units.time>0?units.time:'', o.amount?.toFixed(2)||'0.00']);
+        data.push([o.orderNumber, formatDateYMD(o.date), o.detail, tariff?.name||o.tariff, o.qty||1, o.value??'', o.area1??'', o.area2??'', o.time??'', o.amount?.toFixed(2)||'0.00']);
     });
     const totalAmount = filtered.reduce((s,o)=>s+(o.amount||0),0);
-    data.push(['','','','','','','','','','ИТОГО:','','','',totalAmount.toFixed(2)]);
+    data.push(['','','','','','','','','ИТОГО:',totalAmount.toFixed(2)]);
     const ws = XLSX.utils.aoa_to_sheet(data);
-    ws['!cols'] = [{wch:12},{wch:10},{wch:20},{wch:15},{wch:8},{wch:10},{wch:10},{wch:8},{wch:25},{wch:10},{wch:8},{wch:12},{wch:12}];
+    ws['!cols'] = [{wch:12},{wch:10},{wch:20},{wch:15},{wch:8},{wch:12},{wch:10},{wch:10},{wch:8},{wch:12}];
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Отчет');
     XLSX.writeFile(wb, `Отчет_заказы_${formatDateYMD(dateFrom)}_${formatDateYMD(dateTo)}.xlsx`);
     showToast('✅', '#16A34A', 'Отчет готов', `Скачано ${filtered.length} заказов`);
 }
 
-// === ИМПОРТ ФАЙЛОВ ===
+// === ИМПОРТ ===
 document.getElementById('jsonImportInput').addEventListener('change', async function(e) {
     const files = Array.from(e.target.files); if (files.length === 0) return;
-    const modeText = autoAcceptMode ? 'и авто-приём' : 'в предзаказы';
-    showToast('⏳', '#3B82F6', 'Импорт...', `Обработка ${files.length} файл(ов) ${modeText}`);
+    showToast('⏳', '#3B82F6', 'Импорт...', `Обработка ${files.length} файл(ов)`);
     let totalImported = 0, totalErrors = 0;
-    const tariffs = getTariffs();
     for (const file of files) {
         try {
             const content = await readFileAsText(file);
@@ -1572,16 +1460,17 @@ document.getElementById('jsonImportInput').addEventListener('change', async func
                 let orderDate = item.date ? normalizeDate(item.date) : (fileDate||todayYMD());
                 if (!isValidDate(orderDate)) orderDate = todayYMD();
                 let tariffKey = item.tariff;
+                const tariffs = getTariffs();
                 if (tariffKey && !tariffs.find(t=>t.id===tariffKey)) { const f=tariffs.find(t=>t.name===tariffKey); if(f)tariffKey=f.id; else tariffKey=tariffs[0]?.id||'RASPIL_M2'; }
-                const amount = typeof item.amount==='number' ? item.amount : calculateAmount(tariffKey, item.length||0, item.width||0, item.hours||0, item.qty||1, item.dimensions);
-                const newOrder = { id: Date.now()+Math.random(), orderNumber: item.orderNumber||'ИМП-'+(totalImported+1), tariff: tariffKey, detail: item.detail||'—', qty: item.qty||1, length: item.length||null, width: item.width||null, hours: item.hours||null, dimensions: item.dimensions||null, amount: Math.round(amount*100)/100, date: orderDate, timestamp: new Date().toISOString() };
+                const amount = typeof item.amount==='number' ? item.amount : calculateAmount(tariffKey, item.value||0, item.area1||0, item.area2||0, item.time||0, item.qty||1);
+                const newOrder = { id: Date.now()+Math.random(), orderNumber: item.orderNumber||'ИМП-'+(totalImported+1), tariff: tariffKey, detail: item.detail||'—', qty: item.qty||1, value: item.value||null, area1: item.area1||null, area2: item.area2||null, time: item.time||null, amount: Math.round(amount*100)/100, date: orderDate, timestamp: new Date().toISOString() };
                 if (autoAcceptMode) {
                     const shift = getCurrentShift(); if (shift?.active) newOrder.shiftId = shift.id;
                     const orders = loadOrders(); orders.push(newOrder); saveOrders(orders);
                 } else { const preorders = loadPreorders(); preorders.push(newOrder); savePreorders(preorders); }
                 totalImported++;
             }
-        } catch (err) { console.error('Import error:', file.name, err); totalErrors++; }
+        } catch (err) { totalErrors++; }
     }
     if (autoAcceptMode) {
         if (totalImported > 0) { updateUI(); renderCalendar(); showToast('✅', '#16A34A', 'Готово!', `Принято ${totalImported} заказов`); }
@@ -1656,6 +1545,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateMainFormFields(); updatePreorderFormFields(); updateEditFormFields(); updatePhotoFormFields();
     updateTariffSummary();
 
+    // Обработчики изменения тарифов
     ['tariff','preTariff','editTariff','photoTariff'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.addEventListener('change', () => {
@@ -1666,24 +1556,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    document.getElementById('mainSizeRows')?.addEventListener('input', updateMainSizeTotal);
-    document.getElementById('preSizeRows')?.addEventListener('input', updatePreSizeTotal);
-
     checkAdWatched();
     document.getElementById('monthEarnedLocked').addEventListener('click', showAdForMonthEarnings);
 
     cleanupOldPhotos(20);
-    resetMainSizeRows(); resetPreSizeRows(); resetEditSizeRows(); resetPhotoSizeRows();
     updateUI(); renderPreorders(); loadAvatar(); renderCalendar(); renderPhotos();
 
-    // Скрытие лоадера
     setTimeout(() => {
         const loader = document.getElementById('appLoader');
         if (loader) { loader.classList.add('hidden'); setTimeout(() => loader.remove(), 300); }
     }, 100);
-
-    // Service Worker (закомментирован чтобы избежать ошибок на GitHub Pages)
-    // if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
 });
 </script>
 </body>
