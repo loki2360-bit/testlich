@@ -14,16 +14,18 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
     body { background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; line-height: 1.5; }
-    .container { max-width: 1280px; margin: 0 auto; }
+    .container { max-width: 1320px; margin: 0 auto; }
     
     header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; }
     h1 { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.02em; }
-    .btn { padding: 7px 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn { padding: 7px 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: 0.15s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
     .btn:hover { transform: translateY(-1px); }
     .btn-primary { background: var(--primary); color: #fff; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
     .btn-danger { background: var(--danger); color: white; }
     .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
+    a.link { color: var(--primary); text-decoration: none; }
+    a.link:hover { text-decoration: underline; color: var(--primary-hover); }
 
     .controls { background: var(--card); padding: 14px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end; }
     .control-group label { font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; display: block; }
@@ -31,8 +33,8 @@
     .control-group input:focus, .control-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
     .table-wrap { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 950px; }
-    th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+    table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.8rem; vertical-align: middle; }
     th { background: #f8fafc; font-weight: 600; color: var(--muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; }
     tr:hover td { background: #fafafa; }
     .status-badge { display: inline-block; padding: 2px 6px; border-radius: 6px; font-size: 0.65rem; font-weight: 500; background: #f1f5f9; color: #475569; white-space: nowrap; }
@@ -47,13 +49,13 @@
     .actions { display: flex; gap: 5px; }
     .empty { text-align: center; padding: 30px; color: var(--muted); font-size: 0.85rem; }
 
-    /* Modal Base */
+    /* Modals */
     .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(3px); display: none; justify-content: center; align-items: center; padding: 16px; z-index: 100; }
     .modal.active { display: flex; }
-    .modal-box { background: var(--card); width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 20px; }
+    .modal-box { background: var(--card); width: 100%; max-width: 680px; max-height: 92vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 20px; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .modal-header h2 { font-size: 1.1rem; font-weight: 600; }
-    .close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--muted); }
+    .close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--muted); line-height: 1; }
     .close:hover { color: var(--text); }
 
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
@@ -70,7 +72,7 @@
     .total-box.profit .val { color: var(--success); }
     .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
 
-    /* Detail View Styles */
+    /* Detail View */
     .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
     .detail-card { background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
     .detail-card h3 { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -85,7 +87,6 @@
     .fin-card strong { font-size: 1rem; font-weight: 600; }
     .fin-card.profit strong { color: var(--success); }
 
-    /* Responsive */
     @media (max-width: 768px) {
       .part-row, .totals, .form-grid, .detail-grid, .detail-finances { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
@@ -107,7 +108,7 @@
       </div>
     </header>
 
-    <div class="controls no-print">
+    <div class="controls">
       <div class="control-group"><label>Поиск</label><input type="text" id="search" placeholder="Клиент, техника..." oninput="applyFilters()"></div>
       <div class="control-group"><label>Тип техники</label><select id="filterType" onchange="applyFilters()"><option value="">Все</option></select></div>
       <div class="control-group"><label>Статус</label><select id="filterStatus" onchange="applyFilters()"><option value="">Все</option></select></div>
@@ -116,17 +117,17 @@
       <div class="control-group"><button class="btn btn-outline" style="width:100%;margin-top:18px" onclick="resetFilters()">Сброс</button></div>
     </div>
 
-    <div class="table-wrap no-print">
+    <div class="table-wrap">
       <table id="mainTable">
-        <thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Устройство</th><th>Этап</th><th>Запчасти</th><th>Себест.</th><th>Стоимость</th><th>Прибыль</th><th>Действия</th></tr></thead>
+        <thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Авито</th><th>Устройство</th><th>Этап</th><th>Запчасти</th><th>Себест.</th><th>Стоимость</th><th>Прибыль</th><th>Действия</th></tr></thead>
         <tbody id="tbody"></tbody>
       </table>
       <div id="emptyState" class="empty hidden">Заявок нет. Нажмите «+ Заявка»</div>
     </div>
   </div>
 
-  <!-- Order Form Modal -->
-  <div id="modal" class="modal no-print" onclick="if(event.target===this) closeModal()">
+  <!-- Order Form -->
+  <div id="modal" class="modal" onclick="if(event.target===this) closeModal()">
     <div class="modal-box">
       <div class="modal-header"><h2 id="modalTitle">Новая заявка</h2><button class="close" onclick="closeModal()">&times;</button></div>
       <form id="orderForm">
@@ -137,6 +138,7 @@
           <div class="form-group"><label>Предв. сдача</label><input type="date" id="estDate"></div>
           <div class="form-group"><label>Тип техники</label><select id="type" required></select></div>
           <div class="form-group"><label>Этап ремонта</label><select id="status"></select></div>
+          <div class="form-group"><label>Ссылка на Авито</label><input type="url" id="avitoLink" placeholder="https://www.avito.ru/..."></div>
           <div class="form-group" style="grid-column:1/-1"><label>Причина / Описание</label><textarea id="reason" rows="2"></textarea></div>
           <div class="form-group"><label>Стоимость работ (₽)</label><input type="number" id="repairCost" step="0.01" required></div>
           <div class="form-group"><label>Транспорт (₽)</label><input type="number" id="transportCost" step="0.01" value="0"></div>
@@ -159,13 +161,10 @@
     </div>
   </div>
 
-  <!-- Detail View Modal -->
-  <div id="detailModal" class="modal no-print" onclick="if(event.target===this) closeDetailModal()">
+  <!-- Detail View -->
+  <div id="detailModal" class="modal" onclick="if(event.target===this) closeDetailModal()">
     <div class="modal-box" style="max-width:780px;">
-      <div class="modal-header">
-        <h2 id="detailTitle">Заявка #...</h2>
-        <button class="close" onclick="closeDetailModal()">&times;</button>
-      </div>
+      <div class="modal-header"><h2 id="detailTitle">Заявка #...</h2><button class="close" onclick="closeDetailModal()">&times;</button></div>
       <div class="detail-grid">
         <div class="detail-card">
           <h3>📅 Даты & Статус</h3>
@@ -174,8 +173,9 @@
           <p><strong>Статус:</strong> <span id="dStatus" class="status-badge"></span></p>
         </div>
         <div class="detail-card">
-          <h3>👤 Контакты</h3>
+          <h3>👤 Контакты & Источник</h3>
           <p><strong>Клиент:</strong> <span id="dClient"></span></p>
+          <p><strong>Авито:</strong> <a id="dAvito" href="#" target="_blank" rel="noopener noreferrer" class="link">—</a></p>
           <p><strong>Мастер:</strong> <span id="dMaster"></span></p>
         </div>
         <div class="detail-card full-width">
@@ -209,17 +209,12 @@
     </div>
   </div>
 
-  <!-- Settings Modal -->
-  <div id="settingsModal" class="modal no-print" onclick="if(event.target===this) closeSettings()">
-    <div class="modal-box settings-box">
-      <h2>⚙️ Настройки мастера</h2>
-      <div class="form-group" style="margin-top:16px">
-        <label>Имя мастера</label>
-        <input type="text" id="masterName" placeholder="Иванов И.И.">
-      </div>
-      <div class="form-actions" style="justify-content:center">
-        <button type="button" class="btn btn-primary" onclick="saveSettings()">💾 Сохранить</button>
-      </div>
+  <!-- Settings -->
+  <div id="settingsModal" class="modal" onclick="if(event.target===this) closeSettings()">
+    <div class="modal-box" style="max-width:400px;">
+      <h2>⚙️ Настройки</h2>
+      <div class="form-group" style="margin-top:16px"><label>Имя мастера</label><input type="text" id="masterName" placeholder="Иванов И.И."></div>
+      <div class="form-actions" style="justify-content:center"><button class="btn btn-primary" onclick="saveSettings()">💾 Сохранить</button></div>
     </div>
   </div>
 
@@ -228,7 +223,7 @@
     const STATUSES = ['Принят','Диагностика','В работе','Ожидание запчастей','Готово','Выдан'];
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
     const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
-    const KEY = 'repair_db_v4';
+    const KEY = 'repair_db_v5';
     let orders = JSON.parse(localStorage.getItem(KEY) || '[]');
     let settings = JSON.parse(localStorage.getItem('repair_settings') || '{"master":"Мастер"}');
     let currentDetailId = null;
@@ -259,11 +254,14 @@
         const exp = partsSum + (parseFloat(o.transport)||0);
         const profit = (parseFloat(o.cost)||0) - exp;
         const partsStr = o.parts.map(p=>`<span class="status-badge">${p.name}</span>`).join(' ');
+        const avitoLink = o.avitoLink ? `<a href="${o.avitoLink}" target="_blank" rel="noopener noreferrer" class="link" title="Открыть объявление">🔗 Авито</a>` : '<span style="color:var(--muted)">—</span>';
+        
         tb.innerHTML += `
           <tr>
             <td>${o.id.slice(-6).toUpperCase()}</td>
             <td>${toDate(o.date)}</td>
             <td>${o.client}</td>
+            <td>${avitoLink}</td>
             <td>${o.type}</td>
             <td><span class="status-badge status-${STATUS_CLASSES[o.status]||''}">${o.status}</span></td>
             <td style="font-size:0.75rem">${partsStr||'—'}</td>
@@ -271,7 +269,7 @@
             <td class="money" style="font-weight:600">${fmt(o.cost)}</td>
             <td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td>
             <td class="actions">
-              <button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️ Сводка</button>
+              <button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button>
               <button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button>
               <button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button>
             </td>
@@ -292,7 +290,7 @@
     }
     function resetFilters() { $('search').value=''; $('filterType').value=''; $('filterStatus').value=''; $('dateFrom').value=''; $('dateTo').value=''; renderTable(); }
 
-    // Order Modal
+    // Modal Logic
     const modal = $('modal'), form = $('orderForm');
     function openModal(o=null) {
       modal.classList.add('active');
@@ -303,6 +301,7 @@
       $('estDate').value = o?.est || '';
       $('type').value = o?.type || '';
       $('status').value = o?.status || 'Принят';
+      $('avitoLink').value = o?.avitoLink || '';
       $('reason').value = o?.reason || '';
       $('repairCost').value = o?.cost || '';
       $('transportCost').value = o?.transport || 0;
@@ -339,7 +338,12 @@
       const parts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
         name: r.querySelector('.p-name').value, status: r.querySelector('.p-status').value, cost: parseFloat(r.querySelector('.p-cost').value)||0
       })).filter(p=>p.name);
-      const order = { id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, type:$('type').value, status:$('status').value, reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, parts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() };
+      const order = { 
+        id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, 
+        type:$('type').value, status:$('status').value, avitoLink:$('avitoLink').value, 
+        reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, 
+        parts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() 
+      };
       const idx = orders.findIndex(o=>o.id===id);
       if(idx>-1) orders[idx]=order; else orders.push(order);
       save(); closeModal(); applyFilters();
@@ -357,6 +361,16 @@
       $('dStatus').textContent = o.status; $('dStatus').className = `status-badge status-${STATUS_CLASSES[o.status]||''}`;
       $('dClient').textContent = o.client; $('dMaster').textContent = settings.master;
       $('dType').textContent = o.type; $('dReason').textContent = o.reason || 'Не указано';
+      
+      if (o.avitoLink) {
+        $('dAvito').href = o.avitoLink;
+        $('dAvito').textContent = 'Открыть объявление ↗';
+        $('dAvito').style.display = 'inline';
+      } else {
+        $('dAvito').textContent = '—';
+        $('dAvito').removeAttribute('href');
+        $('dAvito').style.display = 'inline';
+      }
 
       const tbody = $('dPartsBody'); tbody.innerHTML = '';
       let pSum = 0;
