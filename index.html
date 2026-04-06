@@ -16,7 +16,7 @@
     body { background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; line-height: 1.5; }
     .container { max-width: 1320px; margin: 0 auto; }
     
-    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 20px; }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 16px; }
     h1 { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.02em; }
     .btn { padding: 7px 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: 0.15s; display: inline-flex; align-items: center; gap: 5px; text-decoration: none; }
     .btn:hover { transform: translateY(-1px); }
@@ -26,6 +26,16 @@
     .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
     a.link { color: var(--primary); text-decoration: none; }
     a.link:hover { text-decoration: underline; color: var(--primary-hover); }
+
+    /* Stats Dashboard */
+    .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .stat-card { background: var(--card); padding: 14px; border-radius: var(--radius); box-shadow: var(--shadow); border-left: 4px solid var(--primary); }
+    .stat-card.profit { border-left-color: var(--success); }
+    .stat-card.warning { border-left-color: var(--warning); }
+    .stat-card h3 { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .stat-card .val { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .coin-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(245,158,11,0.3); }
+    .coin-low { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 2px 6px rgba(239,68,68,0.3); }
 
     .controls { background: var(--card); padding: 14px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end; }
     .control-group label { font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; display: block; }
@@ -88,7 +98,7 @@
     .fin-card.profit strong { color: var(--success); }
 
     @media (max-width: 768px) {
-      .part-row, .totals, .form-grid, .detail-grid, .detail-finances { grid-template-columns: 1fr; }
+      .part-row, .totals, .form-grid, .detail-grid, .detail-finances, .dashboard { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
     }
   </style>
@@ -100,13 +110,34 @@
         <h1>🛠️ Учет ремонтов</h1>
         <p style="font-size:0.75rem;color:var(--muted);margin-top:2px">Локально • Без сервера • Экспорт JSON</p>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-outline" onclick="openSettings()">⚙️ Мастер</button>
-        <button class="btn btn-outline" onclick="exportData()">📥 Экспорт</button>
-        <label class="btn btn-outline" style="cursor:pointer">📤 Импорт <input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <div id="coinBadge" class="coin-badge">🪙 <span id="coinDisplay">0</span></div>
+        <button class="btn btn-outline" onclick="openPromo()">🎁 Код</button>
+        <button class="btn btn-outline" onclick="openSettings()">⚙️</button>
+        <button class="btn btn-outline" onclick="exportData()">📥</button>
+        <label class="btn btn-outline" style="cursor:pointer">📤<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
         <button class="btn btn-primary" onclick="openModal()">+ Заявка</button>
       </div>
     </header>
+
+    <!-- Profit Dashboard -->
+    <div class="dashboard">
+      <div class="stat-card profit">
+        <h3>✅ Готовая к выводу</h3>
+        <div class="val" id="statReady">0 ₽</div>
+        <small style="color:var(--muted)">Статус: Выдан</small>
+      </div>
+      <div class="stat-card warning">
+        <h3>⏳ В работе / ожидании</h3>
+        <div class="val" id="statActive">0 ₽</div>
+        <small style="color:var(--muted)">Статус: кроме Выдан</small>
+      </div>
+      <div class="stat-card">
+        <h3>📊 Оборот заявок</h3>
+        <div class="val" id="statCount">0</div>
+        <small style="color:var(--muted)">Всего создано</small>
+      </div>
+    </div>
 
     <div class="controls">
       <div class="control-group"><label>Поиск</label><input type="text" id="search" placeholder="Клиент, техника..." oninput="applyFilters()"></div>
@@ -218,14 +249,29 @@
     </div>
   </div>
 
+  <!-- Promo Modal -->
+  <div id="promoModal" class="modal" onclick="if(event.target===this) closePromo()">
+    <div class="modal-box" style="max-width:400px; text-align:center;">
+      <h2>🎁 Бонусный код</h2>
+      <p style="color:var(--muted); margin:10px 0; font-size:0.9rem">Введите секретный код для начисления коинов</p>
+      <input type="text" id="promoInput" placeholder="Введите код..." style="width:100%; padding:10px; margin:10px 0; border:1px solid var(--border); border-radius:8px; text-align:center; font-size:1rem;">
+      <button class="btn btn-primary" onclick="applyPromo()" style="width:100%; margin-top:10px">Активировать</button>
+    </div>
+  </div>
+
   <script>
     const TYPES = ['Микроволновки','Колонки','Музыкальные центры','Наушники','Телефоны','Ноутбуки','Планшеты','Стиральные машины','Роутеры','ПК','Мониторы','Пылесосы'];
     const STATUSES = ['Принят','Диагностика','В работе','Ожидание запчастей','Готово','Выдан'];
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
     const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
-    const KEY = 'repair_db_v5';
-    let orders = JSON.parse(localStorage.getItem(KEY) || '[]');
-    let settings = JSON.parse(localStorage.getItem('repair_settings') || '{"master":"Мастер"}');
+    
+    const DB_KEY = 'repair_db_v6';
+    const SETTINGS_KEY = 'repair_settings_v3';
+    const PROMO_CODE = 'MASTER2026'; // Измените код при необходимости
+    const COIN_COST_PER_ORDER = 30;
+
+    let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":100}'); // Стартовый баланс 100
     let currentDetailId = null;
 
     const $ = id => document.getElementById(id);
@@ -237,12 +283,30 @@
       TYPES.forEach(t => { const o = document.createElement('option'); o.value=t; o.textContent=t; selType.appendChild(o); typeSel.appendChild(o.cloneNode(true)); });
       STATUSES.forEach(s => { const o = document.createElement('option'); o.value=s; o.textContent=s; selStatus.appendChild(o); statusSel.appendChild(o.cloneNode(true)); });
       $('masterName').value = settings.master;
+      updateUI();
       renderTable();
       $('repairCost').oninput = $('transportCost').oninput = calcTotals;
     };
 
-    function save() { localStorage.setItem(KEY, JSON.stringify(orders)); }
-    function saveSettings() { settings.master = $('masterName').value || 'Мастер'; localStorage.setItem('repair_settings', JSON.stringify(settings)); closeSettings(); }
+    function save() { localStorage.setItem(DB_KEY, JSON.stringify(orders)); }
+    function saveSettings() { settings.master = $('masterName').value || 'Мастер'; localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); closeSettings(); updateUI(); }
+
+    function updateUI() {
+      $('coinDisplay').textContent = settings.coins;
+      $('coinBadge').className = settings.coins < COIN_COST_PER_ORDER ? 'coin-badge coin-low' : 'coin-badge';
+      
+      let ready = 0, active = 0;
+      orders.forEach(o => {
+        const partsSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
+        const exp = partsSum + (parseFloat(o.transport)||0);
+        const profit = (parseFloat(o.cost)||0) - exp;
+        if (o.status === 'Выдан') ready += profit;
+        else active += profit;
+      });
+      $('statReady').textContent = fmt(ready);
+      $('statActive').textContent = fmt(active);
+      $('statCount').textContent = orders.length;
+    }
 
     function renderTable(data = orders) {
       const tb = $('tbody'), empty = $('emptyState');
@@ -290,7 +354,7 @@
     }
     function resetFilters() { $('search').value=''; $('filterType').value=''; $('filterStatus').value=''; $('dateFrom').value=''; $('dateTo').value=''; renderTable(); }
 
-    // Modal Logic
+    // Order Modal
     const modal = $('modal'), form = $('orderForm');
     function openModal(o=null) {
       modal.classList.add('active');
@@ -334,6 +398,17 @@
 
     function handleSubmit(e) {
       e.preventDefault();
+      const isEdit = !!$('editId').value;
+      if (!isEdit) {
+        if (settings.coins < COIN_COST_PER_ORDER) {
+          alert(`❌ Недостаточно коинов!\nНужно: ${COIN_COST_PER_ORDER}, доступно: ${settings.coins}\nВведите бонусный код для пополнения.`);
+          return;
+        }
+        settings.coins -= COIN_COST_PER_ORDER;
+        saveSettings();
+        updateUI();
+      }
+
       const id = $('editId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
       const parts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
         name: r.querySelector('.p-name').value, status: r.querySelector('.p-status').value, cost: parseFloat(r.querySelector('.p-cost').value)||0
@@ -346,11 +421,13 @@
       };
       const idx = orders.findIndex(o=>o.id===id);
       if(idx>-1) orders[idx]=order; else orders.push(order);
+      
       save(); closeModal(); applyFilters();
+      updateUI(); // Обновляем дашборд
     }
 
     function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
-    function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); save(); applyFilters(); } }
+    function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); save(); applyFilters(); updateUI(); } }
 
     // Detail View
     function openDetail(id) {
@@ -365,11 +442,8 @@
       if (o.avitoLink) {
         $('dAvito').href = o.avitoLink;
         $('dAvito').textContent = 'Открыть объявление ↗';
-        $('dAvito').style.display = 'inline';
       } else {
-        $('dAvito').textContent = '—';
-        $('dAvito').removeAttribute('href');
-        $('dAvito').style.display = 'inline';
+        $('dAvito').textContent = '—'; $('dAvito').removeAttribute('href');
       }
 
       const tbody = $('dPartsBody'); tbody.innerHTML = '';
@@ -390,13 +464,25 @@
       $('dProfit').textContent = fmt(cost-exp);
       $('detailModal').classList.add('active');
     }
-
     function closeDetailModal() { $('detailModal').classList.remove('active'); currentDetailId = null; }
     function editFromDetail() { if(currentDetailId) { closeDetailModal(); setTimeout(()=>editOrder(currentDetailId), 100); } }
 
-    // Settings
+    // Settings & Promo
     function openSettings() { $('masterName').value = settings.master; $('settingsModal').classList.add('active'); }
     function closeSettings() { $('settingsModal').classList.remove('active'); }
+    function openPromo() { $('promoModal').classList.add('active'); $('promoInput').focus(); }
+    function closePromo() { $('promoModal').classList.remove('active'); $('promoInput').value = ''; }
+    function applyPromo() {
+      const code = $('promoInput').value.trim();
+      if (code === PROMO_CODE) {
+        settings.coins += 1000;
+        saveSettings(); updateUI();
+        alert(`✅ Успешно! +1000 коинов. Баланс: ${settings.coins}`);
+        closePromo();
+      } else {
+        alert('❌ Неверный код. Попробуйте снова.');
+      }
+    }
 
     // Backup
     function exportData() {
@@ -407,7 +493,7 @@
     function importData(input) {
       const f = input.files[0]; if(!f) return;
       const r = new FileReader(); r.onload = e => {
-        try { orders = JSON.parse(e.target.result); save(); applyFilters(); alert('✅ Импорт успешен'); }
+        try { orders = JSON.parse(e.target.result); save(); applyFilters(); updateUI(); alert('✅ Импорт успешен'); }
         catch { alert('❌ Ошибка формата'); }
       }; r.readAsText(f); input.value='';
     }
