@@ -1,1572 +1,350 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-<title>Кабинет оператора</title>
-<meta name="theme-color" content="#3B4256">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Кабинет оператора">
-<meta name="description" content="Система учёта заказов для оператора">
-<meta name="format-detection" content="telephone=no">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<style>
-:root {
---bg: #F0F1F3; --card: #CDD0D9; --text: #3B4256; --text-muted: #6B7285;
---accent-blue: #3B4256; --accent-blue-dark: #2D3344; --accent-white: #F0F1F3;
---accent-solid: #3B4256; --accent-red: #DC2626; --accent-green: #16A34A;
---accent-orange: #F59E0B; --border: #9CA1B4; --shadow-light: #FFFFFF; --shadow-dark: #9CA1B4;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
-body { background: var(--bg); color: var(--text); padding: 0; min-height: 100vh; line-height: 1.4; overflow-x: hidden; }
-.header-bar { position: fixed; top: 0; left: 0; width: 100%; background: var(--card); padding: 12px 16px; display: flex; align-items: center; gap: 12px; z-index: 200; box-shadow: 0 4px 12px rgba(59, 66, 86, 0.15); }
-.avatar-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-solid); display: flex; align-items: center; justify-content: center; color: #F0F1F3; font-weight: bold; font-size: 18px; cursor: pointer; overflow: hidden; }
-.avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
-.avatar-btn i { pointer-events: none; }
-.search-container { flex: 1; position: relative; }
-.search-input { width: 100%; padding: 8px 12px 8px 36px; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; color: var(--text); font-size: 0.95rem; }
-.search-input::placeholder { color: var(--text-muted); }
-.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
-.main-content { padding: 72px 16px 80px; max-width: 768px; margin: 0 auto; }
-.glass-panel { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; justify-content: space-around; height: 52px; width: calc(100% - 40px); max-width: 500px; border-radius: 30px; padding: 0 5px; background: rgba(205, 208, 217, 0.85); backdrop-filter: blur(20px); box-shadow: 0 6px 24px rgba(59, 66, 86, 0.15); border: 1px solid var(--border); z-index: 200; }
-.panel-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-muted); font-size: 0.65rem; text-align: center; cursor: pointer; padding: 4px 2px; user-select: none; flex: 1; transition: color 0.2s; }
-.panel-item i { font-size: 1.1rem; margin-bottom: 2px; }
-.panel-item.active { color: var(--accent-solid); }
-.neu-btn { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; font-weight: 600; color: var(--text); cursor: pointer; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-.neu-btn:active { box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); transform: scale(0.98); }
-.neu-btn-accent { background: var(--accent-solid); color: #F0F1F3; border-color: var(--accent-solid); box-shadow: 4px 4px 8px rgba(59, 66, 86, 0.3), -2px -2px 6px rgba(255, 255, 255, 0.5); }
-.neu-btn-accent:hover { background: var(--accent-blue-dark); }
-.neu-btn-danger { background: var(--accent-red); color: #F0F1F3; border-color: var(--accent-red); }
-.neu-input, .neu-select { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: var(--text); box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); width: 100%; }
-.progress-container { height: 24px; background: var(--card); border-radius: 12px; overflow: hidden; margin: 12px 0; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); }
-.progress-fill { height: 100%; border-radius: 12px; background: var(--accent-solid); width: 0; transition: width 1.2s cubic-bezier(0.22, 0.61, 0.36, 1); }
-.bar-container { height: 28px; background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); }
-.bar-fill { height: 100%; background: var(--accent-solid); border-radius: 14px; width: 0; transition: width 1.4s cubic-bezier(0.22, 0.61, 0.36, 1); }
-.status-bar { display: flex; align-items: center; gap: 6px; padding: 8px 0; margin: 8px 0; }
-.step { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
-.step.active { background: var(--accent-solid); box-shadow: 0 0 8px rgba(59, 66, 86, 0.4); }
-.step.current { background: var(--accent-blue-dark); box-shadow: 0 0 0 2px rgba(59, 66, 86, 0.3); }
-.step.completed { background: var(--accent-green); box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.4); }
-.content-block { display: none; }
-.content-block.active { display: block; animation: fadeIn 0.3s ease-out; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(59, 66, 86, 0.7); z-index:1000; justify-content:center; align-items:center; }
-.modal.active { display: flex; }
-.modal-content { background: var(--card); padding: 24px; border-radius: 12px; max-width: 400px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); border: 1px solid var(--border); }
-.modal-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 16px; color: var(--accent-solid); }
-.orders-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-.orders-table th, .orders-table td { padding: 12px 8px; text-align: left; border-bottom: 1px solid var(--border); }
-.orders-table th { color: var(--accent-solid); font-weight: 600; }
-.orders-table .amount { color: var(--accent-solid); font-weight: 600; }
-.empty-msg { text-align: center; color: var(--text-muted); padding: 20px; font-style: italic; }
-.action-btn { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); transition: all 0.2s; }
-.action-btn:hover { background: var(--accent-solid); color: #F0F1F3; }
-.action-btn:active { transform: scale(0.95); }
-.hidden { display: none !important; }
-.calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.calendar-nav-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-.calendar-day { aspect-ratio: 1; background: var(--card); border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); transition: all 0.2s; border: 1px solid var(--border); }
-.calendar-day:hover { transform: translateY(-2px); }
-.calendar-day.today { border-color: var(--accent-solid); border-width: 2px; }
-.calendar-day.worked { background: var(--accent-green); color: #fff; border-color: var(--accent-green); }
-.calendar-day.weekend { opacity: 0.8; border-color: var(--accent-red); }
-.calendar-day.holiday { border-color: var(--accent-red); border-width: 2px; }
-.calendar-day .day-num { font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; }
-.calendar-day .day-earnings { font-size: 0.65rem; font-weight: 600; opacity: 0.95; text-align: center; }
-.calendar-day .holiday-icon { position: absolute; top: 4px; right: 4px; font-size: 0.7rem; color: var(--accent-red); background: rgba(255,255,255,0.8); border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; }
-.progress-title { margin: 16px 0 8px; color: var(--text-muted); font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
-.progress-title i { color: var(--accent-solid); }
-.progress-label { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted); }
-.modal-row { margin-bottom: 12px; }
-.modal-row label { display: block; margin-bottom: 6px; color: var(--text-muted); font-size: 0.9rem; }
-.modal-buttons { display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end; }
-.checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-.checkbox-row input { width: 18px; height: 18px; accent-color: var(--accent-solid); }
-.toast-container { position: fixed; top: 80px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-.toast { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light); animation: slideIn 0.3s ease-out; pointer-events: auto; min-width: 250px; border-left: 4px solid transparent; }
-.toast-icon { font-size: 1.5rem; }
-.toast-content { display: flex; flex-direction: column; }
-.toast-title { font-weight: 600; font-size: 0.9rem; }
-.toast-msg { font-size: 0.8rem; color: var(--text-muted); }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes fadeOut { to { opacity: 0; transform: translateX(100%); } }
-.install-prompt { display: none; position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--accent-solid); color: #F0F1F3; padding: 16px 24px; border-radius: 12px; box-shadow: 0 8px 24px rgba(59, 66, 86, 0.4); z-index: 1000; text-align: center; max-width: 90%; width: 400px; }
-.install-prompt.show { display: block; animation: slideUp 0.3s ease-out; }
-@keyframes slideUp { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-.install-prompt-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }
-.install-prompt button { padding: 8px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
-.install-prompt .install-btn { background: #F0F1F3; color: var(--accent-solid); }
-.install-prompt .later-btn { background: transparent; color: #F0F1F3; border: 1px solid #F0F1F3; }
-.photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-top: 16px; }
-.photo-card { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); border: 1px solid var(--border); position: relative; aspect-ratio: 1; display: flex; flex-direction: column; }
-.photo-card img { width: 100%; height: 100%; object-fit: cover; flex: 1; }
-.photo-tag { position: absolute; top: 6px; left: 6px; padding: 3px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.3); z-index: 10; pointer-events: none; }
-.tag-RASPIL_M2 { background-color: #3B82F6; }
-.tag-LINEAR_RASPIL { background-color: #10B981; }
-.tag-SKLEIKA_OB { background-color: #8B5CF6; }
-.tag-SKLEIKA_NO_OB { background-color: #6D28D9; }
-.tag-PAZY { background-color: #F59E0B; }
-.tag-FREZER_FASKA { background-color: #EC4899; }
-.tag-TIME { background-color: #6B7285; }
-.tag-UNKNOWN { background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
-.photo-tag-selector { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 15; width: 90%; text-align: center; opacity: 0; transition: opacity 0.2s; }
-.photo-card:hover .photo-tag-selector { opacity: 1; }
-@media (max-width: 600px) { .photo-tag-selector { opacity: 1; bottom: 36px; } }
-.tag-select-mini { width: 100%; font-size: 0.7rem; padding: 4px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.5); background: rgba(59, 66, 86, 0.9); color: white; outline: none; cursor: pointer; backdrop-filter: blur(4px); }
-.tag-select-mini option { background: var(--card); color: var(--text); }
-.photo-actions { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(59, 66, 86, 0.95); display: flex; justify-content: space-around; padding: 6px 0; z-index: 20; }
-.photo-action-btn { background: none; border: none; color: white; font-size: 1.1rem; cursor: pointer; padding: 4px; }
-.photo-action-btn.delete { color: #ff6b6b; }
-.photo-action-btn.edit { color: #4ecdc4; }
-.capture-btn-container { display: flex; justify-content: center; margin-bottom: 20px; }
-.capture-btn { width: 60px; height: 60px; border-radius: 50%; background: var(--accent-solid); color: white; border: 4px solid var(--bg); box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.zoom-preview-container { position: relative; text-align: center; margin-bottom: 15px; }
-.zoom-preview-img { max-width: 100%; max-height: 150px; border-radius: 8px; border: 1px solid var(--border); }
-.zoom-btn { position: absolute; bottom: 8px; right: 8px; background: rgba(59, 66, 86, 0.8); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.zoom-btn:hover { background: var(--accent-solid); }
-#photoZoomModal .modal-content { max-width: 95%; width: 95%; height: 95%; background: rgba(0,0,0,0.9); border: none; box-shadow: none; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-#photoZoomModal img { max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 4px; }
-#photoZoomModal .close-zoom-btn { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.size-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-bottom: 8px; align-items: end; }
-.size-row label { display: block; margin-bottom: 4px; color: var(--text-muted); font-size: 0.8rem; }
-.size-input-wrapper { display: flex; flex-direction: column; }
-.add-size-btn { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-solid); color: #F0F1F3; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); transition: all 0.2s; margin-top: auto; }
-.add-size-btn:hover { background: var(--accent-blue-dark); transform: scale(1.05); }
-.remove-size-btn { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-red); color: #F0F1F3; border: none; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 2px 2px 4px var(--shadow-dark), -2px -2px 4px var(--shadow-light); transition: all 0.2s; margin-top: auto; }
-.remove-size-btn:hover { background: #B91C1C; transform: scale(1.05); }
-.size-rows-container { margin: 12px 0; padding: 12px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); }
-.size-total-display { font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; text-align: right; }
-#importModeIndicator { position: fixed; top: 70px; right: 20px; background: var(--accent-solid); color: #F0F1F3; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; z-index: 150; display: none; animation: pulse 2s infinite; box-shadow: 0 4px 12px rgba(59, 66, 86, 0.3); }
-#importModeIndicator.show { display: flex; align-items: center; gap: 8px; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
-#appLoader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; transition: opacity 0.3s ease-out; }
-#appLoader.hidden { opacity: 0; pointer-events: none; }
-.spinner { width: 50px; height: 50px; border: 4px solid var(--border); border-top-color: var(--accent-solid); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.tariff-settings-panel { background: var(--card); border-radius: 12px; padding: 16px; margin: 16px 0; border: 1px solid var(--border); }
-.tariff-list { display: flex; flex-direction: column; gap: 12px; margin: 12px 0; }
-.tariff-item { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center; padding: 8px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); }
-.tariff-item input, .tariff-item select { padding: 6px 8px; font-size: 0.85rem; }
-.tariff-actions { display: flex; gap: 4px; }
-.tariff-actions button { width: 28px; height: 28px; border-radius: 6px; font-size: 0.8rem; }
-#adModal .modal-content { max-width: 90%; text-align: center; background: #fff; }
-#adModal .ad-banner { width: 100%; max-width: 320px; height: auto; border-radius: 8px; margin: 16px 0; border: 2px solid var(--border); }
-#adModal .ad-timer { font-size: 1.5rem; font-weight: bold; color: var(--accent-red); margin: 8px 0; }
-#adModal .ad-text { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 12px; }
-.month-earnings-locked { cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: var(--accent-orange); font-weight: 600; }
-.month-earnings-locked:hover { color: var(--accent-solid); }
-.month-earnings-unlocked { color: var(--accent-green); font-weight: 700; }
-.details-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed var(--border); }
-.details-label { color: var(--text-muted); }
-.details-value { font-weight: 600; }
-.chart-container { margin-top: 20px; }
-.chart-title { font-size: 1rem; font-weight: 600; margin-bottom: 12px; color: var(--accent-solid); display: flex; align-items: center; gap: 8px; }
-.bar-item { margin-bottom: 12px; }
-.bar-label { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
-.dynamic-unit-label { font-weight: 600; color: var(--accent-solid); }
-@media (max-width: 480px) {
-.glass-panel { bottom: 16px; height: 56px; width: calc(100% - 32px); }
-.panel-item { font-size: 0.6rem; gap: 1px; }
-.search-input { font-size: 0.9rem; padding: 7px 10px 7px 32px; }
-.modal-content { padding: 16px; }
-.toast-container { right: 10px; top: 70px; }
-.toast { min-width: 200px; padding: 10px 12px; }
-.tariff-item { grid-template-columns: 1fr; }
-.tariff-actions { justify-content: flex-end; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Учет ремонтов | Авито</title>
+  <style>
+    :root {
+      --bg: #f8fafc; --card: #fff; --text: #0f172a; --muted: #64748b;
+      --primary: #3b82f6; --primary-hover: #2563eb; --danger: #ef4444;
+      --success: #22c55e; --warning: #f59e0b; --border: #e2e8f0;
+      --radius: 8px; --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    h1 { font-size: 1.5rem; font-weight: 600; }
+    .btn { padding: 8px 14px; border: none; border-radius: var(--radius); cursor: pointer; font-weight: 500; transition: 0.2s; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-danger { background: var(--danger); color: white; }
+    
+    .controls { background: var(--card); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .controls input, .controls select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); }
+    
+    .table-wrapper { overflow-x: auto; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { background: #f1f5f9; font-weight: 600; position: sticky; top: 0; }
+    tr:hover { background: #f8fafc; }
+    .status { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; display: inline-block; }
+    .status-ordered { background: #dbeafe; color: #1e40af; }
+    .status-bought { background: #fef3c7; color: #92400e; }
+    .status-instok { background: #dcfce7; color: #166534; }
+    .status-search { background: #f3f4f6; color: #4b5563; }
+    
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 100; }
+    .modal.active { display: flex; }
+    .modal-content { background: var(--card); padding: 24px; border-radius: var(--radius); width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+    .form-group input, .form-group select, .form-group textarea { padding: 8px; border: 1px solid var(--border); border-radius: 6px; }
+    
+    .parts-section { margin-top: 16px; border: 1px dashed var(--border); padding: 12px; border-radius: var(--radius); }
+    .part-row { display: grid; grid-template-columns: 2fr 1.5fr 1fr 40px; gap: 8px; margin-bottom: 8px; align-items: end; }
+    .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; background: #f8fafc; padding: 12px; border-radius: 6px; }
+    .total-card { text-align: center; }
+    .total-card .val { font-size: 1.1rem; font-weight: 700; }
+    .total-card.profit .val { color: var(--success); }
+    
+    .actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+    .hidden { display: none; }
+    .empty { text-align: center; padding: 40px; color: var(--muted); }
+    .file-input { display: none; }
+  </style>
 </head>
 <body>
-<div id="appLoader"><div class="spinner"></div></div>
 
-<div class="header-bar">
-<div class="avatar-btn" id="avatarBtn" title="Загрузить аватар"><i class="fas fa-user"></i></div>
-<div class="search-container">
-<i class="fas fa-search search-icon"></i>
-<input type="text" class="search-input" id="orderSearch" placeholder="Поиск по № заказа..." autocomplete="off">
-</div>
-</div>
-
-<div class="main-content" id="mainContent">
-<div id="main" class="content-block active">
-<div>
-    <h2>Александр<span id="opId"></span></h2>
-    <p>Всего: <b><span id="totalAll">0.00</span> ₽</b></p>
-    <p style="font-size:0.9rem; color:var(--text-muted); margin:4px 0 0;">
-        За месяц: <b>
-            <span id="monthEarnedLocked" class="month-earnings-locked" title="Нажмите чтобы посмотреть">
-                <i class="fas fa-lock"></i> 0/5 просмотров
-            </span>
-            <span id="monthEarnedUnlocked" class="month-earnings-unlocked hidden">
-                <span id="monthEarned">0.00</span> ₽
-            </span>
-        </b>
-    </p>
-</div>
-<div class="progress-title"><i class="fas fa-bullseye"></i> План: <b>3000 ₽</b></div>
-<div class="status-bar" id="planStatusBar">
-<div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
-<div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
-<div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
-<div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div><div class="step"></div>
-</div>
-<div class="progress-label"><span>Текущая смена:</span><span><b><span id="todayEarned">0.00</span> ₽</b></span></div>
-<div class="progress-label"><span id="shiftStatus">Смена не начата</span></div>
-<div style="margin: 24px 0;">
-<button class="neu-btn neu-btn-accent" onclick="startShift()"><i class="fas fa-play"></i> Начать смену</button>
-<button class="neu-btn neu-btn-accent" onclick="endShift()" style="margin-left: 12px;"><i class="fas fa-stop"></i> Завершить смену</button>
-</div>
-
-<div class="tariff-settings-panel">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <div class="progress-title" style="margin:0;"><i class="fas fa-cog"></i> Настройки тарифов</div>
-        <button class="neu-btn" onclick="openTariffSettings()" style="padding:6px 12px; font-size:0.85rem;"><i class="fas fa-edit"></i> Редактировать</button>
+  <header>
+    <h1>🛠️ Учет ремонтов</h1>
+    <div>
+      <button class="btn btn-outline" onclick="exportData()">📥 Экспорт JSON</button>
+      <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">📤 Импорт JSON</button>
+      <input type="file" id="importFile" class="file-input" accept=".json" onchange="importData(this)">
+      <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
     </div>
-    <div id="tariffSummary"></div>
-</div>
-
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-plus"></i> Новый заказ</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;">
-<div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="orderNum" class="neu-input" placeholder="ORD-001" autocomplete="off"></div>
-<div><label style="display: block; margin-bottom: 6px;">Тариф</label><select id="tariff" class="neu-select"></select></div>
-</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;">
-<div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="detail" class="neu-input" placeholder="Название" autocomplete="off"></div>
-<div><label style="display: block; margin-bottom: 6px;">Кол-во</label><input type="number" id="qty" value="1" min="1" class="neu-input"></div>
-</div>
-
-<!-- ДИНАМИЧЕСКОЕ ПОЛЕ ВВОДА (одно универсальное поле) -->
-<div style="margin: 12px 0;" id="mainValueGroup">
-    <label style="display: block; margin-bottom: 6px;" id="mainValueLabel">Значение (<span id="mainValueUnit">м²</span>)</label>
-    <input type="number" step="0.01" id="mainValue" class="neu-input" placeholder="0.00">
-</div>
-
-<!-- Дополнительное поле для квадратных метров (ширина) -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="mainAreaInputs" class="hidden">
-    <div><label style="display: block; margin-bottom: 6px;" id="mainAreaLabel1">Длина (<span id="mainAreaUnit1">м</span>)</label><input type="number" step="0.01" id="mainArea1" class="neu-input" placeholder="0.00"></div>
-    <div><label style="display: block; margin-bottom: 6px;" id="mainAreaLabel2">Ширина (<span id="mainAreaUnit2">м</span>)</label><input type="number" step="0.01" id="mainArea2" class="neu-input" placeholder="0.00"></div>
-</div>
-
-<!-- Поле для времени -->
-<div style="margin: 12px 0;" id="mainTimeGroup" class="hidden">
-    <label style="display: block; margin-bottom: 6px;">Часы работы</label>
-    <input type="number" step="0.1" id="mainTime" class="neu-input" placeholder="0.0">
-</div>
-
-<button class="neu-btn neu-btn-accent" onclick="createMainOrderWithSound()" style="margin-top: 12px;"><i class="fas fa-check"></i> Создать заказ</button>
-
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-history"></i> Заказы по дате</div>
-<div style="display: grid; grid-template-columns: 1fr; gap: 16px; margin: 16px 0;">
-<div><label style="display: block; margin-bottom: 6px;">Дата</label><input type="date" id="viewDate" class="neu-input" value=""></div>
-</div>
-<div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
-<button class="neu-btn neu-btn-accent" onclick="showOrdersByDate()"><i class="fas fa-eye"></i> Показать</button>
-<button class="neu-btn" onclick="saveOrdersToFile()"><i class="fas fa-download"></i> В TXT</button>
-<button class="neu-btn" onclick="saveOrdersToJSON()"><i class="fas fa-file-code"></i> В JSON</button>
-</div>
-<div id="ordersListContainer" style="margin-top: 24px;"></div>
-</div>
-
-<div id="preorders" class="content-block">
-<div class="container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-clock"></i> Предзаказы</h2>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-<div><label style="display: block; margin-bottom: 6px;">№ заказа</label><input type="text" id="preOrderNum" class="neu-input" placeholder="PRE-001" autocomplete="off"></div>
-<div><label style="display: block; margin-bottom: 6px;">Тариф</label><select id="preTariff" class="neu-select"></select></div>
-</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
-<div><label style="display: block; margin-bottom: 6px;">Деталь</label><input type="text" id="preDetail" class="neu-input" placeholder="Название" autocomplete="off"></div>
-<div><label style="display: block; margin-bottom: 6px;">Кол-во</label><input type="number" id="preQty" value="1" min="1" class="neu-input"></div>
-</div>
-
-<!-- ДИНАМИЧЕСКОЕ ПОЛЕ ВВОДА для предзаказов -->
-<div style="margin: 12px 0;" id="preValueGroup">
-    <label style="display: block; margin-bottom: 6px;" id="preValueLabel">Значение (<span id="preValueUnit">м²</span>)</label>
-    <input type="number" step="0.01" id="preValue" class="neu-input" placeholder="0.00">
-</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0;" id="preAreaInputs" class="hidden">
-    <div><label style="display: block; margin-bottom: 6px;" id="preAreaLabel1">Длина (<span id="preAreaUnit1">м</span>)</label><input type="number" step="0.01" id="preArea1" class="neu-input" placeholder="0.00"></div>
-    <div><label style="display: block; margin-bottom: 6px;" id="preAreaLabel2">Ширина (<span id="preAreaUnit2">м</span>)</label><input type="number" step="0.01" id="preArea2" class="neu-input" placeholder="0.00"></div>
-</div>
-<div style="margin: 12px 0;" id="preTimeGroup" class="hidden">
-    <label style="display: block; margin-bottom: 6px;">Часы работы</label>
-    <input type="number" step="0.1" id="preTime" class="neu-input" placeholder="0.0">
-</div>
-
-<div style="display: flex; gap: 12px; margin-top: 12px; flex-wrap: wrap;">
-<button class="neu-btn neu-btn-accent" onclick="createPreorder()"><i class="fas fa-save"></i> Сохранить предзаказ</button>
-<button class="neu-btn" onclick="document.getElementById('jsonImportInput').click()"><i class="fas fa-upload"></i> Загрузить</button>
-<button class="neu-btn neu-btn-accent" onclick="document.getElementById('jsonImportInput').click(); autoAcceptMode=true; updateImportModeIndicator();"><i class="fas fa-bolt"></i> Загрузить и принять</button>
-</div>
-<input type="file" id="jsonImportInput" accept=".txt,.json" multiple style="display: none;" />
-<small style="color: var(--text-muted); display: block; margin-top: 8px;"><i class="fas fa-info-circle"></i> Дата берётся из файла</small>
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-list"></i> Список предзаказов</div>
-<div id="preordersListContainer" style="margin-top: 16px;"></div>
-</div>
-</div>
-
-<div id="calendar" class="content-block">
-<div class="container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-calendar-alt"></i> Календарь заработка</h2>
-<div class="calendar-header">
-<button class="calendar-nav-btn" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
-<div style="font-size: 1.2rem; font-weight: 600;" id="calendarMonthYear"></div>
-<button class="calendar-nav-btn" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
-</div>
-<div class="calendar-grid" id="calendarGrid"></div>
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-info-circle"></i> Легенда</div>
-<div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; color: var(--text-muted);">
-<div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:4px; background:var(--accent-green);"></div> Были заказы</div>
-<div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:4px; background:var(--card); border:1px solid var(--border);"></div> Нет заказов</div>
-<div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:4px; border:2px solid var(--accent-red);"></div> Выходной</div>
-<div style="display:flex; align-items:center; gap:6px;"><div style="width:12px; height:12px; border-radius:4px; border:2px solid var(--accent-solid);"></div> Сегодня</div>
-</div>
-</div>
-</div>
-
-<div id="photos" class="content-block">
-<div class="container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-camera"></i> Фото заказов</h2>
-<p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px; text-align: center;"><i class="fas fa-info-circle"></i> Выберите тариф на фото для ярлыка</p>
-<div class="capture-btn-container">
-<label for="cameraInput" class="capture-btn" title="Сделать фото"><i class="fas fa-camera"></i></label>
-<input type="file" id="cameraInput" accept="image/*" capture="environment" style="display: none;" />
-</div>
-<div class="progress-title"><i class="fas fa-images"></i> Галерея</div>
-<div id="photosListContainer" class="photo-grid"></div>
-</div>
-</div>
-
-<div id="stats" class="content-block">
-<div class="container">
-<h2 style="color: var(--accent-solid); margin-bottom: 16px;"><i class="fas fa-chart-bar"></i> Статистика</h2>
-<div class="progress-title" style="margin-top: 24px;"><i class="fas fa-file-export"></i> Экспорт отчета</div>
-<div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; margin: 12px 0;">
-    <div><label style="display: block; margin-bottom: 6px; font-size: 0.9rem;">С даты</label><input type="date" id="reportDateFrom" class="neu-input" value=""></div>
-    <div><label style="display: block; margin-bottom: 6px; font-size: 0.9rem;">По дату</label><input type="date" id="reportDateTo" class="neu-input" value=""></div>
-    <button class="neu-btn neu-btn-accent" onclick="exportReportToExcel()" style="height: 42px; white-space: nowrap;"><i class="fas fa-file-excel"></i> Скачать</button>
-</div>
-<div class="progress-title"><i class="fas fa-ruler-horizontal"></i> Линейные</div>
-<div class="progress-container"><div class="progress-fill" id="linearProgress"></div></div>
-<div class="progress-label"><span>Всего</span><span><b id="linearTotal">0.0</b> <span id="linearUnit">м</span></span></div>
-<div class="progress-title"><i class="fas fa-border-all"></i> Квадратные</div>
-<div class="progress-container"><div class="progress-fill" id="areaProgress"></div></div>
-<div class="progress-label"><span>Всего</span><span><b id="areaTotal">0.0</b> <span id="areaUnit">м²</span></span></div>
-<div class="progress-title"><i class="fas fa-clock"></i> Время</div>
-<div class="progress-container"><div class="progress-fill" id="timeProgress"></div></div>
-<div class="progress-label"><span>Всего</span><span><b id="timeTotal">0.0</b> <span id="timeUnit">ч</span></span></div>
-<div class="chart-container">
-<div class="chart-title"><i class="fas fa-tasks"></i> Популярность операций</div>
-<div id="operationsChart"><p style="color: var(--text-muted); text-align: center;">Данные появятся после создания заказов</p></div>
-</div>
-</div>
-</div>
-</div>
-
-<div class="glass-panel">
-<div class="panel-item active" data-target="main"><i class="fas fa-home"></i><span>Основное</span></div>
-<div class="panel-item" data-target="preorders"><i class="fas fa-clock"></i><span>Предзаказы</span></div>
-<div class="panel-item" data-target="calendar"><i class="fas fa-calendar-alt"></i><span>Календарь</span></div>
-<div class="panel-item" data-target="photos"><i class="fas fa-camera"></i><span>Фото</span></div>
-<div class="panel-item" data-target="stats"><i class="fas fa-chart-bar"></i><span>Статистика</span></div>
-</div>
-
-<input type="file" id="avatarUpload" accept="image/jpeg,image/png,image/webp" style="display: none;" />
-<div id="toastContainer" class="toast-container"></div>
-<div id="importModeIndicator"><i class="fas fa-bolt"></i><span>Режим: авто-приём</span></div>
-<div id="installPrompt" class="install-prompt">
-<div style="font-size: 1.1rem; margin-bottom: 8px;">📱 Установить приложение</div>
-<div style="font-size: 0.9rem; opacity: 0.9;">Установите приложение для быстрого доступа</div>
-<div class="install-prompt-buttons">
-<button class="install-btn" onclick="installApp()">Установить</button>
-<button class="later-btn" onclick="closeInstallPrompt()">Позже</button>
-</div>
-</div>
-
-<!-- Модальные окна -->
-<div id="editModal" class="modal">
-<div class="modal-content">
-<div class="modal-title">Редактировать заказ</div>
-<input type="hidden" id="editOrderId">
-<div class="modal-row"><label>№ заказа</label><input type="text" id="editOrderNum" class="neu-input" autocomplete="off"></div>
-<div class="modal-row"><label>Деталь</label><input type="text" id="editDetail" class="neu-input" autocomplete="off"></div>
-<div class="modal-row"><label>Тариф</label><select id="editTariff" class="neu-select"></select></div>
-<div class="modal-row"><label>Кол-во</label><input type="number" id="editQty" min="1" class="neu-input"></div>
-
-<!-- ДИНАМИЧЕСКИЕ ПОЛЯ для редактирования -->
-<div class="modal-row" id="editValueGroup">
-    <label id="editValueLabel">Значение (<span id="editValueUnit">м²</span>)</label>
-    <input type="number" step="0.01" id="editValue" class="neu-input">
-</div>
-<div class="modal-row hidden" id="editAreaInputs">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <div><label id="editAreaLabel1">Длина (<span id="editAreaUnit1">м</span>)</label><input type="number" step="0.01" id="editArea1" class="neu-input"></div>
-        <div><label id="editAreaLabel2">Ширина (<span id="editAreaUnit2">м</span>)</label><input type="number" step="0.01" id="editArea2" class="neu-input"></div>
-    </div>
-</div>
-<div class="modal-row hidden" id="editTimeGroup">
-    <label>Часы работы</label>
-    <input type="number" step="0.1" id="editTime" class="neu-input">
-</div>
-
-<div class="modal-buttons"><button class="neu-btn" onclick="closeEditModal()">Отмена</button><button class="neu-btn neu-btn-accent" onclick="saveEditedOrder()">Сохранить</button></div>
-</div>
-</div>
-
-<div id="dateModal" class="modal">
-<div class="modal-content">
-<div class="modal-title">Выберите дату для заказа</div>
-<div class="modal-row"><label>Дата</label><input type="date" id="modalDate" class="neu-input"></div>
-<div class="modal-buttons"><button class="neu-btn" onclick="closeDateModal()">Отмена</button><button class="neu-btn neu-btn-accent" onclick="confirmDateSelection()">Подтвердить</button></div>
-</div>
-</div>
-
-<div id="detailsModal" class="modal">
-<div class="modal-content">
-<div class="modal-title">Детали заказа</div>
-<div id="detailsContent"></div>
-<div class="modal-buttons"><button class="neu-btn" onclick="closeDetailsModal()">Закрыть</button></div>
-</div>
-</div>
-
-<div id="dayModal" class="modal">
-<div class="modal-content">
-<div class="modal-title">Редактирование дня</div>
-<input type="hidden" id="editDayDate">
-<div class="modal-row"><label>Дата</label><div id="displayDayDate" style="font-weight:600;"></div></div>
-<div class="modal-row"><label>Отработано часов</label><input type="number" id="dayHours" step="0.5" min="0" class="neu-input" placeholder="0"></div>
-<div class="checkbox-row"><input type="checkbox" id="dayHoliday"><label for="dayHoliday" style="margin:0; cursor:pointer;">Праздничный день</label></div>
-<div class="modal-buttons"><button class="neu-btn" onclick="closeDayModal()">Отмена</button><button class="neu-btn neu-btn-accent" onclick="saveDayData()">Сохранить</button></div>
-</div>
-</div>
-
-<div id="photoOrderModal" class="modal">
-<div class="modal-content">
-<div class="modal-title">Оформить заказ по фото</div>
-<div class="zoom-preview-container">
-<img id="photoPreviewImg" src="" alt="Preview" class="zoom-preview-img">
-<button class="zoom-btn" onclick="openPhotoZoom()"><i class="fas fa-search-plus"></i></button>
-</div>
-<div class="modal-row"><label>№ заказа</label><input type="text" id="photoOrderNum" class="neu-input" placeholder="ORD-001" autocomplete="off"></div>
-<div class="modal-row"><label>Тариф</label><select id="photoTariff" class="neu-select"></select></div>
-<div class="modal-row"><label>Деталь</label><input type="text" id="photoDetail" class="neu-input" placeholder="Название" autocomplete="off"></div>
-<div class="modal-row"><label>Кол-во</label><input type="number" id="photoQty" value="1" min="1" class="neu-input"></div>
-
-<!-- ДИНАМИЧЕСКИЕ ПОЛЯ для фото -->
-<div class="modal-row" id="photoValueGroup">
-    <label id="photoValueLabel">Значение (<span id="photoValueUnit">м²</span>)</label>
-    <input type="number" step="0.01" id="photoValue" class="neu-input" placeholder="0.00">
-</div>
-<div class="modal-row hidden" id="photoAreaInputs">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <div><label id="photoAreaLabel1">Длина (<span id="photoAreaUnit1">м</span>)</label><input type="number" step="0.01" id="photoArea1" class="neu-input" placeholder="0.00"></div>
-        <div><label id="photoAreaLabel2">Ширина (<span id="photoAreaUnit2">м</span>)</label><input type="number" step="0.01" id="photoArea2" class="neu-input" placeholder="0.00"></div>
-    </div>
-</div>
-<div class="modal-row hidden" id="photoTimeGroup">
-    <label>Часы работы</label>
-    <input type="number" step="0.1" id="photoTime" class="neu-input" placeholder="0.0">
-</div>
-
-<div class="modal-buttons"><button class="neu-btn" onclick="closePhotoOrderModal()">Отмена</button><button class="neu-btn neu-btn-accent" onclick="confirmPhotoOrder()">Оформить</button></div>
-</div>
-</div>
-
-<div id="photoZoomModal" class="modal">
-<div class="modal-content">
-<button class="close-zoom-btn" onclick="closePhotoZoom()"><i class="fas fa-times"></i></button>
-<img id="zoomedImage" src="" alt="Zoomed Photo">
-</div>
-</div>
-
-<div id="tariffSettingsModal" class="modal">
-<div class="modal-content" style="max-width: 500px;">
-<div class="modal-title"><i class="fas fa-cog"></i> Управление тарифами</div>
-<div class="tariff-list" id="tariffList"></div>
-<button class="neu-btn neu-btn-accent" onclick="addNewTariff()" style="width:100%; margin:12px 0;"><i class="fas fa-plus"></i> Добавить тариф</button>
-<div style="display:flex; gap:8px; margin-top:16px;">
-<button class="neu-btn" onclick="exportTariffs()" style="flex:1;"><i class="fas fa-download"></i> Экспорт</button>
-<button class="neu-btn" onclick="document.getElementById('tariffImportInput').click()" style="flex:1;"><i class="fas fa-upload"></i> Импорт</button>
-<input type="file" id="tariffImportInput" accept=".json" style="display:none;" onchange="importTariffs(this)">
-</div>
-<div class="modal-buttons">
-<button class="neu-btn" onclick="closeTariffSettings()">Закрыть</button>
-<button class="neu-btn neu-btn-accent" onclick="saveTariffSettings()">Сохранить все</button>
-</div>
-</div>
-</div>
-
-<div id="adModal" class="modal">
-<div class="modal-content">
-<div class="modal-title"><i class="fas fa-ad"></i> Рекламная интеграция</div>
-<p class="ad-text">Посмотрите рекламу, чтобы увидеть сумму заработка за месяц</p>
-<!-- ЗАМЕНИТЕ src НА ССЫЛКУ НА ВАШ БАННЕР С GITHUB -->
-<img id="adBanner" class="ad-banner" src="https://via.placeholder.com/320x100/3B4256/FFFFFF?text=Ваш+Баннер" alt="Реклама">
-<div class="ad-timer" id="adTimer">5</div>
-<p class="ad-text" style="font-size:0.8rem;">Реклама закроется автоматически</p>
-</div>
-</div>
-
-<script>
-// === КОНСТАНТЫ ===
-const DEFAULT_TARIFFS = [
-    { id: 'RASPIL_M2', name: 'Распил', unit: 'm2', unitLabel: 'м²', price: 65, isDefault: true },
-    { id: 'LINEAR_RASPIL', name: 'Лин. распил', unit: 'linear', unitLabel: 'пог. м', price: 26, isDefault: true },
-    { id: 'SKLEIKA_OB', name: 'Склейка +', unit: 'm2', unitLabel: 'м²', price: 210, isDefault: true },
-    { id: 'SKLEIKA_NO_OB', name: 'Склейка –', unit: 'm2', unitLabel: 'м²', price: 165, isDefault: true },
-    { id: 'PAZY', name: 'Пазы', unit: 'linear', unitLabel: 'пог. м', price: 30, isDefault: true },
-    { id: 'FREZER_FASKA', name: 'Фаска', unit: 'linear', unitLabel: 'пог. м', price: 16, isDefault: true },
-    { id: 'TIME', name: 'Время', unit: 'time', unitLabel: 'часы', price: 330, isDefault: true }
-];
-
-const UNIT_OPTIONS = [
-    { value: 'm2', label: 'м² (квадратные метры)' },
-    { value: 'linear', label: 'пог. м (погонные метры)' },
-    { value: 'km', label: 'км (километры)' },
-    { value: 'm', label: 'м (метры)' },
-    { value: 'l', label: 'л (литры)' },
-    { value: 'pcs', label: 'шт (штуки)' },
-    { value: 'time', label: 'часы (время)' },
-    { value: 'kg', label: 'кг (килограммы)' }
-];
-
-const AD_STORAGE_KEY = 'ad_month_earnings_views';
-const AD_VIEWS_PER_DAY = 5;
-
-// === ТАРИФЫ ===
-function getUnitLabel(unit) {
-    const map = { m2: 'м²', linear: 'пог. м', km: 'км', m: 'м', l: 'л', pcs: 'шт', time: 'часы', kg: 'кг' };
-    return map[unit] || unit;
-}
-
-function generateTariffId(name) {
-    return name.toUpperCase().replace(/[^A-Z0-9]/g, '_').slice(0, 20) + '_' + Date.now().toString(36).slice(-4);
-}
-
-let cachedTariffs = null, cacheTariffTimestamp = 0;
-
-function loadTariffs() {
-    try {
-        const saved = localStorage.getItem('operator_tariffs');
-        if (saved) return JSON.parse(saved).map(t => ({...t, unitLabel: t.unitLabel || getUnitLabel(t.unit), isDefault: t.isDefault||false}));
-    } catch (e) {}
-    return DEFAULT_TARIFFS.map(t => ({...t}));
-}
-
-function saveTariffs(tariffs) {
-    localStorage.setItem('operator_tariffs', JSON.stringify(tariffs));
-    cachedTariffs = tariffs; cacheTariffTimestamp = Date.now();
-}
-
-function getTariffs() {
-    const now = Date.now();
-    if (cachedTariffs && (now - cacheTariffTimestamp) < 10000) return cachedTariffs;
-    cachedTariffs = loadTariffs(); cacheTariffTimestamp = now;
-    return cachedTariffs;
-}
-
-function getTariffById(id) { return getTariffs().find(t => t.id === id); }
-
-function populateTariffSelect(selectId) {
-    const select = document.getElementById(selectId);
-    if (!select) return;
-    select.innerHTML = getTariffs().map(t => `<option value="${t.id}">${t.name} — ${t.price} ₽/${t.unitLabel}</option>`).join('');
-}
-
-// === ДИНАМИЧЕСКИЕ ПОЛЯ ВВОДА ===
-// Определяем тип тарифа для правильного отображения полей
-function getTariffInputType(tariff) {
-    if (!tariff) return 'value';
-    if (tariff.unit === 'time') return 'time';
-    if (tariff.unit === 'm2') return 'area'; // Для m2 показываем два поля (длина x ширина)
-    return 'value'; // Для всех остальных (linear, km, m, l, pcs, kg) — одно поле
-}
-
-function getTariffInputLabel(tariff) {
-    if (!tariff) return 'Значение';
-    if (tariff.unit === 'time') return 'Часы работы';
-    if (tariff.unit === 'm2') return 'Площадь (расчёт по размерам)';
-    // Для остальных единиц измерения
-    return `Количество (${tariff.unitLabel})`;
-}
-
-function getTariffInputPlaceholder(tariff) {
-    if (!tariff) return '0.00';
-    if (tariff.unit === 'time') return '0.0';
-    if (tariff.unit === 'pcs') return '0';
-    return '0.00';
-}
-
-// Обновляем поля основной формы
-function updateMainFormFields() {
-    const tariff = getTariffById(document.getElementById('tariff').value);
-    if (!tariff) return;
-    const type = getTariffInputType(tariff);
-    
-    const valueGroup = document.getElementById('mainValueGroup');
-    const areaInputs = document.getElementById('mainAreaInputs');
-    const timeGroup = document.getElementById('mainTimeGroup');
-    
-    valueGroup.classList.add('hidden');
-    areaInputs.classList.add('hidden');
-    timeGroup.classList.add('hidden');
-    
-    if (type === 'time') {
-        timeGroup.classList.remove('hidden');
-    } else if (type === 'area') {
-        areaInputs.classList.remove('hidden');
-        document.getElementById('mainAreaUnit1').textContent = tariff.unitLabel;
-        document.getElementById('mainAreaUnit2').textContent = tariff.unitLabel;
-        document.getElementById('mainAreaLabel1').innerHTML = `Длина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-        document.getElementById('mainAreaLabel2').innerHTML = `Ширина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-    } else {
-        valueGroup.classList.remove('hidden');
-        document.getElementById('mainValueLabel').innerHTML = getTariffInputLabel(tariff) + ` (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-        document.getElementById('mainValueUnit').textContent = tariff.unitLabel;
-        document.getElementById('mainValue').placeholder = getTariffInputPlaceholder(tariff);
-    }
-}
-
-// Обновляем поля формы предзаказов
-function updatePreorderFormFields() {
-    const tariff = getTariffById(document.getElementById('preTariff').value);
-    if (!tariff) return;
-    const type = getTariffInputType(tariff);
-    
-    const valueGroup = document.getElementById('preValueGroup');
-    const areaInputs = document.getElementById('preAreaInputs');
-    const timeGroup = document.getElementById('preTimeGroup');
-    
-    valueGroup.classList.add('hidden');
-    areaInputs.classList.add('hidden');
-    timeGroup.classList.add('hidden');
-    
-    if (type === 'time') {
-        timeGroup.classList.remove('hidden');
-    } else if (type === 'area') {
-        areaInputs.classList.remove('hidden');
-        document.getElementById('preAreaUnit1').textContent = tariff.unitLabel;
-        document.getElementById('preAreaUnit2').textContent = tariff.unitLabel;
-        document.getElementById('preAreaLabel1').innerHTML = `Длина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-        document.getElementById('preAreaLabel2').innerHTML = `Ширина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-    } else {
-        valueGroup.classList.remove('hidden');
-        document.getElementById('preValueLabel').innerHTML = getTariffInputLabel(tariff) + ` (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-        document.getElementById('preValueUnit').textContent = tariff.unitLabel;
-        document.getElementById('preValue').placeholder = getTariffInputPlaceholder(tariff);
-    }
-}
-
-// Обновляем поля формы редактирования
-function updateEditFormFields() {
-    const tariff = getTariffById(document.getElementById('editTariff').value);
-    if (!tariff) return;
-    const type = getTariffInputType(tariff);
-    
-    const valueGroup = document.getElementById('editValueGroup');
-    const areaInputs = document.getElementById('editAreaInputs');
-    const timeGroup = document.getElementById('editTimeGroup');
-    
-    valueGroup.classList.add('hidden');
-    areaInputs.classList.add('hidden');
-    timeGroup.classList.add('hidden');
-    
-    if (type === 'time') {
-        timeGroup.classList.remove('hidden');
-    } else if (type === 'area') {
-        areaInputs.classList.remove('hidden');
-        document.getElementById('editAreaUnit1').textContent = tariff.unitLabel;
-        document.getElementById('editAreaUnit2').textContent = tariff.unitLabel;
-        document.getElementById('editAreaLabel1').innerHTML = `Длина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-        document.getElementById('editAreaLabel2').innerHTML = `Ширина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-    } else {
-        valueGroup.classList.remove('hidden');
-        document.getElementById('editValueLabel').innerHTML = getTariffInputLabel(tariff) + ` (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-        document.getElementById('editValueUnit').textContent = tariff.unitLabel;
-        document.getElementById('editValue').placeholder = getTariffInputPlaceholder(tariff);
-    }
-}
-
-// Обновляем поля формы фото
-function updatePhotoFormFields() {
-    const tariff = getTariffById(document.getElementById('photoTariff').value);
-    if (!tariff) return;
-    const type = getTariffInputType(tariff);
-    
-    const valueGroup = document.getElementById('photoValueGroup');
-    const areaInputs = document.getElementById('photoAreaInputs');
-    const timeGroup = document.getElementById('photoTimeGroup');
-    
-    valueGroup.classList.add('hidden');
-    areaInputs.classList.add('hidden');
-    timeGroup.classList.add('hidden');
-    
-    if (type === 'time') {
-        timeGroup.classList.remove('hidden');
-    } else if (type === 'area') {
-        areaInputs.classList.remove('hidden');
-        document.getElementById('photoAreaUnit1').textContent = tariff.unitLabel;
-        document.getElementById('photoAreaUnit2').textContent = tariff.unitLabel;
-        document.getElementById('photoAreaLabel1').innerHTML = `Длина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-        document.getElementById('photoAreaLabel2').innerHTML = `Ширина (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-    } else {
-        valueGroup.classList.remove('hidden');
-        document.getElementById('photoValueLabel').innerHTML = getTariffInputLabel(tariff) + ` (<span class="dynamic-unit-label">${tariff.unitLabel}</span>)`;
-        document.getElementById('photoValueUnit').textContent = tariff.unitLabel;
-        document.getElementById('photoValue').placeholder = getTariffInputPlaceholder(tariff);
-    }
-}
-
-// === РЕКЛАМНАЯ СИСТЕМА ===
-function checkAdWatched() {
-    const today = new Date().toDateString();
-    let data = { date: today, count: 0 };
-    try {
-        const stored = JSON.parse(localStorage.getItem(AD_STORAGE_KEY));
-        if (stored && stored.date === today) data = stored;
-    } catch(e) {}
-    updateMonthEarningsDisplay(data.count >= AD_VIEWS_PER_DAY ? data.count : 0);
-}
-
-function markAdWatched() {
-    const today = new Date().toDateString();
-    let data = { date: today, count: 0 };
-    try {
-        const stored = JSON.parse(localStorage.getItem(AD_STORAGE_KEY));
-        if (stored && stored.date === today) data = stored;
-    } catch(e) {}
-    data.count++;
-    localStorage.setItem(AD_STORAGE_KEY, JSON.stringify(data));
-    if (data.count >= AD_VIEWS_PER_DAY) updateMonthEarningsDisplay(data.count);
-}
-
-function getAdViewsCount() {
-    const today = new Date().toDateString();
-    try {
-        const data = JSON.parse(localStorage.getItem(AD_STORAGE_KEY));
-        if (data && data.date === today) return data.count;
-    } catch(e) {}
-    return 0;
-}
-
-function updateMonthEarningsDisplay(forceCount) {
-    const locked = document.getElementById('monthEarnedLocked');
-    const unlocked = document.getElementById('monthEarnedUnlocked');
-    const viewsCount = forceCount !== undefined ? forceCount : getAdViewsCount();
-    if (viewsCount >= AD_VIEWS_PER_DAY) {
-        locked.classList.add('hidden');
-        unlocked.classList.remove('hidden');
-    } else {
-        locked.classList.remove('hidden');
-        unlocked.classList.add('hidden');
-        locked.innerHTML = `<i class="fas fa-lock"></i> ${viewsCount}/${AD_VIEWS_PER_DAY} просмотров`;
-    }
-}
-
-function showAdForMonthEarnings() {
-    const viewsCount = getAdViewsCount();
-    if (viewsCount >= AD_VIEWS_PER_DAY) { updateMonthEarningsDisplay(); return; }
-    document.getElementById('adModal').classList.add('active');
-    let seconds = 5;
-    document.getElementById('adTimer').textContent = seconds;
-    const interval = setInterval(() => {
-        seconds--;
-        document.getElementById('adTimer').textContent = seconds;
-        if (seconds <= 0) {
-            clearInterval(interval);
-            document.getElementById('adModal').classList.remove('active');
-            markAdWatched();
-            const nc = getAdViewsCount();
-            showToast(nc >= AD_VIEWS_PER_DAY ? '✅' : '📺', nc >= AD_VIEWS_PER_DAY ? '#16A34A' : '#3B82F6',
-                nc >= AD_VIEWS_PER_DAY ? 'Отлично!' : `Просмотр ${nc}/${AD_VIEWS_PER_DAY}`,
-                nc >= AD_VIEWS_PER_DAY ? 'Сумма за месяц отображена' : `Осталось: ${AD_VIEWS_PER_DAY - nc}`);
-        }
-    }, 1000);
-}
-
-// === УТИЛИТЫ ===
-function formatDateYMD(dateStr) { if (!dateStr) return ''; const p = dateStr.split('-'); return p.length===3 ? `${p[2]}.${p[1]}.${p[0]}` : dateStr; }
-function todayYMD() { return new Date().toISOString().split('T')[0]; }
-function extractDateFromFilename(fn) {
-    let m = fn.match(/(\d{4})-(\d{2})-(\d{2})/);
-    if (m) return `${m[1]}-${m[2]}-${m[3]}`;
-    m = fn.match(/(\d{1,2})[.\-/](\d{1,2})[.\-/](\d{4})/);
-    return m ? `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}` : null;
-}
-function normalizeDate(ds) {
-    if (!ds) return todayYMD();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(ds)) return ds;
-    if (/^\d{1,2}\.\d{1,2}\.\d{4}$/.test(ds)) { const [d,m,y]=ds.split('.'); return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`; }
-    return todayYMD();
-}
-function isValidDate(ds) {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) return false;
-    const [y,m,d] = ds.split('-').map(Number);
-    const date = new Date(y,m-1,d);
-    return date.getFullYear()===y && date.getMonth()===m-1 && date.getDate()===d;
-}
-
-// === ХРАНИЛИЩЕ ===
-let cachedOrders=null, cachedPreorders=null, cachedPhotos=null, cacheTs=0;
-function loadOrders() { const n=Date.now(); if(cachedOrders&&(n-cacheTs)<5000) return cachedOrders; try{cachedOrders=JSON.parse(localStorage.getItem('operator_orders')||'[]');cacheTs=n;return cachedOrders;}catch(e){return[];} }
-function saveOrders(o) { localStorage.setItem('operator_orders',JSON.stringify(o)); cachedOrders=o; cacheTs=Date.now(); }
-function loadPreorders() { const n=Date.now(); if(cachedPreorders&&(n-cacheTs)<5000) return cachedPreorders; try{cachedPreorders=JSON.parse(localStorage.getItem('operator_preorders')||'[]');cacheTs=n;return cachedPreorders;}catch(e){return[];} }
-function savePreorders(p) { localStorage.setItem('operator_preorders',JSON.stringify(p)); cachedPreorders=p; cacheTs=Date.now(); }
-function loadPhotos() { const n=Date.now(); if(cachedPhotos&&(n-cacheTs)<5000) return cachedPhotos; try{cachedPhotos=JSON.parse(localStorage.getItem('operator_photos')||'[]');cacheTs=n;return cachedPhotos;}catch(e){return[];} }
-function savePhotos(p) { try{localStorage.setItem('operator_photos',JSON.stringify(p));cachedPhotos=p;cacheTs=Date.now();}catch(e){showToast('⚠️','#DC2626','Память переполнена','Удалите старые фото');} }
-function getCurrentShift() { try{return JSON.parse(localStorage.getItem('current_shift')||'null');}catch(e){return null;} }
-function setCurrentShift(s) { if(s===null)localStorage.removeItem('current_shift');else localStorage.setItem('current_shift',JSON.stringify(s)); }
-function cleanupOldPhotos(max=20) { try{const p=loadPhotos();if(p.length>max){savePhotos(p.slice(0,max));return true;}return false;}catch(e){return false;} }
-
-// === ЗВУК ===
-function playSuccessSound() {
-    try { const ctx=new(window.AudioContext||window.webkitAudioContext)(),o=ctx.createOscillator(),g=ctx.createGain(); o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=800;g.gain.setValueAtTime(0.3,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3);o.start(ctx.currentTime);o.stop(ctx.currentTime+0.3); }catch(e){}
-}
-
-// === РАСЧЁТЫ ===
-function calculateAmount(tariffKey, value, area1, area2, time, qty) {
-    const t = getTariffById(tariffKey); if(!t) return 0;
-    let amount = 0;
-    if (t.unit === 'm2') {
-        // Для m2 расчёт: длина * ширина * цена * кол-во
-        amount = t.price * (area1||0) * (area2||0) * qty;
-    } else if (t.unit === 'time') {
-        amount = t.price * (time||0) * qty;
-    } else {
-        // Для всех остальных: значение * цена * кол-во
-        amount = t.price * (value||0) * qty;
-    }
-    return Math.round(amount*100)/100;
-}
-
-function calculateUnits(tariffKey, value, area1, area2, time, qty) {
-    const t = getTariffById(tariffKey); if(!t) return {value:0, unit:'', linear:0, area:0, time:0};
-    let v=0, linear=0, area=0, tm=0;
-    if (t.unit==='m2') { area=(area1||0)*(area2||0)*qty; v=area; }
-    else if (t.unit==='time') { tm=(time||0)*qty; v=tm; }
-    else { linear=(value||0)*qty; v=linear; }
-    return {value:Math.round(v*100)/100, unit:t.unitLabel, linear:Math.round(linear*100)/100, area:Math.round(area*100)/100, time:Math.round(tm*100)/100};
-}
-
-// === TOAST ===
-function showToast(emoji, color, title, message) {
-    const c = document.getElementById('toastContainer');
-    const t = document.createElement('div'); t.className='toast'; t.style.borderLeftColor=color;
-    t.innerHTML = `<div class="toast-icon">${emoji}</div><div class="toast-content"><div class="toast-title" style="color:${color}">${title}</div><div class="toast-msg">${message}</div></div>`;
-    c.appendChild(t);
-    setTimeout(()=>{t.style.animation='fadeOut 0.3s ease-in forwards';setTimeout(()=>t.remove(),300);},4000);
-}
-
-// === ВЕХИ ===
-function checkMilestones(amount) {
-    const shift = getCurrentShift(); if(!shift||!shift.active) return;
-    const key = `milestones_${shift.id}`;
-    let notified = JSON.parse(localStorage.getItem(key)||'[]');
-    [{amount:500,emoji:'😡',color:'#DC2626',text:'Разгон...'},{amount:1000,emoji:'😢',color:'#3B82F6',text:'Первая тысяча'},{amount:1500,emoji:'😐',color:'#6B7285',text:'Половина пути'},{amount:2000,emoji:'🙂',color:'#16A34A',text:'Хороший результат'},{amount:2500,emoji:'😄',color:'#F59E0B',text:'Почти план!'}].forEach(m=>{
-        if(amount>=m.amount&&!notified.includes(m.amount)){showToast(m.emoji,m.color,`Заработано ${m.amount} ₽`,m.text);notified.push(m.amount);localStorage.setItem(key,JSON.stringify(notified));}
-    });
-}
-
-// === UI ===
-function getCurrentMonthEarnings() {
-    const orders = loadOrders(), now = new Date();
-    return orders.filter(o=>{if(!o.date)return false;const d=new Date(o.date+'T00:00:00');return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).reduce((s,o)=>s+(parseFloat(o.amount)||0),0);
-}
-
-function updateUI() {
-    const orders = loadOrders();
-    document.getElementById('totalAll').textContent = orders.reduce((s,o)=>s+(parseFloat(o.amount)||0),0).toFixed(2);
-    document.getElementById('monthEarned').textContent = getCurrentMonthEarnings().toFixed(2);
-    const shift = getCurrentShift();
-    let sa=0, st='Смена не начата';
-    if(shift&&shift.active){sa=orders.filter(o=>o.shiftId===shift.id).reduce((s,o)=>s+(parseFloat(o.amount)||0),0);st='Смена активна';}
-    else if(shift&&!shift.active){sa=shift.finalAmount||0;st='Смена завершена';}
-    document.getElementById('todayEarned').textContent = sa.toFixed(2);
-    document.getElementById('shiftStatus').textContent = st;
-    const steps = document.querySelectorAll('#planStatusBar .step');
-    const ts = Math.min(19, Math.floor((sa/3000)*20));
-    steps.forEach((s,i)=>{s.classList.remove('active','current','completed');if(i<ts)s.classList.add('active');else if(i===ts)s.classList.add('current');if(sa>=3000&&i===19){s.classList.remove('current');s.classList.add('completed');}});
-    checkMilestones(sa);
-    updateMonthEarningsDisplay();
-}
-
-// === СМЕНА ===
-function startShift() { const s=getCurrentShift();if(s&&s.active){alert('Смена уже активна!');return;}setCurrentShift({id:Date.now(),startedAt:new Date().toISOString(),active:true});alert('✅ Смена начата!');updateUI(); }
-function endShift() { const s=getCurrentShift();if(!s||!s.active){alert('Нет активной смены!');return;}const o=loadOrders();const fa=o.filter(x=>x.shiftId===s.id).reduce((sum,x)=>sum+(parseFloat(x.amount)||0),0);s.active=false;s.finishedAt=new Date().toISOString();s.finalAmount=fa;setCurrentShift(s);alert(`✅ Смена завершена!\nЗаработано: ${fa.toFixed(2)} ₽`);updateUI(); }
-
-// === УДАЛЕНИЕ ===
-function deleteOrder(id) { if(!confirm('Удалить заказ?'))return;const o=loadOrders();const i=o.findIndex(x=>x.id===id);if(i===-1)return;o.splice(i,1);saveOrders(o);if(getCurrentShift()?.active)updateUI();showOrdersByDate();renderCalendar();alert('✅ Удалено'); }
-function deletePreorder(id) { if(!confirm('Удалить предзаказ?'))return;const p=loadPreorders();const i=p.findIndex(x=>x.id===id);if(i===-1)return;p.splice(i,1);savePreorders(p);renderPreorders();alert('✅ Удалено'); }
-
-// === ДАТЫ ===
-let pendingPreorderId=null;
-function openDateModal(pid){pendingPreorderId=pid;document.getElementById('modalDate').value=todayYMD();document.getElementById('dateModal').classList.add('active');}
-function closeDateModal(){document.getElementById('dateModal').classList.remove('active');pendingPreorderId=null;}
-function confirmDateSelection(){const d=document.getElementById('modalDate').value;if(!d){alert('Выберите дату');return;}if(pendingPreorderId!==null)acceptPreorder(pendingPreorderId,d);closeDateModal();}
-
-// === ДЕТАЛИ ===
-function viewOrderDetails(orderId) {
-    const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
-    const tariff = getTariffById(order.tariff);
-    const units = calculateUnits(order.tariff, order.value, order.area1, order.area2, order.time, order.qty);
-    let html = `<div class="details-item"><span class="details-label">№ заказа:</span><span class="details-value">${order.orderNumber}</span></div>`;
-    html += `<div class="details-item"><span class="details-label">Деталь:</span><span class="details-value">${order.detail}</span></div>`;
-    html += `<div class="details-item"><span class="details-label">Тариф:</span><span class="details-value">${tariff?.name||order.tariff}</span></div>`;
-    html += `<div class="details-item"><span class="details-label">Количество:</span><span class="details-value">${order.qty}</span></div>`;
-    if (tariff) {
-        if (tariff.unit === 'm2') {
-            html += `<div class="details-item"><span class="details-label">Длина:</span><span class="details-value">${order.area1||0} ${tariff.unitLabel}</span></div>`;
-            html += `<div class="details-item"><span class="details-label">Ширина:</span><span class="details-value">${order.area2||0} ${tariff.unitLabel}</span></div>`;
-            html += `<div class="details-item"><span class="details-label">Площадь:</span><span class="details-value">${units.value} ${units.unit}</span></div>`;
-        } else if (tariff.unit === 'time') {
-            html += `<div class="details-item"><span class="details-label">Часы:</span><span class="details-value">${order.time||0} ч</span></div>`;
-        } else {
-            html += `<div class="details-item"><span class="details-label">Значение:</span><span class="details-value">${order.value||0} ${tariff.unitLabel}</span></div>`;
-        }
-    }
-    html += `<div class="details-item"><span class="details-label">Сумма:</span><span class="details-value">${order.amount.toFixed(2)} ₽</span></div>`;
-    document.getElementById('detailsContent').innerHTML = html;
-    document.getElementById('detailsModal').classList.add('active');
-}
-function closeDetailsModal() { document.getElementById('detailsModal').classList.remove('active'); }
-
-// === РЕДАКТИРОВАНИЕ ===
-let editingOrder = null;
-function openEditModal(orderId) {
-    const orders = loadOrders(); const order = orders.find(o => o.id === orderId); if (!order) return;
-    editingOrder = order;
-    document.getElementById('editOrderId').value = order.id;
-    document.getElementById('editOrderNum').value = order.orderNumber;
-    document.getElementById('editDetail').value = order.detail;
-    populateTariffSelect('editTariff');
-    document.getElementById('editTariff').value = order.tariff;
-    document.getElementById('editQty').value = order.qty;
-    
-    const tariff = getTariffById(order.tariff);
-    const type = getTariffInputType(tariff);
-    
-    // Заполняем соответствующие поля
-    document.getElementById('editValue').value = order.value || '';
-    document.getElementById('editArea1').value = order.area1 || '';
-    document.getElementById('editArea2').value = order.area2 || '';
-    document.getElementById('editTime').value = order.time || '';
-    
-    updateEditFormFields();
-    document.getElementById('editModal').classList.add('active');
-}
-function closeEditModal() { document.getElementById('editModal').classList.remove('active'); editingOrder = null; }
-function saveEditedOrder() {
-    if (!editingOrder) return;
-    const orderId = parseInt(document.getElementById('editOrderId').value);
-    const num = document.getElementById('editOrderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
-    const tariffKey = document.getElementById('editTariff').value;
-    const detail = document.getElementById('editDetail').value.trim() || '—';
-    const qty = parseInt(document.getElementById('editQty').value) || 1;
-    const tariff = getTariffById(tariffKey);
-    const type = getTariffInputType(tariff);
-    
-    const value = type==='value' ? (parseFloat(document.getElementById('editValue').value)||0) : null;
-    const area1 = type==='area' ? (parseFloat(document.getElementById('editArea1').value)||0) : null;
-    const area2 = type==='area' ? (parseFloat(document.getElementById('editArea2').value)||0) : null;
-    const time = type==='time' ? (parseFloat(document.getElementById('editTime').value)||0) : null;
-    
-    const amount = calculateAmount(tariffKey, value, area1, area2, time, qty);
-    
-    const orders = loadOrders(); const idx = orders.findIndex(o => o.id === orderId);
-    if (idx !== -1) {
-        orders[idx] = { ...orders[idx], orderNumber: num, tariff: tariffKey, detail, qty, value, area1, area2, time, amount };
-        saveOrders(orders); updateUI(); showOrdersByDate(); renderCalendar(); closeEditModal(); alert('✅ Обновлён');
-    }
-}
-
-// === СОЗДАНИЕ ЗАКАЗА ===
-function createMainOrder() {
-    const num = document.getElementById('orderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
-    const tariffKey = document.getElementById('tariff').value;
-    const detail = document.getElementById('detail').value.trim() || '—';
-    const qty = parseInt(document.getElementById('qty').value) || 1;
-    const tariff = getTariffById(tariffKey);
-    const type = getTariffInputType(tariff);
-    
-    const value = type==='value' ? (parseFloat(document.getElementById('mainValue').value)||0) : null;
-    const area1 = type==='area' ? (parseFloat(document.getElementById('mainArea1').value)||0) : null;
-    const area2 = type==='area' ? (parseFloat(document.getElementById('mainArea2').value)||0) : null;
-    const time = type==='time' ? (parseFloat(document.getElementById('mainTime').value)||0) : null;
-    
-    const amount = calculateAmount(tariffKey, value, area1, area2, time, qty);
-    const shift = getCurrentShift(); if (!shift || !shift.active) { alert('⚠️ Начните смену!'); return; }
-    
-    const order = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail, qty, value, area1, area2, time, amount, date: todayYMD(), shiftId: shift.id, timestamp: new Date().toISOString() };
-    const orders = loadOrders(); orders.push(order); saveOrders(orders); updateUI(); renderCalendar();
-    
-    // Сброс
-    document.getElementById('orderNum').value = ''; document.getElementById('detail').value = ''; document.getElementById('qty').value = '1';
-    document.getElementById('mainValue').value = ''; document.getElementById('mainArea1').value = ''; document.getElementById('mainArea2').value = ''; document.getElementById('mainTime').value = '';
-    updateMainFormFields();
-}
-function createMainOrderWithSound() { createMainOrder(); setTimeout(playSuccessSound, 100); }
-
-// === ПРЕДЗАКАЗЫ ===
-function createPreorder() {
-    const num = document.getElementById('preOrderNum').value.trim(); if (!num) { alert('Укажите № предзаказа'); return; }
-    const tariffKey = document.getElementById('preTariff').value;
-    const detail = document.getElementById('preDetail').value.trim() || '—';
-    const qty = parseInt(document.getElementById('preQty').value) || 1;
-    const tariff = getTariffById(tariffKey);
-    const type = getTariffInputType(tariff);
-    
-    const value = type==='value' ? (parseFloat(document.getElementById('preValue').value)||0) : null;
-    const area1 = type==='area' ? (parseFloat(document.getElementById('preArea1').value)||0) : null;
-    const area2 = type==='area' ? (parseFloat(document.getElementById('preArea2').value)||0) : null;
-    const time = type==='time' ? (parseFloat(document.getElementById('preTime').value)||0) : null;
-    
-    const amount = calculateAmount(tariffKey, value, area1, area2, time, qty);
-    const preorder = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail, qty, value, area1, area2, time, amount, date: todayYMD(), timestamp: new Date().toISOString() };
-    const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
-    alert('✅ Предзаказ сохранён!'); renderPreorders();
-    
-    document.getElementById('preOrderNum').value = ''; document.getElementById('preDetail').value = ''; document.getElementById('preQty').value = '1';
-    document.getElementById('preValue').value = ''; document.getElementById('preArea1').value = ''; document.getElementById('preArea2').value = ''; document.getElementById('preTime').value = '';
-    updatePreorderFormFields();
-}
-
-function acceptPreorder(preorderId, selectedDate = null) {
-    const preorders = loadPreorders(); const idx = preorders.findIndex(p => p.id === preorderId); if (idx === -1) return;
-    const preorder = preorders[idx]; const shift = getCurrentShift();
-    if (!shift || !shift.active) { alert('Начните смену!'); return; }
-    if (!selectedDate) { openDateModal(preorderId); return; }
-    const order = {...preorder, shiftId: shift.id, date: normalizeDate(selectedDate)};
-    const orders = loadOrders(); orders.push(order); saveOrders(orders);
-    preorders.splice(idx, 1); savePreorders(preorders);
-    alert(`✅ Принят на ${formatDateYMD(selectedDate)}!`); updateUI(); renderPreorders(); renderCalendar();
-}
-
-function renderPreorders() {
-    const preorders = loadPreorders(); const container = document.getElementById('preordersListContainer');
-    if (preorders.length === 0) { container.innerHTML = '<div class="empty-msg">Нет предзаказов</div>'; return; }
-    let html = `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-    preorders.forEach(p => { html += `<tr><td>${p.orderNumber}</td><td>${p.detail}</td><td class="amount">${p.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="acceptPreorder(${p.id})"><i class="fas fa-check"></i></button><button class="action-btn" onclick="deletePreorder(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`; });
-    html += '</tbody></table>'; container.innerHTML = html;
-}
-
-// === ЗАКАЗЫ ПО ДАТЕ ===
-function showOrdersByDate() {
-    const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
-    const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
-    let html = `<div class="progress-title">Заказы за ${formatDateYMD(dateInput)}</div>`;
-    if (filtered.length === 0) { html += '<div class="empty-msg">Нет заказов</div>'; }
-    else {
-        html += `<table class="orders-table"><thead><tr><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-        filtered.forEach(o => { html += `<tr><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`; });
-        html += '</tbody></table>';
-    }
-    document.getElementById('ordersListContainer').innerHTML = html;
-}
-
-document.getElementById('orderSearch').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const query = this.value.trim().toLowerCase(); if (!query) { showOrdersByDate(); return; }
-        const orders = loadOrders(); const matched = orders.filter(o => o.orderNumber.toLowerCase().includes(query));
-        let html = `<div class="progress-title">Поиск: "${query}"</div>`;
-        if (matched.length === 0) { html += '<div class="empty-msg">Не найдено</div>'; }
-        else {
-            html += `<table class="orders-table"><thead><tr><th>Дата</th><th>№</th><th>Деталь</th><th>Сумма</th><th>Действия</th></tr></thead><tbody>`;
-            matched.forEach(o => { html += `<tr><td style="font-size:0.85rem; color:var(--text-muted);">${o.date?formatDateYMD(o.date):'—'}</td><td>${o.orderNumber}</td><td>${o.detail}</td><td class="amount">${o.amount.toFixed(2)} ₽</td><td><button class="action-btn" onclick="viewOrderDetails(${o.id})"><i class="fas fa-eye"></i></button><button class="action-btn" onclick="openEditModal(${o.id})"><i class="fas fa-edit"></i></button><button class="action-btn" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button></td></tr>`; });
-            html += '</tbody></table>';
-        }
-        document.getElementById('ordersListContainer').innerHTML = html;
-        if (!document.getElementById('main').classList.contains('active')) {
-            document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
-            document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
-            document.querySelector('.panel-item[data-target="main"]').classList.add('active');
-            document.getElementById('main').classList.add('active');
-        }
-    }
-});
-
-// === ЭКСПОРТ ===
-function saveOrdersToFile() {
-    const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
-    const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
-    if (filtered.length === 0) { alert('Нет заказов'); return; }
-    const fd = formatDateYMD(dateInput);
-    let content = `ЗАКАЗЫ ЗА ${fd}\n========================\n`;
-    let totalSum = 0;
-    filtered.forEach((o, idx) => {
-        const tariff = getTariffById(o.tariff);
-        content += `№${idx+1}. ${o.orderNumber}\n${o.detail} (${tariff?.name||o.tariff})\n`;
-        if (tariff) {
-            if (tariff.unit==='m2') content += `   ${o.area1||0} × ${o.area2||0} ${tariff.unitLabel}\n`;
-            else if (tariff.unit==='time') content += `   ${o.time||0} ч\n`;
-            else content += `   ${o.value||0} ${tariff.unitLabel}\n`;
-        }
-        content += `   Кол-во: ${o.qty}\nСумма: ${o.amount.toFixed(2)} ₽\n---\n`;
-        totalSum += o.amount;
-    });
-    content += `\nИТОГО: ${totalSum.toFixed(2)} ₽\nЭкспорт: ${new Date().toLocaleString('ru-RU')}`;
-    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-    const blob = new Blob([bom, content], { type: 'text/plain;charset=utf-8' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${fd}.txt`; a.click();
-    URL.revokeObjectURL(a.href);
-}
-
-function saveOrdersToJSON() {
-    const dateInput = document.getElementById('viewDate').value; if (!dateInput) { alert('Выберите дату'); return; }
-    const orders = loadOrders(); const filtered = orders.filter(o => o.date === dateInput);
-    if (filtered.length === 0) { alert('Нет заказов'); return; }
-    const blob = new Blob([JSON.stringify(filtered, null, 2)], { type: 'application/json;charset=utf-8' });
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `заказы_${formatDateYMD(dateInput)}.json`; a.click();
-    URL.revokeObjectURL(a.href);
-}
-
-// === ПАРСИНГ TXT ===
-function parseTxtOrders(txtContent) {
-    const orders = []; const blocks = txtContent.split('---');
-    for (const block of blocks) {
-        const lines = block.trim().split('\n').filter(l => l.trim() !== ''); if (lines.length < 3) continue;
-        const order = { orderNumber: '', detail: '', tariff: '', qty: 1, value: null, area1: null, area2: null, time: null, amount: 0, date: null };
-        let currentDetail = '', currentTariff = '';
-        for (const line of lines) {
-            const c = line.trim();
-            if (c.startsWith('№') && c.includes('.')) { const m = c.match(/№\d+\.\s*(.+)/); if (m) order.orderNumber = m[1].trim(); }
-            if (c.includes('(') && c.includes(')') && !c.includes('Сумма')) { const m = c.match(/(.+)\s*\((.+)\)/); if (m) { currentDetail = m[1].trim(); currentTariff = m[2].trim(); } }
-            if (c.startsWith('Кол-во:')) { const m = c.match(/Кол-во:\s*(\d+)/); if (m) order.qty = parseInt(m[1]); }
-            if (c.startsWith('Сумма:')) { const m = c.match(/Сумма:\s*([\d.]+)/); if (m) order.amount = parseFloat(m[1]); }
-            // Пробуем распарсить размеры
-            if (c.match(/[\d.]+\s*×\s*[\d.]+/)) { const m = c.match(/([\d.]+)\s*×\s*([\d.]+)/); if (m) { order.area1 = parseFloat(m[1]); order.area2 = parseFloat(m[2]); } }
-            if (c.startsWith('Часы:')) { const m = c.match(/Часы:\s*([\d.]+)/); if (m) order.time = parseFloat(m[1]); }
-            if (c.match(/^Дата[:\s]/i)) { const m = c.match(/Дата[:\s]+([\d.\-\/]+)/i); if (m) order.date = normalizeDate(m[1].trim()); }
-        }
-        if (currentTariff) {
-            const tariffs = getTariffs();
-            const found = tariffs.find(t => t.name === currentTariff || t.id === currentTariff);
-            order.tariff = found?.id || tariffs[0]?.id || 'RASPIL_M2';
-        }
-        order.detail = currentDetail || '—';
-        // Если нет размеров, но есть значение в строке
-        if (!order.area1 && !order.area2 && !order.time) {
-            // Ищем числовое значение
-            const valMatch = lines.find(l => l.match(/^\s*[\d.]+$/));
-            if (valMatch) order.value = parseFloat(valMatch.trim());
-        }
-        if (order.orderNumber) orders.push(order);
-    }
-    return orders;
-}
-
-// === СТАТИСТИКА ===
-function calculateStats() {
-    const orders = loadOrders(); let totalLinear=0, totalArea=0, totalTime=0;
-    const opCount = {};
-    orders.forEach(o => {
-        const units = calculateUnits(o.tariff, o.value, o.area1, o.area2, o.time, o.qty);
-        totalLinear += units.linear; totalArea += units.area; totalTime += units.time;
-        opCount[o.tariff] = (opCount[o.tariff]||0)+1;
-    });
-    return { linear:{value:totalLinear,percent:Math.min(100,totalLinear/1000*100)}, area:{value:totalArea,percent:Math.min(100,totalArea/200*100)}, time:{value:totalTime,percent:Math.min(100,totalTime/100*100)}, operations:opCount };
-}
-
-function renderStats() {
-    const stats = calculateStats();
-    const tariffs = getTariffs();
-    document.getElementById('linearTotal').textContent = stats.linear.value.toFixed(1);
-    document.getElementById('areaTotal').textContent = stats.area.value.toFixed(1);
-    document.getElementById('timeTotal').textContent = stats.time.value.toFixed(1);
-    const lt = tariffs.find(t => ['linear','km','m','l','pcs','kg'].includes(t.unit));
-    const at = tariffs.find(t => t.unit === 'm2');
-    const tt = tariffs.find(t => t.unit === 'time');
-    document.getElementById('linearUnit').textContent = lt?.unitLabel || 'м';
-    document.getElementById('areaUnit').textContent = at?.unitLabel || 'м²';
-    document.getElementById('timeUnit').textContent = tt?.unitLabel || 'ч';
-    setTimeout(() => {
-        document.getElementById('linearProgress').style.width = `${stats.linear.percent}%`;
-        document.getElementById('areaProgress').style.width = `${stats.area.percent}%`;
-        document.getElementById('timeProgress').style.width = `${stats.time.percent}%`;
-    }, 300);
-    const opNames = Object.fromEntries(tariffs.map(t => [t.id, t.name]));
-    const maxCount = Math.max(...Object.values(stats.operations)) || 1;
-    let chartHtml = '';
-    for (const [key, count] of Object.entries(stats.operations)) {
-        if (count === 0) continue;
-        chartHtml += `<div class="bar-item"><div class="bar-label"><span>${opNames[key]||key}</span><span>${count}</span></div><div class="bar-container"><div class="bar-fill" style="width:${(count/maxCount)*100}%"></div></div></div>`;
-    }
-    document.getElementById('operationsChart').innerHTML = chartHtml || '<p style="color:var(--text-muted); text-align:center;">Нет данных</p>';
-}
-
-// === КАЛЕНДАРЬ ===
-let currentCalendarDate = new Date();
-function loadCalendarData() { try{return JSON.parse(localStorage.getItem('operator_calendar')||'{}');}catch(e){return{};} }
-function saveCalendarData(data) { localStorage.setItem('operator_calendar', JSON.stringify(data)); }
-function renderCalendar() {
-    const year = currentCalendarDate.getFullYear(), month = currentCalendarDate.getMonth();
-    const data = loadCalendarData(), today = todayYMD(), orders = loadOrders();
-    const earningsByDate = {};
-    orders.forEach(o => { if (o.date && o.amount) earningsByDate[o.date] = (earningsByDate[o.date]||0) + parseFloat(o.amount); });
-    const monthNames = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
-    document.getElementById('calendarMonthYear').textContent = `${monthNames[month]} ${year}`;
-    const firstDay = new Date(year, month, 1).getDay(), daysInMonth = new Date(year, month+1, 0).getDate();
-    const grid = document.getElementById('calendarGrid'); grid.innerHTML = '';
-    for (let i = 0; i < firstDay; i++) grid.appendChild(document.createElement('div'));
-    for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        const dayData = data[dateStr] || { hours: 0, isHoliday: false };
-        const dow = new Date(year, month, d).getDay();
-        const isWeekend = dow===0||dow===6, isToday = dateStr===today, hasEarnings = earningsByDate[dateStr]>0;
-        const cell = document.createElement('div'); cell.className = 'calendar-day';
-        if (isToday) cell.classList.add('today');
-        if (hasEarnings) cell.classList.add('worked');
-        if (isWeekend) cell.classList.add('weekend');
-        if (dayData.isHoliday) cell.classList.add('holiday');
-        let html = `<div class="day-num">${d}</div>`;
-        if (hasEarnings) html += `<div class="day-earnings">${earningsByDate[dateStr].toFixed(0)} ₽</div>`;
-        else if (dayData.hours > 0) html += `<div class="day-earnings">${dayData.hours} ч</div>`;
-        if (dayData.isHoliday) html += `<i class="fas fa-star holiday-icon"></i>`;
-        cell.innerHTML = html; cell.onclick = () => openDayModal(dateStr, dayData);
-        grid.appendChild(cell);
-    }
-}
-function changeMonth(delta) { currentCalendarDate.setMonth(currentCalendarDate.getMonth()+delta); renderCalendar(); }
-function openDayModal(dateStr, dayData) {
-    document.getElementById('editDayDate').value = dateStr; document.getElementById('displayDayDate').textContent = formatDateYMD(dateStr);
-    document.getElementById('dayHours').value = dayData.hours||''; document.getElementById('dayHoliday').checked = dayData.isHoliday||false;
-    document.getElementById('dayModal').classList.add('active');
-}
-function closeDayModal() { document.getElementById('dayModal').classList.remove('active'); }
-function saveDayData() {
-    const dateStr = document.getElementById('editDayDate').value;
-    const hours = parseFloat(document.getElementById('dayHours').value)||0;
-    const isHoliday = document.getElementById('dayHoliday').checked;
-    const data = loadCalendarData(); data[dateStr] = { hours, isHoliday }; saveCalendarData(data);
-    closeDayModal(); renderCalendar(); alert('✅ Сохранено');
-}
-
-// === ФОТО ===
-function compressImage(file, callback) {
-    const reader = new FileReader(); reader.readAsDataURL(file);
-    reader.onload = event => {
-        const img = new Image(); img.src = event.target.result;
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX = 800; let {width, height} = img;
-            if (width>height) { if(width>MAX){height*=MAX/width;width=MAX;} } else { if(height>MAX){width*=MAX/height;height=MAX;} }
-            canvas.width = width; canvas.height = height;
-            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-            callback(canvas.toDataURL('image/jpeg', 0.7));
-        };
-    };
-}
-
-function renderPhotos() {
-    const photos = loadPhotos(), container = document.getElementById('photosListContainer');
-    if (photos.length === 0) { container.innerHTML = '<div class="empty-msg">Нет сохраненных фото</div>'; return; }
-    const tariffs = getTariffs();
-    let html = '';
-    photos.forEach(p => {
-        const tariff = tariffs.find(t => t.id === p.tagType);
-        const tagName = tariff?.name || (p.tagType||'Без тарифа');
-        const tagClass = p.tagType ? `tag-${p.tagType}` : 'tag-UNKNOWN';
-        const tagHtml = tagName ? `<div class="photo-tag ${tagClass}">${tagName}</div>` : '';
-        let opts = '<option value="">-- Тариф --</option>';
-        tariffs.forEach(t => { opts += `<option value="${t.id}" ${t.id===p.tagType?'selected':''}>${t.name}</option>`; });
-        html += `<div class="photo-card">${tagHtml}<img src="${p.data}" alt="Photo"><div class="photo-tag-selector"><select class="tag-select-mini" onchange="updatePhotoTag(${p.id},this.value)">${opts}</select></div><div class="photo-actions"><button class="photo-action-btn edit" onclick="openPhotoOrderModal(${p.id})" title="Оформить"><i class="fas fa-file-signature"></i></button><button class="photo-action-btn delete" onclick="deletePhoto(${p.id})" title="Удалить"><i class="fas fa-trash"></i></button></div></div>`;
-    });
-    container.innerHTML = html;
-}
-function updatePhotoTag(photoId, newTag) {
-    const photos = loadPhotos(); const idx = photos.findIndex(p => p.id === photoId);
-    if (idx !== -1) { photos[idx].tagType = newTag; savePhotos(photos); renderPhotos(); }
-}
-document.getElementById('cameraInput').addEventListener('change', function(e) {
-    const file = e.target.files[0]; if (!file) return;
-    compressImage(file, (compressedDataUrl) => {
-        const photos = loadPhotos();
-        photos.unshift({ id: Date.now(),  compressedDataUrl, timestamp: new Date().toISOString(), tagType: "" });
-        savePhotos(photos); renderPhotos(); this.value = '';
-    });
-});
-function deletePhoto(photoId) { if (!confirm('Удалить фото?')) return; savePhotos(loadPhotos().filter(p => p.id !== photoId)); renderPhotos(); }
-
-let currentPhotoIdForOrder = null;
-function openPhotoOrderModal(photoId) {
-    const photos = loadPhotos(), photo = photos.find(p => p.id === photoId); if (!photo) return;
-    currentPhotoIdForOrder = photoId;
-    document.getElementById('photoPreviewImg').src = photo.data;
-    document.getElementById('photoOrderNum').value = ''; document.getElementById('photoDetail').value = '';
-    document.getElementById('photoQty').value = '1';
-    document.getElementById('photoValue').value = ''; document.getElementById('photoArea1').value = ''; document.getElementById('photoArea2').value = ''; document.getElementById('photoTime').value = '';
-    resetPhotoSizeRows();
-    populateTariffSelect('photoTariff');
-    document.getElementById('photoTariff').value = photo.tagType || getTariffs()[0]?.id || '';
-    updatePhotoFormFields();
-    document.getElementById('photoOrderModal').classList.add('active');
-}
-function closePhotoOrderModal() { document.getElementById('photoOrderModal').classList.remove('active'); currentPhotoIdForOrder = null; }
-function openPhotoZoom() { document.getElementById('zoomedImage').src = document.getElementById('photoPreviewImg').src; document.getElementById('photoZoomModal').classList.add('active'); }
-function closePhotoZoom() { document.getElementById('photoZoomModal').classList.remove('active'); }
-
-function confirmPhotoOrder() {
-    const num = document.getElementById('photoOrderNum').value.trim(); if (!num) { alert('Укажите № заказа'); return; }
-    const tariffKey = document.getElementById('photoTariff').value;
-    const detail = document.getElementById('photoDetail').value.trim() || '—';
-    const qty = parseInt(document.getElementById('photoQty').value) || 1;
-    const tariff = getTariffById(tariffKey);
-    const type = getTariffInputType(tariff);
-    
-    const value = type==='value' ? (parseFloat(document.getElementById('photoValue').value)||0) : null;
-    const area1 = type==='area' ? (parseFloat(document.getElementById('photoArea1').value)||0) : null;
-    const area2 = type==='area' ? (parseFloat(document.getElementById('photoArea2').value)||0) : null;
-    const time = type==='time' ? (parseFloat(document.getElementById('photoTime').value)||0) : null;
-    
-    const amount = calculateAmount(tariffKey, value, area1, area2, time, qty);
-    const preorder = { id: Date.now(), orderNumber: num, tariff: tariffKey, detail, qty, value, area1, area2, time, amount, date: todayYMD(), timestamp: new Date().toISOString(), hasPhoto: true };
-    const preorders = loadPreorders(); preorders.push(preorder); savePreorders(preorders);
-    savePhotos(loadPhotos().filter(p => p.id !== currentPhotoIdForOrder));
-    alert('✅ Оформлен в предзаказ! Фото удалено.');
-    closePhotoOrderModal(); renderPreorders(); renderPhotos();
-    document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
-    document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
-    document.querySelector('.panel-item[data-target="preorders"]').classList.add('active');
-    document.getElementById('preorders').classList.add('active');
-}
-
-// Совместимость со старой функцией
-function resetPhotoSizeRows() {}
-
-// === НАСТРОЙКИ ТАРИФОВ ===
-function renderTariffEditor() {
-    const tariffs = getTariffs();
-    document.getElementById('tariffList').innerHTML = tariffs.map(t => `
-    <div class="tariff-item" data-id="${t.id}">
-        <input type="text" class="neu-input tariff-name" value="${t.name}" placeholder="Название" ${t.isDefault?'readonly':''}>
-        <select class="neu-select tariff-unit">
-            ${UNIT_OPTIONS.map(u => `<option value="${u.value}" ${t.unit===u.value?'selected':''}>${u.label}</option>`).join('')}
-        </select>
-        <div style="display:flex; gap:4px; align-items:center;">
-            <input type="number" class="neu-input tariff-price" value="${t.price}" step="0.01" min="0" style="width:80px;">
-            <div class="tariff-actions">${!t.isDefault?`<button class="neu-btn neu-btn-danger" onclick="deleteTariff('${t.id}')"><i class="fas fa-trash"></i></button>`:''}</div>
+  </header>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="🔍 Поиск (клиент, техника, причина)" oninput="applyFilters()">
+    <select id="filterType" onchange="applyFilters()">
+      <option value="">Все типы техники</option>
+      <option>Микроволновки</option><option>Колонки</option><option>Музыкальные центры</option>
+      <option>Наушники</option><option>Телефоны</option><option>Ноутбуки</option>
+      <option>Планшеты</option><option>Стиральные машины</option><option>Роутеры</option>
+      <option>ПК</option><option>Мониторы</option><option>Пылесосы</option>
+    </select>
+    <input type="date" id="filterDateFrom" onchange="applyFilters()">
+    <input type="date" id="filterDateTo" onchange="applyFilters()">
+    <button class="btn btn-outline" onclick="resetFilters()">Сброс</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table id="table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Дата приема</th><th>Клиент</th><th>Техника</th>
+          <th>Запчасти</th><th>Запчасти ₽</th><th>Транспорт ₽</th>
+          <th>Себестоимость ₽</th><th>Стоимость ремонта ₽</th><th>Прибыль ₽</th><th>Действия</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div id="emptyState" class="empty hidden">Заявок пока нет. Нажмите «+ Новая заявка»</div>
+  </div>
+
+  <!-- Модальное окно -->
+  <div id="modal" class="modal" onclick="if(event.target===this) closeModal()">
+    <div class="modal-content">
+      <h2 id="modalTitle">Новая заявка</h2>
+      <form id="orderForm">
+        <input type="hidden" id="editId">
+        <div class="form-grid">
+          <div class="form-group"><label>Телефон клиента</label><input type="tel" id="clientPhone" required></div>
+          <div class="form-group"><label>Дата приема</label><input type="date" id="orderDate" required></div>
+          <div class="form-group"><label>Предв. дата ремонта</label><input type="date" id="estDate"></div>
+          <div class="form-group"><label>Тип техники</label>
+            <select id="type" required>
+              <option value="">Выберите...</option>
+              <option>Микроволновки</option><option>Колонки</option><option>Музыкальные центры</option>
+              <option>Наушники</option><option>Телефоны</option><option>Ноутбуки</option>
+              <option>Планшеты</option><option>Стиральные машины</option><option>Роутеры</option>
+              <option>ПК</option><option>Мониторы</option><option>Пылесосы</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;"><label>Причина поломки</label><textarea id="reason" rows="2"></textarea></div>
+          <div class="form-group"><label>Стоимость ремонта (клиент) ₽</label><input type="number" id="repairCost" step="0.01" required></div>
+          <div class="form-group"><label>Транспортные затраты ₽</label><input type="number" id="transportCost" step="0.01" value="0"></div>
         </div>
-    </div>`).join('');
-}
 
-function openTariffSettings() {
-    populateTariffSelect('tariff'); populateTariffSelect('preTariff'); populateTariffSelect('editTariff'); populateTariffSelect('photoTariff');
-    renderTariffEditor(); updateTariffSummary();
-    document.getElementById('tariffSettingsModal').classList.add('active');
-}
-function closeTariffSettings() {
-    document.getElementById('tariffSettingsModal').classList.remove('active');
-    updateMainFormFields(); updatePreorderFormFields(); updateEditFormFields(); updatePhotoFormFields();
-}
-function addNewTariff() {
-    const tariffs = getTariffs();
-    tariffs.push({ id: generateTariffId('NEW'), name: 'Новый тариф', unit: 'm2', unitLabel: 'м²', price: 0, isDefault: false });
-    saveTariffs(tariffs); renderTariffEditor();
-}
-function deleteTariff(id) {
-    saveTariffs(getTariffs().filter(t => t.id !== id && !t.isDefault));
-    renderTariffEditor();
-    showToast('✅', '#16A34A', 'Тариф удалён', '');
-}
-function saveTariffSettings() {
-    const items = document.querySelectorAll('.tariff-item');
-    const newTariffs = [];
-    items.forEach(item => {
-        const id = item.dataset.id;
-        const name = item.querySelector('.tariff-name').value.trim() || 'Без названия';
-        const unit = item.querySelector('.tariff-unit').value;
-        const price = parseFloat(item.querySelector('.tariff-price').value) || 0;
-        const isDefault = DEFAULT_TARIFFS.some(t => t.id === id);
-        newTariffs.push({ id, name, unit, unitLabel: getUnitLabel(unit), price, isDefault });
-    });
-    saveTariffs(newTariffs); closeTariffSettings();
-    showToast('✅', '#16A34A', 'Тарифы сохранены', 'Все формы обновлены');
-}
-function updateTariffSummary() {
-    const tariffs = getTariffs();
-    document.getElementById('tariffSummary').innerHTML = tariffs.slice(0, 4).map(t => `<span style="display:inline-block; padding:4px 8px; background:var(--bg); border-radius:6px; margin:2px; font-size:0.8rem;">${t.name}: ${t.price} ₽/${t.unitLabel}</span>`).join('') + (tariffs.length>4?`<span style="font-size:0.8rem; color:var(--text-muted);">+ ещё ${tariffs.length-4}</span>`:'');
-}
-function exportTariffs() {
-    const blob = new Blob([JSON.stringify(getTariffs(), null, 2)], {type: 'application/json'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `tariffs_${todayYMD()}.json`; a.click();
-    URL.revokeObjectURL(a.href);
-}
-function importTariffs(input) {
-    const file = input.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = e => {
+        <div class="parts-section">
+          <h3>Запчасти</h3>
+          <div id="partsContainer"></div>
+          <button type="button" class="btn btn-outline" onclick="addPartRow()" style="margin-top:8px; font-size:0.85rem;">+ Добавить запчасть</button>
+        </div>
+
+        <div class="totals">
+          <div class="total-card"><div>Запчасти</div><div class="val" id="sumParts">0 ₽</div></div>
+          <div class="total-card"><div>Всего затрат</div><div class="val" id="sumExpenses">0 ₽</div></div>
+          <div class="total-card profit"><div>Прибыль</div><div class="val" id="sumProfit">0 ₽</div></div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">Отмена</button>
+          <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'repairOrders_v1';
+    let orders = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+    const fmt = n => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(n);
+    const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
+
+    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(orders)); }
+
+    function renderTable(data = orders) {
+      const tbody = document.getElementById('tbody');
+      const empty = document.getElementById('emptyState');
+      tbody.innerHTML = '';
+      
+      if (data.length === 0) { empty.classList.remove('hidden'); return; }
+      empty.classList.add('hidden');
+
+      data.sort((a, b) => b.createdAt - a.createdAt).forEach(o => {
+        const partsSum = o.parts.reduce((s, p) => s + (parseFloat(p.cost) || 0), 0);
+        const expenses = partsSum + (parseFloat(o.transportCost) || 0);
+        const profit = (parseFloat(o.repairCost) || 0) - expenses;
+
+        const partsStatus = o.parts.map(p => `<span class="status status-${p.status}">${p.name}</span>`).join('<br>');
+        
+        tbody.innerHTML += `
+          <tr>
+            <td>${o.id.slice(-6).toUpperCase()}</td>
+            <td>${toDate(o.orderDate)}</td>
+            <td>${o.clientPhone}</td>
+            <td>${o.type}</td>
+            <td style="font-size:0.8rem">${partsStatus || 'Нет'}</td>
+            <td>${fmt(partsSum)}</td>
+            <td>${fmt(o.transportCost)}</td>
+            <td>${fmt(expenses)}</td>
+            <td style="font-weight:600">${fmt(o.repairCost)}</td>
+            <td style="font-weight:600; color: ${profit >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmt(profit)}</td>
+            <td>
+              <button class="btn btn-outline" style="padding:4px 8px" onclick="editOrder('${o.id}')">✏️</button>
+              <button class="btn btn-danger" style="padding:4px 8px" onclick="deleteOrder('${o.id}')">🗑️</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+
+    function applyFilters() {
+      const q = document.getElementById('search').value.toLowerCase();
+      const type = document.getElementById('filterType').value;
+      const dFrom = document.getElementById('filterDateFrom').value;
+      const dTo = document.getElementById('filterDateTo').value;
+
+      const filtered = orders.filter(o => {
+        const matchText = !q || o.clientPhone.toLowerCase().includes(q) || o.type.toLowerCase().includes(q) || (o.reason||'').toLowerCase().includes(q);
+        const matchType = !type || o.type === type;
+        const matchDate = (!dFrom || o.orderDate >= dFrom) && (!dTo || o.orderDate <= dTo);
+        return matchText && matchType && matchDate;
+      });
+      renderTable(filtered);
+    }
+
+    function resetFilters() {
+      document.getElementById('search').value = '';
+      document.getElementById('filterType').value = '';
+      document.getElementById('filterDateFrom').value = '';
+      document.getElementById('filterDateTo').value = '';
+      renderTable();
+    }
+
+    // MODAL & FORM
+    const modal = document.getElementById('modal');
+    const form = document.getElementById('orderForm');
+    const partsContainer = document.getElementById('partsContainer');
+
+    function openModal(order = null) {
+      modal.classList.add('active');
+      document.getElementById('modalTitle').textContent = order ? 'Редактирование заявки' : 'Новая заявка';
+      document.getElementById('editId').value = order?.id || '';
+      document.getElementById('clientPhone').value = order?.clientPhone || '';
+      document.getElementById('orderDate').value = order?.orderDate || new Date().toISOString().split('T')[0];
+      document.getElementById('estDate').value = order?.estDate || '';
+      document.getElementById('type').value = order?.type || '';
+      document.getElementById('reason').value = order?.reason || '';
+      document.getElementById('repairCost').value = order?.repairCost || '';
+      document.getElementById('transportCost').value = order?.transportCost || '0';
+      
+      partsContainer.innerHTML = '';
+      if (order?.parts?.length) order.parts.forEach(p => addPartRow(p));
+      else addPartRow();
+      
+      updateTotals();
+      form.onsubmit = handleSubmit;
+    }
+
+    function closeModal() { modal.classList.remove('active'); form.reset(); }
+
+    function addPartRow(data = {}) {
+      const div = document.createElement('div');
+      div.className = 'part-row';
+      div.innerHTML = `
+        <input type="text" placeholder="Название запчасти" value="${data.name||''}" class="part-name" required>
+        <select class="part-status">
+          <option value="search" ${data.status==='search'?'selected':''}>В поиске</option>
+          <option value="ordered" ${data.status==='ordered'?'selected':''}>Заказана</option>
+          <option value="bought" ${data.status==='bought'?'selected':''}>Куплена</option>
+          <option value="in_stock" ${data.status==='in_stock'?'selected':''}>В наличии</option>
+        </select>
+        <input type="number" step="0.01" placeholder="₽" value="${data.cost||''}" class="part-cost" oninput="updateTotals()">
+        <button type="button" class="btn btn-danger" style="padding:4px" onclick="this.parentElement.remove(); updateTotals()">✕</button>
+      `;
+      partsContainer.appendChild(div);
+    }
+
+    function updateTotals() {
+      const costs = Array.from(document.querySelectorAll('.part-cost')).map(i => parseFloat(i.value) || 0);
+      const partsSum = costs.reduce((a, b) => a + b, 0);
+      const transport = parseFloat(document.getElementById('transportCost').value) || 0;
+      const expenses = partsSum + transport;
+      const repair = parseFloat(document.getElementById('repairCost').value) || 0;
+      
+      document.getElementById('sumParts').textContent = fmt(partsSum);
+      document.getElementById('sumExpenses').textContent = fmt(expenses);
+      const profit = repair - expenses;
+      document.getElementById('sumProfit').textContent = fmt(profit);
+      document.getElementById('sumProfit').style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+    }
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('editId').value || Date.now().toString(36) + Math.random().toString(36).substr(2);
+      const parts = Array.from(document.querySelectorAll('.part-row')).map(row => ({
+        name: row.querySelector('.part-name').value,
+        status: row.querySelector('.part-status').value,
+        cost: parseFloat(row.querySelector('.part-cost').value) || 0
+      })).filter(p => p.name);
+
+      const order = {
+        id,
+        clientPhone: document.getElementById('clientPhone').value,
+        orderDate: document.getElementById('orderDate').value,
+        estDate: document.getElementById('estDate').value,
+        type: document.getElementById('type').value,
+        reason: document.getElementById('reason').value,
+        repairCost: parseFloat(document.getElementById('repairCost').value) || 0,
+        transportCost: parseFloat(document.getElementById('transportCost').value) || 0,
+        parts,
+        createdAt: orders.find(o=>o.id===id)?.createdAt || Date.now(),
+        updatedAt: Date.now()
+      };
+
+      const idx = orders.findIndex(o => o.id === id);
+      if (idx > -1) orders[idx] = order;
+      else orders.push(order);
+
+      save();
+      closeModal();
+      applyFilters();
+    }
+
+    function editOrder(id) {
+      const order = orders.find(o => o.id === id);
+      if (order) openModal(order);
+    }
+
+    function deleteOrder(id) {
+      if (confirm('Удалить заявку?')) {
+        orders = orders.filter(o => o.id !== id);
+        save();
+        applyFilters();
+      }
+    }
+
+    // EXPORT / IMPORT
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orders, null, 2));
+      const link = document.createElement('a');
+      link.href = dataStr;
+      link.download = `repair_orders_${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+    }
+
+    function importData(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
         try {
-            const imported = JSON.parse(e.target.result);
-            if (Array.isArray(imported) && imported.every(t => t.id && t.name && t.unit && t.price !== undefined)) {
-                const merged = imported.map(t => ({...t, unitLabel: t.unitLabel||getUnitLabel(t.unit), isDefault: DEFAULT_TARIFFS.some(dt=>dt.id===t.id)||t.isDefault||false}));
-                saveTariffs(merged);
-                showToast('✅', '#16A34A', 'Импорт успешен', `Загружено ${merged.length} тарифов`);
-                if (document.getElementById('tariffSettingsModal').classList.contains('active')) renderTariffEditor();
-            } else throw new Error('Неверный формат');
-        } catch (err) { showToast('❌', '#DC2626', 'Ошибка импорта', 'Проверьте файл'); }
-        input.value = '';
-    };
-    reader.readAsText(file);
-}
-
-// === ЭКСПОРТ В EXCEL ===
-async function exportReportToExcel() {
-    const dateFrom = document.getElementById('reportDateFrom').value;
-    const dateTo = document.getElementById('reportDateTo').value;
-    if (!dateFrom||!dateTo) { alert('⚠️ Выберите диапазон дат'); return; }
-    if (dateFrom > dateTo) { alert('⚠️ Дата начала позже даты окончания'); return; }
-    showToast('⏳', '#3B82F6', 'Подготовка...', 'Загрузка модуля Excel');
-    if (typeof XLSX === 'undefined') {
-        try {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
-            document.head.appendChild(script);
-            await new Promise(resolve => script.onload = resolve);
-        } catch (e) { showToast('❌', '#DC2626', 'Ошибка', 'Не удалось загрузить модуль Excel'); return; }
+          const data = JSON.parse(e.target.result);
+          if (!Array.isArray(data)) throw new Error('Неверный формат');
+          orders = data;
+          save();
+          applyFilters();
+          alert('✅ Данные импортированы');
+        } catch (err) { alert('❌ Ошибка импорта: ' + err.message); }
+      };
+      reader.readAsText(file);
+      input.value = '';
     }
-    const orders = loadOrders(), tariffs = getTariffs();
-    const filtered = orders.filter(o => o.date && o.date >= dateFrom && o.date <= dateTo);
-    if (filtered.length === 0) { alert('📭 Нет заказов за выбранный период'); return; }
-    const data = [['№ заказа','Дата','Деталь','Тариф','Кол-во','Значение','Длина','Ширина','Часы','Сумма (₽)']];
-    filtered.forEach(o => {
-        const tariff = tariffs.find(t => t.id === o.tariff);
-        data.push([o.orderNumber, formatDateYMD(o.date), o.detail, tariff?.name||o.tariff, o.qty||1, o.value??'', o.area1??'', o.area2??'', o.time??'', o.amount?.toFixed(2)||'0.00']);
+
+    // INIT
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTable();
+      document.getElementById('repairCost').addEventListener('input', updateTotals);
+      document.getElementById('transportCost').addEventListener('input', updateTotals);
     });
-    const totalAmount = filtered.reduce((s,o)=>s+(o.amount||0),0);
-    data.push(['','','','','','','','','ИТОГО:',totalAmount.toFixed(2)]);
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    ws['!cols'] = [{wch:12},{wch:10},{wch:20},{wch:15},{wch:8},{wch:12},{wch:10},{wch:10},{wch:8},{wch:12}];
-    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Отчет');
-    XLSX.writeFile(wb, `Отчет_заказы_${formatDateYMD(dateFrom)}_${formatDateYMD(dateTo)}.xlsx`);
-    showToast('✅', '#16A34A', 'Отчет готов', `Скачано ${filtered.length} заказов`);
-}
-
-// === ИМПОРТ ===
-document.getElementById('jsonImportInput').addEventListener('change', async function(e) {
-    const files = Array.from(e.target.files); if (files.length === 0) return;
-    showToast('⏳', '#3B82F6', 'Импорт...', `Обработка ${files.length} файл(ов)`);
-    let totalImported = 0, totalErrors = 0;
-    for (const file of files) {
-        try {
-            const content = await readFileAsText(file);
-            let importedOrders = content.trim().startsWith('{')||content.trim().startsWith('[') ? JSON.parse(content) : parseTxtOrders(content);
-            if (!Array.isArray(importedOrders)) importedOrders = [importedOrders];
-            if (importedOrders.length === 0) { totalErrors++; continue; }
-            const fileDate = extractDateFromFilename(file.name);
-            for (const item of importedOrders) {
-                let orderDate = item.date ? normalizeDate(item.date) : (fileDate||todayYMD());
-                if (!isValidDate(orderDate)) orderDate = todayYMD();
-                let tariffKey = item.tariff;
-                const tariffs = getTariffs();
-                if (tariffKey && !tariffs.find(t=>t.id===tariffKey)) { const f=tariffs.find(t=>t.name===tariffKey); if(f)tariffKey=f.id; else tariffKey=tariffs[0]?.id||'RASPIL_M2'; }
-                const amount = typeof item.amount==='number' ? item.amount : calculateAmount(tariffKey, item.value||0, item.area1||0, item.area2||0, item.time||0, item.qty||1);
-                const newOrder = { id: Date.now()+Math.random(), orderNumber: item.orderNumber||'ИМП-'+(totalImported+1), tariff: tariffKey, detail: item.detail||'—', qty: item.qty||1, value: item.value||null, area1: item.area1||null, area2: item.area2||null, time: item.time||null, amount: Math.round(amount*100)/100, date: orderDate, timestamp: new Date().toISOString() };
-                if (autoAcceptMode) {
-                    const shift = getCurrentShift(); if (shift?.active) newOrder.shiftId = shift.id;
-                    const orders = loadOrders(); orders.push(newOrder); saveOrders(orders);
-                } else { const preorders = loadPreorders(); preorders.push(newOrder); savePreorders(preorders); }
-                totalImported++;
-            }
-        } catch (err) { totalErrors++; }
-    }
-    if (autoAcceptMode) {
-        if (totalImported > 0) { updateUI(); renderCalendar(); showToast('✅', '#16A34A', 'Готово!', `Принято ${totalImported} заказов`); }
-        autoAcceptMode = false; updateImportModeIndicator();
-    } else {
-        if (totalImported > 0) { renderPreorders(); showToast('✅', '#16A34A', 'Готово!', `Загружено ${totalImported} в предзаказы`); }
-    }
-    if (totalErrors > 0) showToast('⚠️', '#DC2626', 'Внимание', `Ошибок: ${totalErrors}`);
-    this.value = '';
-});
-
-function readFileAsText(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader(); reader.onload = e => resolve(e.target.result); reader.onerror = reject; reader.readAsText(file, 'utf-8');
-    });
-}
-let autoAcceptMode = false;
-function updateImportModeIndicator() { document.getElementById('importModeIndicator').classList.toggle('show', autoAcceptMode); }
-
-// === НАВИГАЦИЯ ===
-document.querySelectorAll('.panel-item').forEach(item => {
-    item.addEventListener('click', () => {
-        document.querySelectorAll('.panel-item').forEach(i => i.classList.remove('active'));
-        document.querySelectorAll('.content-block').forEach(c => c.classList.remove('active'));
-        item.classList.add('active');
-        const target = item.dataset.target;
-        document.getElementById(target).classList.add('active');
-        if (target === 'stats') renderStats();
-        else if (target === 'main') updateUI();
-        else if (target === 'calendar') renderCalendar();
-        else if (target === 'preorders') renderPreorders();
-        else if (target === 'photos') renderPhotos();
-    });
-});
-
-// === АВАТАР ===
-function loadAvatar() {
-    const avatarData = localStorage.getItem('operator_avatar');
-    const avatarBtn = document.getElementById('avatarBtn');
-    if (avatarData) {
-        const img = document.createElement('img'); img.src = avatarData;
-        img.onerror = () => { localStorage.removeItem('operator_avatar'); avatarBtn.innerHTML = '<i class="fas fa-user"></i>'; };
-        avatarBtn.innerHTML = ''; avatarBtn.appendChild(img);
-    } else { avatarBtn.innerHTML = '<i class="fas fa-user"></i>'; }
-}
-document.getElementById('avatarBtn').addEventListener('click', () => document.getElementById('avatarUpload').click());
-document.getElementById('avatarUpload').addEventListener('change', function(e) {
-    const file = e.target.files[0]; if (!file || !file.type.match('image.*')) { alert('Выберите изображение'); return; }
-    const reader = new FileReader(); reader.onload = evt => { localStorage.setItem('operator_avatar', evt.target.result); loadAvatar(); }; reader.readAsDataURL(file);
-});
-
-// === PWA ===
-let deferredPrompt;
-const installPrompt = document.getElementById('installPrompt');
-window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredPrompt = e; installPrompt.classList.add('show'); });
-function installApp() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(r => { if(r.outcome==='accepted') console.log('✅ Installed'); deferredPrompt=null; installPrompt.classList.remove('show'); });
-    }
-}
-function closeInstallPrompt() { installPrompt.classList.remove('show'); }
-
-// === ИНИЦИАЛИЗАЦИЯ ===
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('viewDate').value = todayYMD();
-    const today = new Date();
-    document.getElementById('reportDateFrom').value = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
-    document.getElementById('reportDateTo').value = new Date(today.getFullYear(), today.getMonth()+1, 0).toISOString().split('T')[0];
-
-    populateTariffSelect('tariff'); populateTariffSelect('preTariff'); populateTariffSelect('editTariff'); populateTariffSelect('photoTariff');
-    updateMainFormFields(); updatePreorderFormFields(); updateEditFormFields(); updatePhotoFormFields();
-    updateTariffSummary();
-
-    // Обработчики изменения тарифов
-    ['tariff','preTariff','editTariff','photoTariff'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('change', () => {
-            if (id==='tariff') updateMainFormFields();
-            else if (id==='preTariff') updatePreorderFormFields();
-            else if (id==='editTariff') updateEditFormFields();
-            else updatePhotoFormFields();
-        });
-    });
-
-    checkAdWatched();
-    document.getElementById('monthEarnedLocked').addEventListener('click', showAdForMonthEarnings);
-
-    cleanupOldPhotos(20);
-    updateUI(); renderPreorders(); loadAvatar(); renderCalendar(); renderPhotos();
-
-    setTimeout(() => {
-        const loader = document.getElementById('appLoader');
-        if (loader) { loader.classList.add('hidden'); setTimeout(() => loader.remove(), 300); }
-    }, 100);
-});
-</script>
+  </script>
 </body>
 </html>
