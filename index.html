@@ -81,6 +81,8 @@
     .form-group label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
     .form-group input, .form-group select, .form-group textarea { padding: 8px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; }
     .form-group textarea { resize: vertical; min-height: 60px; }
+    .form-group select:disabled { background: #f1f5f9; color: var(--muted); cursor: not-allowed; }
+    
     .parts-section { margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 10px; border: 1px dashed var(--border); }
     .part-row { display: grid; grid-template-columns: 2fr 1.2fr 1fr 28px; gap: 6px; margin-bottom: 6px; align-items: end; }
     .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; padding: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; }
@@ -89,6 +91,10 @@
     .total-box .val { font-size: 0.95rem; font-weight: 600; }
     .total-box.profit .val { color: var(--success); }
     .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
+    
+    /* Revert Section */
+    .revert-box { margin-top: 16px; padding: 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; text-align: center; }
+    .revert-box p { font-size: 0.8rem; color: #991b1b; margin-bottom: 8px; }
 
     /* Detail View */
     .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
@@ -136,7 +142,7 @@
 
     <!-- Hidden Coin Input -->
     <div id="secretWrap">
-      <input type="text" id="secretInput" placeholder="введите код для пополнения" autocomplete="off">
+      <input type="text" id="secretInput" placeholder="••••••••" autocomplete="off">
     </div>
 
     <div class="controls">
@@ -184,6 +190,13 @@
           <div class="total-box"><div class="label">Затраты</div><div class="val" id="sumExp">0 ₽</div></div>
           <div class="total-box profit"><div class="label">Прибыль</div><div class="val" id="sumProfit">0 ₽</div></div>
         </div>
+
+        <!-- Revert Section -->
+        <div id="revertSection" class="revert-box" style="display:none;">
+          <p>⚠️ Статус «Выдан» установлен. Изменение запрещено.</p>
+          <button type="button" class="btn btn-danger" onclick="revertOrder()">↩️ Вернуть статус (-150 🪙)</button>
+        </div>
+
         <div class="form-actions">
           <button type="button" class="btn btn-outline" onclick="closeModal()">Отмена</button>
           <button type="submit" class="btn btn-primary">💾 Сохранить</button>
@@ -224,11 +237,12 @@
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
     const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
     
-    const DB_KEY = 'repair_db_v7';
-    const SETTINGS_KEY = 'repair_settings_v4';
+    const DB_KEY = 'repair_db_v8';
+    const SETTINGS_KEY = 'repair_settings_v5';
     const SECRET_CODE = 'AVITO2026'; // Скрытый код для пополнения
-    const COST_NEW_ORDER = 350;
+    const COST_NEW_ORDER = 30;
     const REWARD_COMPLETED = 10;
+    const COST_REVERT = 150;
 
     let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
     let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":50}');
@@ -353,6 +367,12 @@
       $('partsList').innerHTML = '';
       if (o?.parts?.length) o.parts.forEach(p=>addPartRow(p)); else addPartRow();
       calcTotals();
+      
+      // Status Lock Logic
+      const isIssued = o?.status === 'Выдан';
+      $('status').disabled = isIssued;
+      $('revertSection').style.display = isIssued ? 'block' : 'none';
+      
       form.onsubmit = handleSubmit;
     }
     function closeModal() { modal.classList.remove('active'); form.reset(); }
@@ -380,6 +400,20 @@
     function handleSubmit(e) {
       e.preventDefault();
       const isEdit = !!$('editId').value;
+      
+      // Security: prevent status change if already Выдан
+      let newStatus = $('status').value;
+      if (isEdit) {
+        const oldOrder = orders.find(o => o.id === $('editId').value);
+        if (oldOrder?.status === 'Выдан') newStatus = 'Выдан';
+        
+        // Reward logic: +10 only on first transition to Выдан
+        if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') {
+          settings.coins += REWARD_COMPLETED;
+          persistSettings();
+        }
+      }
+
       if (!isEdit) {
         if (settings.coins < COST_NEW_ORDER) {
           alert(`❌ Недостаточно коинов!\nНужно: ${COST_NEW_ORDER}, доступно: ${settings.coins}`);
@@ -394,15 +428,6 @@
         name: r.querySelector('.p-name').value, status: r.querySelector('.p-status').value, cost: parseFloat(r.querySelector('.p-cost').value)||0
       })).filter(p=>p.name);
       
-      const newStatus = $('status').value;
-      if (isEdit) {
-        const oldOrder = orders.find(o => o.id === id);
-        if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') {
-          settings.coins += REWARD_COMPLETED;
-          persistSettings();
-        }
-      }
-
       const order = { 
         id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, 
         type:$('type').value, status:newStatus, avitoLink:$('avitoLink').value, 
@@ -414,6 +439,28 @@
       if(idx>-1) orders[idx]=order; else orders.push(order);
       
       saveData(); closeModal(); applyFilters(); updateUI();
+    }
+
+    function revertOrder() {
+      const id = $('editId').value;
+      if (!id) return;
+      if (settings.coins < COST_REVERT) {
+        alert(`❌ Недостаточно коинов для возврата!\nНужно: ${COST_REVERT}, доступно: ${settings.coins}`);
+        return;
+      }
+      if (!confirm(`Вернуть заявку из статуса «Выдан»?\nБудет списано ${COST_REVERT} коинов.`)) return;
+
+      const order = orders.find(x => x.id === id);
+      if (order) {
+        order.status = 'Готово'; // Возврат на предыдущий логический этап
+        settings.coins -= COST_REVERT;
+        persistSettings();
+        saveData();
+        closeModal();
+        applyFilters();
+        updateUI();
+        alert('✅ Статус возвращен на «Готово».');
+      }
     }
 
     function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(orders)); }
