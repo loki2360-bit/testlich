@@ -47,7 +47,7 @@
     .actions { display: flex; gap: 5px; }
     .empty { text-align: center; padding: 30px; color: var(--muted); font-size: 0.85rem; }
 
-    /* Modal */
+    /* Modal Base */
     .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(3px); display: none; justify-content: center; align-items: center; padding: 16px; z-index: 100; }
     .modal.active { display: flex; }
     .modal-box { background: var(--card); width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); padding: 20px; }
@@ -70,31 +70,24 @@
     .total-box.profit .val { color: var(--success); }
     .form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; border-top: 1px solid var(--border); padding-top: 12px; }
 
-    /* Settings */
-    .settings-box { text-align: center; }
-    .settings-box input { width: 100%; max-width: 300px; margin: 10px auto; }
+    /* Detail View Styles */
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .detail-card { background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+    .detail-card h3 { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .detail-card p { margin: 4px 0; font-size: 0.85rem; }
+    .detail-card.full-width { grid-column: 1 / -1; }
+    .detail-section { margin-bottom: 16px; }
+    .detail-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.85rem; }
+    .detail-table th, .detail-table td { padding: 8px; border-bottom: 1px solid var(--border); text-align: left; }
+    .detail-finances { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 12px; }
+    .fin-card { display: flex; flex-direction: column; align-items: center; text-align: center; }
+    .fin-card span { font-size: 0.7rem; color: var(--muted); }
+    .fin-card strong { font-size: 1rem; font-weight: 600; }
+    .fin-card.profit strong { color: var(--success); }
 
-    /* Act Print */
-    .act-container { display: none; background: #fff; padding: 24px; max-width: 210mm; margin: 0 auto; font-size: 11pt; line-height: 1.4; color: #111; }
-    .act-header { text-align: center; margin-bottom: 16px; border-bottom: 2px solid #000; padding-bottom: 8px; }
-    .act-meta { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 10pt; }
-    .act-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
-    .act-table th, .act-table td { border: 1px solid #333; padding: 6px; text-align: left; font-size: 10pt; }
-    .act-total { text-align: right; margin: 12px 0; font-weight: bold; }
-    .act-qr { text-align: center; margin: 16px 0; }
-    .act-qr canvas { border: 1px solid #ccc; }
-    .act-sign { display: flex; justify-content: space-between; margin-top: 30px; }
-    .act-sign div { width: 45%; border-top: 1px solid #000; padding-top: 6px; text-align: center; font-size: 10pt; }
-
-    @media print {
-      body * { visibility: hidden; }
-      .act-container, .act-container * { visibility: visible; }
-      .act-container { position: absolute; left: 0; top: 0; display: block !important; padding: 10mm; width: 100%; }
-      .no-print { display: none !important; }
-      @page { margin: 10mm; }
-    }
+    /* Responsive */
     @media (max-width: 768px) {
-      .part-row, .totals, .form-grid { grid-template-columns: 1fr; }
+      .part-row, .totals, .form-grid, .detail-grid, .detail-finances { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
     }
   </style>
@@ -132,7 +125,7 @@
     </div>
   </div>
 
-  <!-- Modal Order -->
+  <!-- Order Form Modal -->
   <div id="modal" class="modal no-print" onclick="if(event.target===this) closeModal()">
     <div class="modal-box">
       <div class="modal-header"><h2 id="modalTitle">Новая заявка</h2><button class="close" onclick="closeModal()">&times;</button></div>
@@ -143,7 +136,7 @@
           <div class="form-group"><label>Дата приема</label><input type="date" id="orderDate" required></div>
           <div class="form-group"><label>Предв. сдача</label><input type="date" id="estDate"></div>
           <div class="form-group"><label>Тип техники</label><select id="type" required></select></div>
-          <div class="form-group"><label>Этап ремонта</label><select id="status"><option>Принят</option><option>Диагностика</option><option>В работе</option><option>Ожидание запчастей</option><option>Готово</option><option>Выдан</option></select></div>
+          <div class="form-group"><label>Этап ремонта</label><select id="status"></select></div>
           <div class="form-group" style="grid-column:1/-1"><label>Причина / Описание</label><textarea id="reason" rows="2"></textarea></div>
           <div class="form-group"><label>Стоимость работ (₽)</label><input type="number" id="repairCost" step="0.01" required></div>
           <div class="form-group"><label>Транспорт (₽)</label><input type="number" id="transportCost" step="0.01" value="0"></div>
@@ -166,12 +159,62 @@
     </div>
   </div>
 
-  <!-- Settings -->
+  <!-- Detail View Modal -->
+  <div id="detailModal" class="modal no-print" onclick="if(event.target===this) closeDetailModal()">
+    <div class="modal-box" style="max-width:780px;">
+      <div class="modal-header">
+        <h2 id="detailTitle">Заявка #...</h2>
+        <button class="close" onclick="closeDetailModal()">&times;</button>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card">
+          <h3>📅 Даты & Статус</h3>
+          <p><strong>Прием:</strong> <span id="dDate"></span></p>
+          <p><strong>Сдача (предв.):</strong> <span id="dEst"></span></p>
+          <p><strong>Статус:</strong> <span id="dStatus" class="status-badge"></span></p>
+        </div>
+        <div class="detail-card">
+          <h3>👤 Контакты</h3>
+          <p><strong>Клиент:</strong> <span id="dClient"></span></p>
+          <p><strong>Мастер:</strong> <span id="dMaster"></span></p>
+        </div>
+        <div class="detail-card full-width">
+          <h3>🔧 Устройство & Неисправность</h3>
+          <p><strong>Тип:</strong> <span id="dType"></span></p>
+          <p><strong>Описание:</strong> <span id="dReason"></span></p>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>📦 Запчасти</h3>
+        <table class="detail-table" id="dPartsTable">
+          <thead><tr><th>Наименование</th><th>Статус</th><th>Стоимость</th></tr></thead>
+          <tbody id="dPartsBody"></tbody>
+        </table>
+        <p id="dNoParts" class="empty" style="padding:10px 0">Запчасти не указаны</p>
+      </div>
+
+      <div class="detail-finances">
+        <div class="fin-card"><span>Запчасти</span><strong id="dPartsSum">0 ₽</strong></div>
+        <div class="fin-card"><span>Транспорт</span><strong id="dTrans">0 ₽</strong></div>
+        <div class="fin-card"><span>Всего затрат</span><strong id="dExp">0 ₽</strong></div>
+        <div class="fin-card"><span>Стоимость работ</span><strong id="dCost">0 ₽</strong></div>
+        <div class="fin-card profit"><span>Прибыль</span><strong id="dProfit">0 ₽</strong></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="editFromDetail()">✏️ Редактировать</button>
+        <button class="btn btn-primary" onclick="closeDetailModal()">Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
   <div id="settingsModal" class="modal no-print" onclick="if(event.target===this) closeSettings()">
     <div class="modal-box settings-box">
       <h2>⚙️ Настройки мастера</h2>
       <div class="form-group" style="margin-top:16px">
-        <label>Имя мастера (отображается в акте)</label>
+        <label>Имя мастера</label>
         <input type="text" id="masterName" placeholder="Иванов И.И.">
       </div>
       <div class="form-actions" style="justify-content:center">
@@ -180,44 +223,15 @@
     </div>
   </div>
 
-  <!-- Print Act -->
-  <div id="actContainer" class="act-container">
-    <div class="act-header"><h2>АКТ ВЫПОЛНЕННЫХ РАБОТ</h2><p>№ <span id="actId"></span> от <span id="actDate"></span></p></div>
-    <div class="act-meta">
-      <div><strong>Клиент:</strong> <span id="actClient"></span></div>
-      <div><strong>Мастер:</strong> <span id="actMaster"></span></div>
-    </div>
-    <p><strong>Устройство:</strong> <span id="actType"></span></p>
-    <p><strong>Неисправность:</strong> <span id="actReason"></span></p>
-    <p><strong>Срок:</strong> <span id="actEst"></span></p>
-
-    <table class="act-table">
-      <thead><tr><th>Наименование</th><th>Статус</th><th>Стоимость</th></tr></thead>
-      <tbody id="actParts"></tbody>
-    </table>
-
-    <div class="act-total">
-      <p>Запчасти: <span id="actPartsSum">0</span> ₽ | Транспорт: <span id="actTrans">0</span> ₽</p>
-      <p>Работы: <span id="actWork">0</span> ₽</p>
-      <hr style="margin:8px 0"><p style="font-size:12pt">ИТОГО: <span id="actTotal">0</span> ₽</p>
-    </div>
-
-    <div class="act-qr"><div id="qrCode"></div><small>Сканируйте для проверки заявки</small></div>
-    <div class="act-sign"><div>Мастер: _______________ / <span id="actMasterSign"></span></div><div>Клиент: _______________ / <span id="actClientSign"></span></div></div>
-  </div>
-
-  <!-- QR Generator (Embedded Public Domain) -->
-  <script>
-  var QRCode;!function(){function a(a){this.mode=4,this.data=a}function b(a,b){this.typeNumber=a,this.errorCorrectLevel=b,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[]}function c(a,b){if(void 0==a.length)throw new Error(a.length+"/"+b);for(var c=0;c<a.length&&0==a[c];)c++;this.num=new Array(a.length-c+b);for(var d=0;d<a.length-c;d++)this.num[d]=a[d+c]}function d(a,b){this.totalCount=a,this.dataCount=b}function e(){this.buffer=[],this.length=0}function f(a){var b=a.length,c=0;for(var d=0;d<b;d++)c^=a[d]<<7|a[d]>>1;return c}function g(a,b){for(var c=0;c<b;c++)a.push(0);return a}function h(a){for(var b=0;b<a.length;b++)a[b]=a[b].replace(/\s/g,"");return a.join("")}a.prototype={getLength:function(){return this.data.length},write:function(a){for(var b=0;b<this.data.length;b++)a.put(this.data.charCodeAt(b),8)}};b.prototype={addData:function(b){var c=new a(b);this.dataList.push(c),this.dataCache=null},isDark:function(a,b){if(0>a||this.moduleCount<=a||0>b||this.moduleCount<=b)throw new Error(a+","+b);return this.modules[a][b]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(a,b){this.moduleCount=4*this.typeNumber+17,this.modules=new Array(this.moduleCount);for(var c=0;c<this.moduleCount;c++){this.modules[c]=new Array(this.moduleCount);for(var d=0;d<this.moduleCount;d++)this.modules[c][d]=null}this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(a,b),this.typeNumber>=7&&this.setupTypeNumber(a),null==this.dataCache&&(this.dataCache=b.createData(this.typeNumber,this.errorCorrectLevel,this.dataList)),this.mapData(this.dataCache,b)},setupPositionProbePattern:function(a,b){for(var c=-1;7>=c;c++)if(!(-1>=a+c||this.moduleCount<=a+c))for(var d=-1;7>=d;d++)-1>=b+d||this.moduleCount<=b+d||(this.modules[a+c][b+d]=c>=0&&6>=c&&(0==d||6==d)||d>=0&&6>=d&&(0==c||6==c)||c>=2&&4>=c&&d>=2&&4>=d?!0:!1)},getBestMaskPattern:function(){for(var a=0,b=0,c=0;8>c;c++){this.makeImpl(!0,c);var d=f.getLostPoint(this);(0==c||a>d)&&(a=d,b=c)}return b},createMovieClip:function(a,b,c){var d=a.createEmptyMovieClip(b,c),e=1;this.make();for(var f=0;f<this.modules.length;f++)for(var g=0;g<this.modules[f].length;g++){var h=this.modules[f][g];h&&(d.beginFill(0,100),d.moveTo(g*e,f*e),d.lineTo((g+1)*e,f*e),d.lineTo((g+1)*e,(f+1)*e),d.lineTo(g*e,(f+1)*e),d.endFill())}return d},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2),null==this.modules[6][a]&&(this.modules[6][a]=0==a%2)},setupPositionAdjustPattern:function(){for(var a=f.getPatternPosition(this.typeNumber),b=0;b<a.length;b++)for(var c=0;c<a.length;c++){var d=a[b],e=a[c];if(null==this.modules[d][e])for(var f=-2;2>=f;f++)for(var g=-2;2>=g;g++)this.modules[d+f][e+g]=-2==f||2==f||-2==g||2==g||0==f&&0==g?!0:!1}},setupTypeNumber:function(a){for(var b=f.getBCHTypeNumber(this.typeNumber),c=0;18>c;c++){var d=!a&&1==(b>>c&1);this.modules[Math.floor(c/3)][c%3+this.moduleCount-8-3]=d}for(var c=0;18>c;c++){var d=!a&&1==(b>>c&1);this.modules[c%3+this.moduleCount-8-3][Math.floor(c/3)]=d}},setupTypeInfo:function(a,b){for(var c=this.errorCorrectLevel<<3|b,d=f.getBCHTypeInfo(c),e=0;15>e;e++){var g=!a&&1==(d>>e&1);6>e?this.modules[e][8]=g:8>e?this.modules[e+1][8]=g:this.modules[this.moduleCount-15+e][8]=g}for(var e=0;15>e;e++){var g=!a&&1==(d>>e&1);8>e?this.modules[8][this.moduleCount-e-1]=g:9>e?this.modules[8][15-e-1+1]=g:this.modules[8][15-e-1]=g}this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var c=-1,d=this.moduleCount-1,e=7,f=0,g=this.moduleCount-1;g>0;g-=2)for(6==g&&g--;;){for(var h=0;2>h;h++)if(null==this.modules[d][g-h]){var i=!1;f<a.length&&(i=1==(a[f]>>>e&1)),b.getMask(b,d,g-h)&&(i=!i),this.modules[d][g-h]=i,e--,-1==e&&(f++,e=7)}if(d+=c,0>d||this.moduleCount<=d){d-=c,c=-c;break}}}},b.PAD0=0xEC,b.PAD1=0x11,b.createData=function(a,c,d){for(var e=g.getRSBlocks(a,c),f=new b(a,c),h=0,i=0;i<e.length;i++)h+=e[i].dataCount;for(var j=0,k=0;k<d.length;k++)j+=d[k].getLength();if(j>h)throw new Error(j+">"+h);var l=0,m=new Array(h);for(k=0;k<d.length;k++){var n=d[k];for(i=0;i<n.getLength();i++)m[l++]=n.data.charAt(i)}for(k=0;k<m.length;k++)if(m[k]>255)throw new Error(m[k]);for(var o=new c(h);o.put(4,4),o.getLengthInBits()>8*o.getLengthInBits();o.put(0,8));for(;o.getLengthInBits()%8!=0;)o.putBit(!1);for(;;){if(o.getLengthInBits()>=8*o.getLengthInBits())break;if(o.put(b.PAD0,8),o.getLengthInBits()>=8*o.getLengthInBits())break;o.put(b.PAD1,8)}return b.createBytes(o,e)},b.createBytes=function(a,b){for(var c=0,d=0,e=0,f=new Array(b.length),g=new Array(b.length),h=0;h<b.length;h++){var i=b[h].dataCount,j=b[h].totalCount-i;d=Math.max(d,i),e=Math.max(e,j),f[h]=new Array(i);for(var k=0;k<f[h].length;k++)f[h][k]=255&a.buffer[k+c];c+=i;var l=new c(f[h]);f[h]=l.getPolynomial()}for(var m=0;m<e;m++)g[m]=0;for(h=0;h<b.length;h++){var n=b[h].totalCount-b[h].dataCount,o=f[h].getPolynomial();for(k=0;k<n;k++)g[k]=g[k]^o[k]}for(var p=0,q=0;q<b.length;q++)p+=b[q].totalCount;var r=new Array(p),s=0;for(q=0;q<b.length;q++){var t=f[q].getPolynomial();for(k=0;k<t.length;k++)r[s++]=t[k]}for(k=0;k<e;k++)r[s++]=g[k];return r},c.prototype={add:function(a){if(this.num.length!=a.num.length)throw new Error(this.num.length+"/"+a.num.length);for(var b=0;b<this.num.length;b++)this.num[b]+=a.num[b]},mul:function(a){for(var b=new Array(this.num.length+a.num.length-1),c=0;c<b.length;c++)b[c]=0;for(c=0;c<this.num.length;c++)for(var d=0;d<a.num.length;d++)b[c+d]^=this.num[c]*a.num[d];return new c(b)},mod:function(a){if(this.getLength()-a.getLength()<0)return this;for(var b=this.getLength()-a.getLength(),d=0;d<b;d++){var e=this.num.length-1-b+d;if(this.num[e]!=0)for(var f=0;f<a.num.length;f++)this.num[e-a.num.length+1+f]^=a.num[f]}return this}},d.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42,1,69,43],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46,1,75,47],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],c.getPolynomial=function(a){for(var b=new c([1]),d=0;d<a;d++)b=b.mul(new c([1,f.gexp(d)]));return b},c.getLengthInBits=function(a,b){if(1<=a&&10>a)switch(b){case 1:return 10;case 2:return 9;case 4:return 8;case 8:return 8}else if(27>a)switch(b){case 1:return 12;case 2:return 11;case 4:return 16;case 8:return 10}else if(41>a)switch(b){case 1:return 14;case 2:return 13;case 4:return 16;case 8:return 12}else throw new Error(a);},c.getPatternPosition=function(a){return f.PATTERN_POSITION_TABLE[a-1]},c.getMask=function(a,b,c){switch(a){case 0:return(b+c)%2==0;case 1:return b%2==0;case 2:return c%3==0;case 3:return(b+c)%3==0;case 4:return(Math.floor(b/2)+Math.floor(c/3))%2==0;case 5:return b*c%2+b*c%3==0;case 6:return(b*c%2+b*c%3)%2==0;case 7:return(b*c%3+(b+c)%2)%2==0;default:throw new Error(a);}},c.getMaskPenalty=function(a){var b=0;for(var c=0;c<a.moduleCount;c++)for(var d=0;d<a.moduleCount;d++){for(var e=0;6>c&&c+6<a.moduleCount;e++)a.isDark(c,e)&&a.isDark(c,e+1)&&a.isDark(c,e+2)&&a.isDark(c,e+3)&&a.isDark(c,e+4)&&a.isDark(c,e+5)&&b+=3}return b},e.prototype={get:function(a){var b=Math.floor(a/8);return 1==(this.buffer[b]>>>7-a%8&1)},put:function(a,b){for(var c=0;b>c;c++)this.putBit(1==(a>>>b-c-1&1))},getLengthInBits:function(){return this.length},putBit:function(a){var b=Math.floor(this.length/8);this.buffer.length<=b&&this.buffer.push(0),a&&(this.buffer[b]|=128>>>this.length%8),this.length++}},f={glog:function(a){if(1>a)throw new Error("glog("+a+")");return f.LOG_TABLE[a]},gexp:function(a){for(;0>a;)a+=255;for(;a>=256;)a-=255;return f.EXP_TABLE[a]},PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:1335,G18:7973,G15_MASK:21522,getBCHTypeInfo:function(a){for(var b=a<<10;f.getBCHDigit(b)-f.getBCHDigit(f.G15)>=0;)b^=f.G15<<f.getBCHDigit(b)-f.getBCHDigit(f.G15);return(a<<10|b)^f.G15_MASK},getBCHTypeNumber:function(a){for(var b=a<<12;f.getBCHDigit(b)-f.getBCHDigit(f.G18)>=0;)b^=f.G18<<f.getBCHDigit(b)-f.getBCHDigit(f.G18);return a<<12|b},getBCHDigit:function(a){for(var b=0;0!=a;)b++,a>>>=1;return b},getRSBlocks:function(a,b){var c=f.getRsBlockTable(a,b);if(void 0==c)throw new Error("bad rs block @ typeNumber:"+a+"/errorCorrectLevel:"+b);for(var d=c.length/3,e=[],g=0;g<d;g++)for(var h=c[3*g+0],i=c[3*g+1],j=c[3*g+2],k=0;k<h;k++)e.push(new d(j,i));return e},getRsBlockTable:function(a,b){switch(b){case 1:return d.RS_BLOCK_TABLE[4*(a-1)+0];case 0:return d.RS_BLOCK_TABLE[4*(a-1)+1];case 3:return d.RS_BLOCK_TABLE[4*(a-1)+2];case 2:return d.RS_BLOCK_TABLE[4*(a-1)+3];default:return}},getLostPoint:function(a){for(var b=a.getModuleCount(),c=0,d=0;b>d;d++)for(var e=0;b>e;e++){for(var f=0,g=a.isDark(d,e),h=-1;1>=h;h++)if(!(0>d+h||d+h>=b))for(var i=-1;1>=i;i++)0>e+i||e+i>=b||(0==h&&0==i||g==a.isDark(d+h,e+i)&&f++);f>5&&(c+=3+f-5)}for(d=0;b-1>d;d++)for(e=0;b-1>e;e++){var j=0;a.isDark(d,e)&&j++,a.isDark(d+1,e)&&j++,a.isDark(d,e+1)&&j++,a.isDark(d+1,e+1)&&j++,0==j||4==j&&(c+=3)}for(d=0;b>d;d++)for(e=0;b-6>e;e++)a.isDark(d,e)&&!a.isDark(d,e+1)&&a.isDark(d,e+2)&&a.isDark(d,e+3)&&a.isDark(d,e+4)&&!a.isDark(d,e+5)&&a.isDark(d,e+6)&&(c+=40);for(e=0;b>e;e++)for(d=0;b-6>d;d++)a.isDark(d,e)&&!a.isDark(d+1,e)&&a.isDark(d+2,e)&&a.isDark(d+3,e)&&a.isDark(d+4,e)&&!a.isDark(d+5,e)&&a.isDark(d+6,e)&&(c+=40);for(var k=0,e=0;b>e;e++)for(d=0;b>d;d++)a.isDark(d,e)&&k++;var l=Math.abs(100*k/b/b-50)/5;return c+=10*l}};QRCode=function(a,b){if(this.typeNumber=4,this.errorCorrectLevel=b||1,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[],void 0!=a)for(var c=0;c<a.length;c++)this.addData(a[c])};var g=QRCode;g.prototype={addData:function(a){var b=new a(a);this.dataList.push(b),this.dataCache=null},isDark:function(a,b){if(0>a||this.moduleCount<=a||0>b||this.moduleCount<=b)throw new Error(a+","+b);return this.modules[a][b]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(a,b){this.moduleCount=4*this.typeNumber+17,this.modules=new Array(this.moduleCount);for(var c=0;c<this.moduleCount;c++){this.modules[c]=new Array(this.moduleCount);for(var d=0;d<this.moduleCount;d++)this.modules[c][d]=null}this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(a,b),this.typeNumber>=7&&this.setupTypeNumber(a),null==this.dataCache&&(this.dataCache=g.createData(this.typeNumber,this.errorCorrectLevel,this.dataList)),this.mapData(this.dataCache,b)},setupPositionProbePattern:function(a,b){for(var c=-1;7>=c;c++)if(!(-1>=a+c||this.moduleCount<=a+c))for(var d=-1;7>=d;d++)-1>=b+d||this.moduleCount<=b+d||(this.modules[a+c][b+d]=c>=0&&6>=c&&(0==d||6==d)||d>=0&&6>=d&&(0==c||6==c)||c>=2&&4>=c&&d>=2&&4>=d?!0:!1)},getBestMaskPattern:function(){for(var a=0,b=0,c=0;8>c;c++){this.makeImpl(!0,c);var d=f.getLostPoint(this);(0==c||a>d)&&(a=d,b=c)}return b},createMovieClip:function(a,b,c){var d=a.createEmptyMovieClip(b,c),e=1;this.make();for(var f=0;f<this.modules.length;f++)for(var g=0;g<this.modules[f].length;g++){var h=this.modules[f][g];h&&(d.beginFill(0,100),d.moveTo(g*e,f*e),d.lineTo((g+1)*e,f*e),d.lineTo((g+1)*e,(f+1)*e),d.lineTo(g*e,(f+1)*e),d.endFill())}return d},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2),null==this.modules[6][a]&&(this.modules[6][a]=0==a%2)},setupPositionAdjustPattern=function(a){for(var b=f.getPatternPosition(this.typeNumber),c=0;c<b.length;c++)for(var d=0;d<b.length;d++){var e=b[c],g=b[d];if(null==this.modules[e][g])for(var h=-2;2>=h;h++)for(var i=-2;2>=i;i++)this.modules[e+h][g+i]=-2==h||2==h||-2==i||2==i||0==h&&0==i?!0:!1}},setupTypeInfo:function(a,b){for(var c=this.errorCorrectLevel<<3|b,d=f.getBCHTypeInfo(c),e=0;15>e;e++){var g=!a&&1==(d>>e&1);6>e?this.modules[e][8]=g:8>e?this.modules[e+1][8]=g:this.modules[this.moduleCount-15+e][8]=g}for(var e=0;15>e;e++){var g=!a&&1==(d>>e&1);8>e?this.modules[8][this.moduleCount-e-1]=g:9>e?this.modules[8][15-e-1+1]=g:this.modules[8][15-e-1]=g}this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var c=-1,d=this.moduleCount-1,e=7,f=0,g=this.moduleCount-1;g>0;g-=2)for(6==g&&g--;;){for(var h=0;2>h;h++)if(null==this.modules[d][g-h]){var i=!1;f<a.length&&(i=1==(a[f]>>>e&1)),b.getMask(b,d,g-h)&&(i=!i),this.modules[d][g-h]=i,e--,-1==e&&(f++,e=7)}if(d+=c,0>d||this.moduleCount<=d){d-=c,c=-c;break}}}},g.PAD0=236,g.PAD1=17,g.createData=function(a,b,c){for(var d=f.getRSBlocks(a,b),e=new g(a,b),h=0,i=0;i<d.length;i++)h+=d[i].dataCount;for(var j=0,k=0;k<c.length;k++)j+=c[k].getLength();if(j>h)throw new Error(j+">"+h);var l=0,m=new Array(h);for(k=0;k<c.length;k++){var n=c[k];for(i=0;i<n.getLength();i++)m[l++]=n.data.charAt(i)}for(k=0;k<m.length;k++)if(m[k]>255)throw new Error(m[k]);for(var o=new e(h);o.put(4,4),o.getLengthInBits()>8*o.getLengthInBits();o.put(0,8));for(;o.getLengthInBits()%8!=0;)o.putBit(!1);for(;;){if(o.getLengthInBits()>=8*o.getLengthInBits())break;if(o.put(g.PAD0,8),o.getLengthInBits()>=8*o.getLengthInBits())break;o.put(g.PAD1,8)}return g.createBytes(o,d)},g.createBytes=function(a,b){for(var c=0,d=0,e=0,f=new Array(b.length),g=new Array(b.length),h=0;h<b.length;h++){var i=b[h].dataCount,j=b[h].totalCount-i;d=Math.max(d,i),e=Math.max(e,j),f[h]=new Array(i);for(var k=0;k<f[h].length;k++)f[h][k]=255&a.buffer[k+c];c+=i;var l=new c(f[h]);f[h]=l.getPolynomial()}for(var m=0;m<e;m++)g[m]=0;for(h=0;h<b.length;h++){var n=b[h].totalCount-b[h].dataCount,o=f[h].getPolynomial();for(k=0;k<n;k++)g[k]=g[k]^o[k]}for(var p=0,q=0;q<b.length;q++)p+=b[q].totalCount;var r=new Array(p),s=0;for(q=0;q<b.length;q++){var t=f[q].getPolynomial();for(k=0;k<t.length;k++)r[s++]=t[k]}for(k=0;k<e;k++)r[s++]=g[k];return r}}();
-  </script>
-
   <script>
     const TYPES = ['Микроволновки','Колонки','Музыкальные центры','Наушники','Телефоны','Ноутбуки','Планшеты','Стиральные машины','Роутеры','ПК','Мониторы','Пылесосы'];
     const STATUSES = ['Принят','Диагностика','В работе','Ожидание запчастей','Готово','Выдан'];
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
-    const KEY = 'repair_db_v3';
+    const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
+    const KEY = 'repair_db_v4';
     let orders = JSON.parse(localStorage.getItem(KEY) || '[]');
     let settings = JSON.parse(localStorage.getItem('repair_settings') || '{"master":"Мастер"}');
+    let currentDetailId = null;
 
     const $ = id => document.getElementById(id);
     const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
@@ -257,7 +271,7 @@
             <td class="money" style="font-weight:600">${fmt(o.cost)}</td>
             <td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td>
             <td class="actions">
-              <button class="btn btn-outline btn-sm" onclick="openAct('${o.id}')">🖨️ Акт</button>
+              <button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️ Сводка</button>
               <button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button>
               <button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button>
             </td>
@@ -278,7 +292,7 @@
     }
     function resetFilters() { $('search').value=''; $('filterType').value=''; $('filterStatus').value=''; $('dateFrom').value=''; $('dateTo').value=''; renderTable(); }
 
-    // Modal
+    // Order Modal
     const modal = $('modal'), form = $('orderForm');
     function openModal(o=null) {
       modal.classList.add('active');
@@ -298,18 +312,15 @@
       form.onsubmit = handleSubmit;
     }
     function closeModal() { modal.classList.remove('active'); form.reset(); }
-    function openSettings() { $('masterName').value = settings.master; $('settingsModal').classList.add('active'); }
-    function closeSettings() { $('settingsModal').classList.remove('active'); }
 
     function addPartRow(d={}) {
       const row = document.createElement('div'); row.className='part-row';
       row.innerHTML = `
         <input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required>
-        <select class="p-status"><option value="search">В поиске</option><option value="ordered">Заказана</option><option value="bought">Куплена</option><option value="in_stock">В наличии</option></select>
+        <select class="p-status">${Object.entries(PART_STATUS).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`).join('')}</select>
         <input type="number" step="0.01" placeholder="₽" value="${d.cost||''}" class="p-cost" oninput="calcTotals()">
         <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>`;
       $('partsList').appendChild(row);
-      row.querySelector('.p-status').value = d.status||'search';
     }
 
     function calcTotals() {
@@ -337,42 +348,41 @@
     function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
     function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); save(); applyFilters(); } }
 
-    // Act & QR
-    function openAct(id) {
+    // Detail View
+    function openDetail(id) {
+      currentDetailId = id;
       const o = orders.find(x=>x.id===id); if(!o) return;
-      $('actId').textContent = o.id.slice(-6).toUpperCase();
-      $('actDate').textContent = toDate(o.date);
-      $('actClient').textContent = o.client;
-      $('actMaster').textContent = settings.master;
-      $('actMasterSign').textContent = settings.master;
-      $('actClientSign').textContent = o.client;
-      $('actType').textContent = o.type; $('actReason').textContent = o.reason||'—';
-      $('actEst').textContent = o.est ? toDate(o.est) : 'По согласованию';
+      $('detailTitle').textContent = `Заявка #${o.id.slice(-6).toUpperCase()}`;
+      $('dDate').textContent = toDate(o.date); $('dEst').textContent = o.est ? toDate(o.est) : 'Не указана';
+      $('dStatus').textContent = o.status; $('dStatus').className = `status-badge status-${STATUS_CLASSES[o.status]||''}`;
+      $('dClient').textContent = o.client; $('dMaster').textContent = settings.master;
+      $('dType').textContent = o.type; $('dReason').textContent = o.reason || 'Не указано';
 
-      const tb = $('actParts'); tb.innerHTML = '';
-      let pSum = 0, statusMap = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
-      o.parts.forEach(p => { pSum += parseFloat(p.cost)||0; tb.innerHTML += `<tr><td>${p.name}</td><td>${statusMap[p.status]||'-'}</td><td>${p.cost||0} ₽</td></tr>`; });
-      const tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0;
-      $('actPartsSum').textContent = pSum; $('actTrans').textContent = tr; $('actWork').textContent = cost;
-      $('actTotal').textContent = cost + pSum + tr;
+      const tbody = $('dPartsBody'); tbody.innerHTML = '';
+      let pSum = 0;
+      if (o.parts.length) {
+        $('dNoParts').style.display = 'none'; $('dPartsTable').style.display = 'table';
+        o.parts.forEach(p => {
+          const cost = parseFloat(p.cost)||0; pSum += cost;
+          tbody.innerHTML += `<tr><td>${p.name}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(cost)}</td></tr>`;
+        });
+      } else {
+        $('dNoParts').style.display = 'block'; $('dPartsTable').style.display = 'none';
+      }
 
-      // QR Generation
-      $('qrCode').innerHTML = '';
-      try {
-        const qrData = `REPAIR:${o.id}|${o.client}|${o.type}|${toDate(o.date)}`;
-        const qr = new QRCode(-1, 0); // Type 0, Level L
-        qr.addData(qrData); qr.make();
-        const size = 100, cell = size / qr.getModuleCount();
-        const canvas = document.createElement('canvas'); canvas.width = size; canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#fff'; ctx.fillRect(0,0,size,size);
-        ctx.fillStyle = '#000';
-        for(let r=0;r<qr.getModuleCount();r++) for(let c=0;c<qr.getModuleCount();c++) if(qr.isDark(r,c)) ctx.fillRect(c*cell, r*cell, cell, cell);
-        $('qrCode').appendChild(canvas);
-      } catch(e) { $('qrCode').textContent = 'QR не создан'; }
-
-      window.print();
+      const tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0, exp = pSum+tr;
+      $('dPartsSum').textContent = fmt(pSum); $('dTrans').textContent = fmt(tr);
+      $('dExp').textContent = fmt(exp); $('dCost').textContent = fmt(cost);
+      $('dProfit').textContent = fmt(cost-exp);
+      $('detailModal').classList.add('active');
     }
+
+    function closeDetailModal() { $('detailModal').classList.remove('active'); currentDetailId = null; }
+    function editFromDetail() { if(currentDetailId) { closeDetailModal(); setTimeout(()=>editOrder(currentDetailId), 100); } }
+
+    // Settings
+    function openSettings() { $('masterName').value = settings.master; $('settingsModal').classList.add('active'); }
+    function closeSettings() { $('settingsModal').classList.remove('active'); }
 
     // Backup
     function exportData() {
