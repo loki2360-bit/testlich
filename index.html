@@ -136,7 +136,7 @@
 
     <!-- Hidden Coin Input -->
     <div id="secretWrap">
-      <input type="text" id="secretInput" placeholder="••••••••" autocomplete="off">
+      <input type="text" id="secretInput" placeholder="введите код для пополнения" autocomplete="off">
     </div>
 
     <div class="controls">
@@ -227,7 +227,7 @@
     const DB_KEY = 'repair_db_v7';
     const SETTINGS_KEY = 'repair_settings_v4';
     const SECRET_CODE = 'AVITO2026'; // Скрытый код для пополнения
-    const COST_NEW_ORDER = 30;
+    const COST_NEW_ORDER = 350;
     const REWARD_COMPLETED = 10;
 
     let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
