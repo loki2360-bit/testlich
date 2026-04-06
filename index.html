@@ -3,137 +3,173 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Учет ремонтов | Авито</title>
+  <title>Учет ремонтов</title>
   <style>
     :root {
-      --bg: #f8fafc; --card: #fff; --text: #0f172a; --muted: #64748b;
-      --primary: #3b82f6; --primary-hover: #2563eb; --danger: #ef4444;
-      --success: #22c55e; --warning: #f59e0b; --border: #e2e8f0;
-      --radius: 8px; --shadow: 0 2px 8px rgba(0,0,0,0.08);
+      --bg: #f3f4f6; --card: #ffffff; --text: #111827; --muted: #6b7280;
+      --primary: #2563eb; --primary-hover: #1d4ed8; --danger: #ef4444;
+      --success: #10b981; --warning: #f59e0b; --border: #e5e7eb;
+      --radius: 10px; --shadow: 0 2px 8px rgba(0,0,0,0.06);
+      --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 20px; line-height: 1.5; }
-    
-    header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-    h1 { font-size: 1.5rem; font-weight: 600; }
-    .btn { padding: 8px 14px; border: none; border-radius: var(--radius); cursor: pointer; font-weight: 500; transition: 0.2s; }
-    .btn-primary { background: var(--primary); color: white; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+    body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; line-height: 1.5; }
+
+    /* Layout */
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; }
+    h1 { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.02em; }
+
+    .btn { padding: 8px 14px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.875rem; transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 6px; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--primary); color: #fff; }
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f9fafb; border-color: #d1d5db; }
     .btn-danger { background: var(--danger); color: white; }
-    
-    .controls { background: var(--card); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-    .controls input, .controls select { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); }
-    
-    .table-wrapper { overflow-x: auto; background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); }
-    table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-    th { background: #f1f5f9; font-weight: 600; position: sticky; top: 0; }
-    tr:hover { background: #f8fafc; }
-    .status { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; display: inline-block; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-sm { padding: 5px 10px; font-size: 0.8rem; }
+
+    .controls { background: var(--card); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; align-items: end; }
+    .control-group label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; display: block; }
+    .control-group input, .control-group select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.875rem; transition: border 0.15s; }
+    .control-group input:focus, .control-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+    /* Table */
+    .table-wrap { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    th { background: #f9fafb; font-weight: 600; color: var(--muted); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+    .status { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 500; background: #f3f4f6; color: var(--muted); }
+    .status-search { background: #f3f4f6; color: #4b5563; }
     .status-ordered { background: #dbeafe; color: #1e40af; }
     .status-bought { background: #fef3c7; color: #92400e; }
-    .status-instok { background: #dcfce7; color: #166534; }
-    .status-search { background: #f3f4f6; color: #4b5563; }
-    
-    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 100; }
-    .modal.active { display: flex; }
-    .modal-content { background: var(--card); padding: 24px; border-radius: var(--radius); width: 100%; max-width: 700px; max-height: 90vh; overflow-y: auto; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin-bottom: 16px; }
+    .status-in_stock { background: #dcfce7; color: #166534; }
+    .money { font-variant-numeric: tabular-nums; font-weight: 500; }
+    .money.pos { color: var(--success); } .money.neg { color: var(--danger); }
+    .actions { display: flex; gap: 6px; }
+    .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 0.9rem; }
+
+    /* Modal */
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 100; transition: opacity 0.2s; }
+    .modal.active { display: flex; opacity: 1; }
+    .modal-box { background: var(--card); width: 100%; max-width: 680px; max-height: 92vh; overflow-y: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); padding: 24px; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .modal-header h2 { font-size: 1.2rem; font-weight: 600; }
+    .close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--muted); line-height: 1; }
+    .close:hover { color: var(--text); }
+
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
     .form-group { display: flex; flex-direction: column; }
-    .form-group label { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
-    .form-group input, .form-group select, .form-group textarea { padding: 8px; border: 1px solid var(--border); border-radius: 6px; }
-    
-    .parts-section { margin-top: 16px; border: 1px dashed var(--border); padding: 12px; border-radius: var(--radius); }
-    .part-row { display: grid; grid-template-columns: 2fr 1.5fr 1fr 40px; gap: 8px; margin-bottom: 8px; align-items: end; }
-    .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; background: #f8fafc; padding: 12px; border-radius: 6px; }
-    .total-card { text-align: center; }
-    .total-card .val { font-size: 1.1rem; font-weight: 700; }
-    .total-card.profit .val { color: var(--success); }
-    
-    .actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
-    .hidden { display: none; }
-    .empty { text-align: center; padding: 40px; color: var(--muted); }
-    .file-input { display: none; }
+    .form-group label { font-size: 0.8rem; color: var(--muted); margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea { padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.875rem; transition: all 0.15s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .form-group textarea { resize: vertical; min-height: 70px; }
+
+    .parts-section { margin-top: 16px; padding: 16px; background: #f9fafb; border-radius: 10px; border: 1px dashed var(--border); }
+    .parts-section h3 { font-size: 0.95rem; margin-bottom: 10px; color: var(--text); }
+    .part-row { display: grid; grid-template-columns: 2fr 1.2fr 1fr 32px; gap: 8px; margin-bottom: 8px; align-items: end; }
+    .part-row input, .part-row select { padding: 7px 10px; font-size: 0.85rem; }
+    .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; padding: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; }
+    .total-box { text-align: center; }
+    .total-box .label { font-size: 0.75rem; color: var(--muted); margin-bottom: 4px; }
+    .total-box .val { font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .total-box.profit .val { color: var(--success); }
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+    /* Act Print Template */
+    .act-container { display: none; background: #fff; padding: 30px; max-width: 210mm; margin: 0 auto; font-size: 12pt; line-height: 1.4; }
+    .act-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+    .act-table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+    .act-table th, .act-table td { border: 1px solid #333; padding: 8px; text-align: left; font-size: 11pt; }
+    .act-table th { background: #f5f5f5; }
+    .act-total { text-align: right; margin: 15px 0; font-weight: bold; }
+    .act-sign { display: flex; justify-content: space-between; margin-top: 40px; }
+    .act-sign div { width: 45%; border-top: 1px solid #000; padding-top: 5px; text-align: center; }
+
+    /* Print Override */
+    @media print {
+      body * { visibility: hidden; }
+      .act-container, .act-container * { visibility: visible; }
+      .act-container { position: absolute; left: 0; top: 0; display: block !important; padding: 0; width: 100%; }
+      .no-print { display: none !important; }
+      @page { margin: 15mm; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .part-row { grid-template-columns: 1fr; gap: 6px; }
+      .totals { grid-template-columns: 1fr; gap: 10px; }
+      .form-grid { grid-template-columns: 1fr; }
+      table { min-width: 600px; }
+      .table-wrap { overflow-x: auto; }
+    }
   </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>🛠️ Учет ремонтов</h1>
+        <p style="font-size:0.8rem;color:var(--muted);margin-top:2px">Локальное приложение • Без сервера • Данные в вашем браузере</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-outline" onclick="exportData()">📥 Экспорт</button>
+        <label class="btn btn-outline" style="cursor:pointer">📤 Импорт <input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
+        <button class="btn btn-primary" onclick="openModal()">+ Заявка</button>
+      </div>
+    </header>
 
-  <header>
-    <h1>🛠️ Учет ремонтов</h1>
-    <div>
-      <button class="btn btn-outline" onclick="exportData()">📥 Экспорт JSON</button>
-      <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">📤 Импорт JSON</button>
-      <input type="file" id="importFile" class="file-input" accept=".json" onchange="importData(this)">
-      <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
+    <div class="controls no-print">
+      <div class="control-group"><label>Поиск</label><input type="text" id="search" placeholder="Клиент, техника, причина..." oninput="applyFilters()"></div>
+      <div class="control-group"><label>Тип техники</label>
+        <select id="filterType" onchange="applyFilters()"><option value="">Все</option></select>
+      </div>
+      <div class="control-group"><label>С даты</label><input type="date" id="dateFrom" onchange="applyFilters()"></div>
+      <div class="control-group"><label>По дату</label><input type="date" id="dateTo" onchange="applyFilters()"></div>
+      <div class="control-group"><button class="btn btn-outline" style="width:100%;margin-top:18px" onclick="resetFilters()">Сброс</button></div>
     </div>
-  </header>
 
-  <div class="controls">
-    <input type="text" id="search" placeholder="🔍 Поиск (клиент, техника, причина)" oninput="applyFilters()">
-    <select id="filterType" onchange="applyFilters()">
-      <option value="">Все типы техники</option>
-      <option>Микроволновки</option><option>Колонки</option><option>Музыкальные центры</option>
-      <option>Наушники</option><option>Телефоны</option><option>Ноутбуки</option>
-      <option>Планшеты</option><option>Стиральные машины</option><option>Роутеры</option>
-      <option>ПК</option><option>Мониторы</option><option>Пылесосы</option>
-    </select>
-    <input type="date" id="filterDateFrom" onchange="applyFilters()">
-    <input type="date" id="filterDateTo" onchange="applyFilters()">
-    <button class="btn btn-outline" onclick="resetFilters()">Сброс</button>
+    <div class="table-wrap no-print">
+      <table id="mainTable">
+        <thead><tr><th>ID</th><th>Прием</th><th>Клиент</th><th>Устройство</th><th>Запчасти</th><th>Запчасти</th><th>Транспорт</th><th>Себест.</th><th>Стоимость</th><th>Прибыль</th><th>Действия</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div id="emptyState" class="empty hidden">Заявок нет. Нажмите «+ Заявка» для создания.</div>
+    </div>
   </div>
 
-  <div class="table-wrapper">
-    <table id="table">
-      <thead>
-        <tr>
-          <th>ID</th><th>Дата приема</th><th>Клиент</th><th>Техника</th>
-          <th>Запчасти</th><th>Запчасти ₽</th><th>Транспорт ₽</th>
-          <th>Себестоимость ₽</th><th>Стоимость ремонта ₽</th><th>Прибыль ₽</th><th>Действия</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-    <div id="emptyState" class="empty hidden">Заявок пока нет. Нажмите «+ Новая заявка»</div>
-  </div>
-
-  <!-- Модальное окно -->
-  <div id="modal" class="modal" onclick="if(event.target===this) closeModal()">
-    <div class="modal-content">
-      <h2 id="modalTitle">Новая заявка</h2>
+  <!-- Modal Form -->
+  <div id="modal" class="modal no-print" onclick="if(event.target===this) closeModal()">
+    <div class="modal-box">
+      <div class="modal-header"><h2 id="modalTitle">Новая заявка</h2><button class="close" onclick="closeModal()">&times;</button></div>
       <form id="orderForm">
         <input type="hidden" id="editId">
         <div class="form-grid">
-          <div class="form-group"><label>Телефон клиента</label><input type="tel" id="clientPhone" required></div>
+          <div class="form-group"><label>Телефон клиента</label><input type="tel" id="client" required placeholder="+7..."></div>
           <div class="form-group"><label>Дата приема</label><input type="date" id="orderDate" required></div>
-          <div class="form-group"><label>Предв. дата ремонта</label><input type="date" id="estDate"></div>
-          <div class="form-group"><label>Тип техники</label>
-            <select id="type" required>
-              <option value="">Выберите...</option>
-              <option>Микроволновки</option><option>Колонки</option><option>Музыкальные центры</option>
-              <option>Наушники</option><option>Телефоны</option><option>Ноутбуки</option>
-              <option>Планшеты</option><option>Стиральные машины</option><option>Роутеры</option>
-              <option>ПК</option><option>Мониторы</option><option>Пылесосы</option>
-            </select>
-          </div>
-          <div class="form-group" style="grid-column: 1 / -1;"><label>Причина поломки</label><textarea id="reason" rows="2"></textarea></div>
-          <div class="form-group"><label>Стоимость ремонта (клиент) ₽</label><input type="number" id="repairCost" step="0.01" required></div>
-          <div class="form-group"><label>Транспортные затраты ₽</label><input type="number" id="transportCost" step="0.01" value="0"></div>
+          <div class="form-group"><label>Предв. дата сдачи</label><input type="date" id="estDate"></div>
+          <div class="form-group"><label>Тип техники</label><select id="type" required></select></div>
+          <div class="form-group" style="grid-column:1/-1"><label>Причина поломки / Описание</label><textarea id="reason" rows="2"></textarea></div>
+          <div class="form-group"><label>Стоимость работ (₽)</label><input type="number" id="repairCost" step="0.01" required></div>
+          <div class="form-group"><label>Транспорт (₽)</label><input type="number" id="transportCost" step="0.01" value="0"></div>
         </div>
 
         <div class="parts-section">
           <h3>Запчасти</h3>
-          <div id="partsContainer"></div>
-          <button type="button" class="btn btn-outline" onclick="addPartRow()" style="margin-top:8px; font-size:0.85rem;">+ Добавить запчасть</button>
+          <div id="partsList"></div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="addPartRow()" style="margin-top:8px">+ Добавить запчасть</button>
         </div>
 
         <div class="totals">
-          <div class="total-card"><div>Запчасти</div><div class="val" id="sumParts">0 ₽</div></div>
-          <div class="total-card"><div>Всего затрат</div><div class="val" id="sumExpenses">0 ₽</div></div>
-          <div class="total-card profit"><div>Прибыль</div><div class="val" id="sumProfit">0 ₽</div></div>
+          <div class="total-box"><div class="label">Запчасти</div><div class="val" id="sumParts">0 ₽</div></div>
+          <div class="total-box"><div class="label">Всего затрат</div><div class="val" id="sumExp">0 ₽</div></div>
+          <div class="total-box profit"><div class="label">Прибыль</div><div class="val" id="sumProfit">0 ₽</div></div>
         </div>
 
-        <div class="actions">
+        <div class="form-actions">
           <button type="button" class="btn btn-outline" onclick="closeModal()">Отмена</button>
           <button type="submit" class="btn btn-primary">💾 Сохранить</button>
         </div>
@@ -141,210 +177,205 @@
     </div>
   </div>
 
-  <script>
-    const STORAGE_KEY = 'repairOrders_v1';
-    let orders = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  <!-- Print Act -->
+  <div id="actContainer" class="act-container">
+    <div class="act-header">
+      <h2>АКТ ВЫПОЛНЕННЫХ РАБОТ</h2>
+      <p>№ <span id="actId"></span> от <span id="actDate"></span></p>
+    </div>
+    <p><strong>Клиент:</strong> <span id="actClient"></span></p>
+    <p><strong>Устройство:</strong> <span id="actType"></span></p>
+    <p><strong>Неисправность:</strong> <span id="actReason"></span></p>
+    <p><strong>Срок выполнения:</strong> <span id="actEst"></span></p>
 
-    const fmt = n => new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(n);
+    <table class="act-table">
+      <thead><tr><th>Наименование</th><th>Статус</th><th>Стоимость (₽)</th></tr></thead>
+      <tbody id="actParts"></tbody>
+    </table>
+
+    <div class="act-total">
+      <p>Стоимость запчастей: <span id="actPartsSum">0</span> ₽</p>
+      <p>Транспортные расходы: <span id="actTrans">0</span> ₽</p>
+      <p>Стоимость работ: <span id="actWork">0</span> ₽</p>
+      <hr style="margin:10px 0">
+      <p style="font-size:13pt">ИТОГО К ОПЛАТЕ: <span id="actTotal">0</span> ₽</p>
+    </div>
+
+    <div class="act-sign">
+      <div>Мастер: _______________ / <span id="actMasterSign"></span></div>
+      <div>Клиент: _______________ / <span id="actClientSign"></span></div>
+    </div>
+  </div>
+
+  <script>
+    const TYPES = ['Микроволновки','Колонки','Музыкальные центры','Наушники','Телефоны','Ноутбуки','Планшеты','Стиральные машины','Роутеры','ПК','Мониторы','Пылесосы'];
+    const STATUS_MAP = { search:'В поиске', ordered:'Заказана', bought:'Куплена', in_stock:'В наличии' };
+    const KEY = 'repair_db_v2';
+    let orders = JSON.parse(localStorage.getItem(KEY) || '[]');
+
+    const $ = id => document.getElementById(id);
+    const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
 
-    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(orders)); }
+    // Init UI
+    window.onload = () => {
+      const sel = $('filterType'), typeSel = $('type');
+      ['', ...TYPES].forEach(t => {
+        const o = document.createElement('option'); o.value = t; o.textContent = t || 'Все';
+        sel.appendChild(o); typeSel.appendChild(o.cloneNode(true));
+      });
+      renderTable();
+      $('repairCost').oninput = $('transportCost').oninput = calcTotals;
+    };
+
+    function save() { localStorage.setItem(KEY, JSON.stringify(orders)); }
 
     function renderTable(data = orders) {
-      const tbody = document.getElementById('tbody');
-      const empty = document.getElementById('emptyState');
-      tbody.innerHTML = '';
-      
-      if (data.length === 0) { empty.classList.remove('hidden'); return; }
+      const tb = $('tbody'), empty = $('emptyState');
+      tb.innerHTML = '';
+      if (!data.length) { empty.classList.remove('hidden'); return; }
       empty.classList.add('hidden');
 
-      data.sort((a, b) => b.createdAt - a.createdAt).forEach(o => {
-        const partsSum = o.parts.reduce((s, p) => s + (parseFloat(p.cost) || 0), 0);
-        const expenses = partsSum + (parseFloat(o.transportCost) || 0);
-        const profit = (parseFloat(o.repairCost) || 0) - expenses;
-
-        const partsStatus = o.parts.map(p => `<span class="status status-${p.status}">${p.name}</span>`).join('<br>');
+      data.sort((a,b)=>b.createdAt-a.createdAt).forEach(o => {
+        const partsSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
+        const exp = partsSum + (parseFloat(o.transport)||0);
+        const profit = (parseFloat(o.cost)||0) - exp;
+        const partsBadges = o.parts.map(p=>`<span class="status status-${p.status}">${STATUS_MAP[p.status]||p.name}</span>`).join('<br>');
         
-        tbody.innerHTML += `
+        tb.innerHTML += `
           <tr>
             <td>${o.id.slice(-6).toUpperCase()}</td>
-            <td>${toDate(o.orderDate)}</td>
-            <td>${o.clientPhone}</td>
+            <td>${toDate(o.date)}</td>
+            <td>${o.client}</td>
             <td>${o.type}</td>
-            <td style="font-size:0.8rem">${partsStatus || 'Нет'}</td>
-            <td>${fmt(partsSum)}</td>
-            <td>${fmt(o.transportCost)}</td>
-            <td>${fmt(expenses)}</td>
-            <td style="font-weight:600">${fmt(o.repairCost)}</td>
-            <td style="font-weight:600; color: ${profit >= 0 ? 'var(--success)' : 'var(--danger)'}">${fmt(profit)}</td>
-            <td>
-              <button class="btn btn-outline" style="padding:4px 8px" onclick="editOrder('${o.id}')">✏️</button>
-              <button class="btn btn-danger" style="padding:4px 8px" onclick="deleteOrder('${o.id}')">🗑️</button>
+            <td style="font-size:0.8rem">${partsBadges||'—'}</td>
+            <td class="money">${fmt(partsSum)}</td>
+            <td class="money">${fmt(o.transport)}</td>
+            <td class="money">${fmt(exp)}</td>
+            <td class="money" style="font-weight:600">${fmt(o.cost)}</td>
+            <td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td>
+            <td class="actions">
+              <button class="btn btn-outline btn-sm" onclick="openAct('${o.id}')">🖨️ Акт</button>
+              <button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button>
+              <button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button>
             </td>
-          </tr>
-        `;
+          </tr>`;
       });
     }
 
     function applyFilters() {
-      const q = document.getElementById('search').value.toLowerCase();
-      const type = document.getElementById('filterType').value;
-      const dFrom = document.getElementById('filterDateFrom').value;
-      const dTo = document.getElementById('filterDateTo').value;
-
-      const filtered = orders.filter(o => {
-        const matchText = !q || o.clientPhone.toLowerCase().includes(q) || o.type.toLowerCase().includes(q) || (o.reason||'').toLowerCase().includes(q);
-        const matchType = !type || o.type === type;
-        const matchDate = (!dFrom || o.orderDate >= dFrom) && (!dTo || o.orderDate <= dTo);
-        return matchText && matchType && matchDate;
+      const q = $('search').value.toLowerCase();
+      const t = $('filterType').value;
+      const d1 = $('dateFrom').value, d2 = $('dateTo').value;
+      const res = orders.filter(o => {
+        const matchQ = !q || o.client.toLowerCase().includes(q) || o.type.toLowerCase().includes(q) || (o.reason||'').toLowerCase().includes(q);
+        const matchT = !t || o.type===t;
+        const matchD = (!d1 || o.date>=d1) && (!d2 || o.date<=d2);
+        return matchQ && matchT && matchD;
       });
-      renderTable(filtered);
+      renderTable(res);
     }
 
-    function resetFilters() {
-      document.getElementById('search').value = '';
-      document.getElementById('filterType').value = '';
-      document.getElementById('filterDateFrom').value = '';
-      document.getElementById('filterDateTo').value = '';
-      renderTable();
-    }
+    function resetFilters() { $('search').value=''; $('filterType').value=''; $('dateFrom').value=''; $('dateTo').value=''; renderTable(); }
 
-    // MODAL & FORM
-    const modal = document.getElementById('modal');
-    const form = document.getElementById('orderForm');
-    const partsContainer = document.getElementById('partsContainer');
-
-    function openModal(order = null) {
+    // Modal
+    const modal = $('modal'), form = $('orderForm');
+    function openModal(o=null) {
       modal.classList.add('active');
-      document.getElementById('modalTitle').textContent = order ? 'Редактирование заявки' : 'Новая заявка';
-      document.getElementById('editId').value = order?.id || '';
-      document.getElementById('clientPhone').value = order?.clientPhone || '';
-      document.getElementById('orderDate').value = order?.orderDate || new Date().toISOString().split('T')[0];
-      document.getElementById('estDate').value = order?.estDate || '';
-      document.getElementById('type').value = order?.type || '';
-      document.getElementById('reason').value = order?.reason || '';
-      document.getElementById('repairCost').value = order?.repairCost || '';
-      document.getElementById('transportCost').value = order?.transportCost || '0';
-      
-      partsContainer.innerHTML = '';
-      if (order?.parts?.length) order.parts.forEach(p => addPartRow(p));
-      else addPartRow();
-      
-      updateTotals();
+      $('modalTitle').textContent = o ? 'Редактирование' : 'Новая заявка';
+      $('editId').value = o?.id || '';
+      $('client').value = o?.client || '';
+      $('orderDate').value = o?.date || new Date().toISOString().split('T')[0];
+      $('estDate').value = o?.est || '';
+      $('type').value = o?.type || '';
+      $('reason').value = o?.reason || '';
+      $('repairCost').value = o?.cost || '';
+      $('transportCost').value = o?.transport || 0;
+      $('partsList').innerHTML = '';
+      if (o?.parts?.length) o.parts.forEach(p=>addPartRow(p)); else addPartRow();
+      calcTotals();
       form.onsubmit = handleSubmit;
     }
-
     function closeModal() { modal.classList.remove('active'); form.reset(); }
 
-    function addPartRow(data = {}) {
-      const div = document.createElement('div');
-      div.className = 'part-row';
-      div.innerHTML = `
-        <input type="text" placeholder="Название запчасти" value="${data.name||''}" class="part-name" required>
-        <select class="part-status">
-          <option value="search" ${data.status==='search'?'selected':''}>В поиске</option>
-          <option value="ordered" ${data.status==='ordered'?'selected':''}>Заказана</option>
-          <option value="bought" ${data.status==='bought'?'selected':''}>Куплена</option>
-          <option value="in_stock" ${data.status==='in_stock'?'selected':''}>В наличии</option>
-        </select>
-        <input type="number" step="0.01" placeholder="₽" value="${data.cost||''}" class="part-cost" oninput="updateTotals()">
-        <button type="button" class="btn btn-danger" style="padding:4px" onclick="this.parentElement.remove(); updateTotals()">✕</button>
-      `;
-      partsContainer.appendChild(div);
+    function addPartRow(d={}) {
+      const row = document.createElement('div'); row.className='part-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required>
+        <select class="p-status">${Object.entries(STATUS_MAP).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`).join('')}</select>
+        <input type="number" step="0.01" placeholder="₽" value="${d.cost||''}" class="p-cost" oninput="calcTotals()">
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>`;
+      $('partsList').appendChild(row);
     }
 
-    function updateTotals() {
-      const costs = Array.from(document.querySelectorAll('.part-cost')).map(i => parseFloat(i.value) || 0);
-      const partsSum = costs.reduce((a, b) => a + b, 0);
-      const transport = parseFloat(document.getElementById('transportCost').value) || 0;
-      const expenses = partsSum + transport;
-      const repair = parseFloat(document.getElementById('repairCost').value) || 0;
-      
-      document.getElementById('sumParts').textContent = fmt(partsSum);
-      document.getElementById('sumExpenses').textContent = fmt(expenses);
-      const profit = repair - expenses;
-      document.getElementById('sumProfit').textContent = fmt(profit);
-      document.getElementById('sumProfit').style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+    function calcTotals() {
+      const costs = Array.from(document.querySelectorAll('.p-cost')).map(i=>parseFloat(i.value)||0);
+      const pSum = costs.reduce((a,b)=>a+b,0);
+      const tr = parseFloat($('transportCost').value)||0;
+      const cost = parseFloat($('repairCost').value)||0;
+      const exp = pSum+tr;
+      $('sumParts').textContent = fmt(pSum);
+      $('sumExp').textContent = fmt(exp);
+      $('sumProfit').textContent = fmt(cost-exp);
+      $('sumProfit').style.color = (cost-exp)>=0 ? 'var(--success)' : 'var(--danger)';
     }
 
     function handleSubmit(e) {
       e.preventDefault();
-      const id = document.getElementById('editId').value || Date.now().toString(36) + Math.random().toString(36).substr(2);
-      const parts = Array.from(document.querySelectorAll('.part-row')).map(row => ({
-        name: row.querySelector('.part-name').value,
-        status: row.querySelector('.part-status').value,
-        cost: parseFloat(row.querySelector('.part-cost').value) || 0
-      })).filter(p => p.name);
-
-      const order = {
-        id,
-        clientPhone: document.getElementById('clientPhone').value,
-        orderDate: document.getElementById('orderDate').value,
-        estDate: document.getElementById('estDate').value,
-        type: document.getElementById('type').value,
-        reason: document.getElementById('reason').value,
-        repairCost: parseFloat(document.getElementById('repairCost').value) || 0,
-        transportCost: parseFloat(document.getElementById('transportCost').value) || 0,
-        parts,
-        createdAt: orders.find(o=>o.id===id)?.createdAt || Date.now(),
-        updatedAt: Date.now()
-      };
-
-      const idx = orders.findIndex(o => o.id === id);
-      if (idx > -1) orders[idx] = order;
-      else orders.push(order);
-
-      save();
-      closeModal();
-      applyFilters();
+      const id = $('editId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+      const parts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
+        name: r.querySelector('.p-name').value, status: r.querySelector('.p-status').value, cost: parseFloat(r.querySelector('.p-cost').value)||0
+      })).filter(p=>p.name);
+      const order = { id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, type:$('type').value, reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, parts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() };
+      
+      const idx = orders.findIndex(o=>o.id===id);
+      if(idx>-1) orders[idx]=order; else orders.push(order);
+      save(); closeModal(); applyFilters();
     }
 
-    function editOrder(id) {
-      const order = orders.find(o => o.id === id);
-      if (order) openModal(order);
+    function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
+    function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); save(); applyFilters(); } }
+
+    // Act
+    function openAct(id) {
+      const o = orders.find(x=>x.id===id); if(!o) return;
+      $('actId').textContent = o.id.slice(-6).toUpperCase();
+      $('actDate').textContent = toDate(o.date);
+      $('actClient').textContent = o.client;
+      $('actType').textContent = o.type;
+      $('actReason').textContent = o.reason || 'Не указано';
+      $('actEst').textContent = o.est ? toDate(o.est) : 'По согласованию';
+      $('actMasterSign').textContent = 'Мастер';
+      $('actClientSign').textContent = 'Клиент';
+
+      const tb = $('actParts'); tb.innerHTML = '';
+      let pSum = 0;
+      o.parts.forEach(p => {
+        pSum += parseFloat(p.cost)||0;
+        tb.innerHTML += `<tr><td>${p.name}</td><td>${STATUS_MAP[p.status]||'-'}</td><td>${p.cost||0} ₽</td></tr>`;
+      });
+      const tr = parseFloat(o.transport)||0;
+      const cost = parseFloat(o.cost)||0;
+      $('actPartsSum').textContent = pSum;
+      $('actTrans').textContent = tr;
+      $('actWork').textContent = cost;
+      $('actTotal').textContent = cost + pSum + tr;
+      window.print();
     }
 
-    function deleteOrder(id) {
-      if (confirm('Удалить заявку?')) {
-        orders = orders.filter(o => o.id !== id);
-        save();
-        applyFilters();
-      }
-    }
-
-    // EXPORT / IMPORT
+    // Backup
     function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(orders, null, 2));
-      const link = document.createElement('a');
-      link.href = dataStr;
-      link.download = `repair_orders_${new Date().toISOString().split('T')[0]}.json`;
-      link.click();
+      const blob = new Blob([JSON.stringify(orders,null,2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+      a.download = `repairs_${new Date().toISOString().split('T')[0]}.json`; a.click();
     }
-
     function importData(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const data = JSON.parse(e.target.result);
-          if (!Array.isArray(data)) throw new Error('Неверный формат');
-          orders = data;
-          save();
-          applyFilters();
-          alert('✅ Данные импортированы');
-        } catch (err) { alert('❌ Ошибка импорта: ' + err.message); }
-      };
-      reader.readAsText(file);
-      input.value = '';
+      const f = input.files[0]; if(!f) return;
+      const r = new FileReader(); r.onload = e => {
+        try { orders = JSON.parse(e.target.result); save(); applyFilters(); alert('✅ Импорт успешен'); }
+        catch { alert('❌ Ошибка формата'); }
+      }; r.readAsText(f); input.value='';
     }
-
-    // INIT
-    document.addEventListener('DOMContentLoaded', () => {
-      renderTable();
-      document.getElementById('repairCost').addEventListener('input', updateTotals);
-      document.getElementById('transportCost').addEventListener('input', updateTotals);
-    });
   </script>
 </body>
 </html>
