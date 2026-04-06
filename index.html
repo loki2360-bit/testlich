@@ -8,7 +8,7 @@
     :root {
       --bg: #f8fafc; --card: #fff; --text: #0f172a; --muted: #64748b;
       --primary: #2563eb; --primary-hover: #1d4ed8; --danger: #ef4444;
-      --success: #10b981; --warning: #f59e0b; --info: #3b82f6;
+      --success: #10b981; --warning: #f59e0b;
       --border: #e2e8f0; --radius: 10px; --shadow: 0 2px 8px rgba(0,0,0,0.06);
       --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     }
@@ -27,7 +27,6 @@
     a.link { color: var(--primary); text-decoration: none; }
     a.link:hover { text-decoration: underline; color: var(--primary-hover); }
 
-    /* Stats Dashboard */
     .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
     .stat-card { background: var(--card); padding: 14px; border-radius: var(--radius); box-shadow: var(--shadow); border-left: 4px solid var(--primary); }
     .stat-card.profit { border-left-color: var(--success); }
@@ -35,7 +34,16 @@
     .stat-card h3 { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
     .stat-card .val { font-size: 1.1rem; font-weight: 700; font-variant-numeric: tabular-nums; }
     .coin-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(245,158,11,0.3); }
-    .coin-low { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 2px 6px rgba(239,68,68,0.3); }
+    .coin-low { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 2px 6px rgba(239,68,68,0.3); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+
+    /* Secret Input */
+    #secretWrap { display: none; text-align: center; margin: 16px auto; max-width: 260px; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
+    #secretInput { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 8px; text-align: center; font-size: 1.1rem; background: var(--card); outline: none; transition: 0.2s; letter-spacing: 2px; }
+    #secretInput:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    #secretInput.ok { border-color: var(--success); background: #dcfce7; }
+    #secretInput.err { border-color: var(--danger); background: #fef2f2; }
 
     .controls { background: var(--card); padding: 14px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end; }
     .control-group label { font-size: 0.7rem; color: var(--muted); margin-bottom: 4px; display: block; }
@@ -112,7 +120,6 @@
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <div id="coinBadge" class="coin-badge">🪙 <span id="coinDisplay">0</span></div>
-        <button class="btn btn-outline" onclick="openPromo()">🎁 Код</button>
         <button class="btn btn-outline" onclick="openSettings()">⚙️</button>
         <button class="btn btn-outline" onclick="exportData()">📥</button>
         <label class="btn btn-outline" style="cursor:pointer">📤<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
@@ -122,21 +129,14 @@
 
     <!-- Profit Dashboard -->
     <div class="dashboard">
-      <div class="stat-card profit">
-        <h3>✅ Готовая к выводу</h3>
-        <div class="val" id="statReady">0 ₽</div>
-        <small style="color:var(--muted)">Статус: Выдан</small>
-      </div>
-      <div class="stat-card warning">
-        <h3>⏳ В работе / ожидании</h3>
-        <div class="val" id="statActive">0 ₽</div>
-        <small style="color:var(--muted)">Статус: кроме Выдан</small>
-      </div>
-      <div class="stat-card">
-        <h3>📊 Оборот заявок</h3>
-        <div class="val" id="statCount">0</div>
-        <small style="color:var(--muted)">Всего создано</small>
-      </div>
+      <div class="stat-card profit"><h3>✅ Готовая к выводу</h3><div class="val" id="statReady">0 ₽</div><small style="color:var(--muted)">Статус: Выдан</small></div>
+      <div class="stat-card warning"><h3>⏳ В работе / ожидании</h3><div class="val" id="statActive">0 ₽</div><small style="color:var(--muted)">Статус: кроме Выдан</small></div>
+      <div class="stat-card"><h3>📊 Оборот заявок</h3><div class="val" id="statCount">0</div><small style="color:var(--muted)">Всего создано</small></div>
+    </div>
+
+    <!-- Hidden Coin Input -->
+    <div id="secretWrap">
+      <input type="text" id="secretInput" placeholder="••••••••" autocomplete="off">
     </div>
 
     <div class="controls">
@@ -197,66 +197,25 @@
     <div class="modal-box" style="max-width:780px;">
       <div class="modal-header"><h2 id="detailTitle">Заявка #...</h2><button class="close" onclick="closeDetailModal()">&times;</button></div>
       <div class="detail-grid">
-        <div class="detail-card">
-          <h3>📅 Даты & Статус</h3>
-          <p><strong>Прием:</strong> <span id="dDate"></span></p>
-          <p><strong>Сдача (предв.):</strong> <span id="dEst"></span></p>
-          <p><strong>Статус:</strong> <span id="dStatus" class="status-badge"></span></p>
-        </div>
-        <div class="detail-card">
-          <h3>👤 Контакты & Источник</h3>
-          <p><strong>Клиент:</strong> <span id="dClient"></span></p>
-          <p><strong>Авито:</strong> <a id="dAvito" href="#" target="_blank" rel="noopener noreferrer" class="link">—</a></p>
-          <p><strong>Мастер:</strong> <span id="dMaster"></span></p>
-        </div>
-        <div class="detail-card full-width">
-          <h3>🔧 Устройство & Неисправность</h3>
-          <p><strong>Тип:</strong> <span id="dType"></span></p>
-          <p><strong>Описание:</strong> <span id="dReason"></span></p>
-        </div>
+        <div class="detail-card"><h3>📅 Даты & Статус</h3><p><strong>Прием:</strong> <span id="dDate"></span></p><p><strong>Сдача:</strong> <span id="dEst"></span></p><p><strong>Статус:</strong> <span id="dStatus" class="status-badge"></span></p></div>
+        <div class="detail-card"><h3>👤 Контакты</h3><p><strong>Клиент:</strong> <span id="dClient"></span></p><p><strong>Авито:</strong> <a id="dAvito" href="#" target="_blank" rel="noopener noreferrer" class="link">—</a></p><p><strong>Мастер:</strong> <span id="dMaster"></span></p></div>
+        <div class="detail-card full-width"><h3>🔧 Устройство & Неисправность</h3><p><strong>Тип:</strong> <span id="dType"></span></p><p><strong>Описание:</strong> <span id="dReason"></span></p></div>
       </div>
-
-      <div class="detail-section">
-        <h3>📦 Запчасти</h3>
-        <table class="detail-table" id="dPartsTable">
-          <thead><tr><th>Наименование</th><th>Статус</th><th>Стоимость</th></tr></thead>
-          <tbody id="dPartsBody"></tbody>
-        </table>
-        <p id="dNoParts" class="empty" style="padding:10px 0">Запчасти не указаны</p>
-      </div>
-
+      <div class="detail-section"><h3>📦 Запчасти</h3><table class="detail-table" id="dPartsTable"><thead><tr><th>Наименование</th><th>Статус</th><th>Стоимость</th></tr></thead><tbody id="dPartsBody"></tbody></table><p id="dNoParts" class="empty" style="padding:10px 0">Запчасти не указаны</p></div>
       <div class="detail-finances">
         <div class="fin-card"><span>Запчасти</span><strong id="dPartsSum">0 ₽</strong></div>
         <div class="fin-card"><span>Транспорт</span><strong id="dTrans">0 ₽</strong></div>
-        <div class="fin-card"><span>Всего затрат</span><strong id="dExp">0 ₽</strong></div>
-        <div class="fin-card"><span>Стоимость работ</span><strong id="dCost">0 ₽</strong></div>
+        <div class="fin-card"><span>Затраты</span><strong id="dExp">0 ₽</strong></div>
+        <div class="fin-card"><span>Стоимость</span><strong id="dCost">0 ₽</strong></div>
         <div class="fin-card profit"><span>Прибыль</span><strong id="dProfit">0 ₽</strong></div>
       </div>
-
-      <div class="form-actions">
-        <button class="btn btn-outline" onclick="editFromDetail()">✏️ Редактировать</button>
-        <button class="btn btn-primary" onclick="closeDetailModal()">Закрыть</button>
-      </div>
+      <div class="form-actions"><button class="btn btn-outline" onclick="editFromDetail()">✏️ Редактировать</button><button class="btn btn-primary" onclick="closeDetailModal()">Закрыть</button></div>
     </div>
   </div>
 
   <!-- Settings -->
   <div id="settingsModal" class="modal" onclick="if(event.target===this) closeSettings()">
-    <div class="modal-box" style="max-width:400px;">
-      <h2>⚙️ Настройки</h2>
-      <div class="form-group" style="margin-top:16px"><label>Имя мастера</label><input type="text" id="masterName" placeholder="Иванов И.И."></div>
-      <div class="form-actions" style="justify-content:center"><button class="btn btn-primary" onclick="saveSettings()">💾 Сохранить</button></div>
-    </div>
-  </div>
-
-  <!-- Promo Modal -->
-  <div id="promoModal" class="modal" onclick="if(event.target===this) closePromo()">
-    <div class="modal-box" style="max-width:400px; text-align:center;">
-      <h2>🎁 Бонусный код</h2>
-      <p style="color:var(--muted); margin:10px 0; font-size:0.9rem">Введите секретный код для начисления коинов</p>
-      <input type="text" id="promoInput" placeholder="Введите код..." style="width:100%; padding:10px; margin:10px 0; border:1px solid var(--border); border-radius:8px; text-align:center; font-size:1rem;">
-      <button class="btn btn-primary" onclick="applyPromo()" style="width:100%; margin-top:10px">Активировать</button>
-    </div>
+    <div class="modal-box" style="max-width:400px;"><h2>⚙️ Настройки</h2><div class="form-group" style="margin-top:16px"><label>Имя мастера</label><input type="text" id="masterName" placeholder="Иванов И.И."></div><div class="form-actions" style="justify-content:center"><button class="btn btn-primary" onclick="persistSettings()">💾 Сохранить</button></div></div>
   </div>
 
   <script>
@@ -265,13 +224,14 @@
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
     const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
     
-    const DB_KEY = 'repair_db_v6';
-    const SETTINGS_KEY = 'repair_settings_v3';
-    const PROMO_CODE = 'MASTER2026'; // Измените код при необходимости
-    const COIN_COST_PER_ORDER = 30;
+    const DB_KEY = 'repair_db_v7';
+    const SETTINGS_KEY = 'repair_settings_v4';
+    const SECRET_CODE = 'AVITO2026'; // Скрытый код для пополнения
+    const COST_NEW_ORDER = 30;
+    const REWARD_COMPLETED = 10;
 
     let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
-    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":100}'); // Стартовый баланс 100
+    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":50}');
     let currentDetailId = null;
 
     const $ = id => document.getElementById(id);
@@ -286,15 +246,36 @@
       updateUI();
       renderTable();
       $('repairCost').oninput = $('transportCost').oninput = calcTotals;
+      
+      // Secret input handler
+      $('secretInput').addEventListener('keyup', (e) => {
+        if (e.key === 'Enter') {
+          const val = $('secretInput').value.trim();
+          if (val === SECRET_CODE) {
+            settings.coins += 1000;
+            persistSettings();
+            $('secretInput').className = 'ok';
+            setTimeout(() => { $('secretInput').value = ''; $('secretInput').className = ''; }, 1500);
+          } else {
+            $('secretInput').className = 'err';
+            $('secretInput').value = '';
+            setTimeout(() => $('secretInput').className = '', 600);
+          }
+        }
+      });
     };
 
-    function save() { localStorage.setItem(DB_KEY, JSON.stringify(orders)); }
-    function saveSettings() { settings.master = $('masterName').value || 'Мастер'; localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); closeSettings(); updateUI(); }
+    function persistSettings() {
+      settings.master = $('masterName').value || 'Мастер';
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      updateUI();
+    }
 
     function updateUI() {
       $('coinDisplay').textContent = settings.coins;
-      $('coinBadge').className = settings.coins < COIN_COST_PER_ORDER ? 'coin-badge coin-low' : 'coin-badge';
-      
+      $('coinBadge').className = settings.coins < COST_NEW_ORDER ? 'coin-badge coin-low' : 'coin-badge';
+      $('secretWrap').style.display = settings.coins < COST_NEW_ORDER ? 'block' : 'none';
+
       let ready = 0, active = 0;
       orders.forEach(o => {
         const partsSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
@@ -400,34 +381,44 @@
       e.preventDefault();
       const isEdit = !!$('editId').value;
       if (!isEdit) {
-        if (settings.coins < COIN_COST_PER_ORDER) {
-          alert(`❌ Недостаточно коинов!\nНужно: ${COIN_COST_PER_ORDER}, доступно: ${settings.coins}\nВведите бонусный код для пополнения.`);
+        if (settings.coins < COST_NEW_ORDER) {
+          alert(`❌ Недостаточно коинов!\nНужно: ${COST_NEW_ORDER}, доступно: ${settings.coins}`);
           return;
         }
-        settings.coins -= COIN_COST_PER_ORDER;
-        saveSettings();
-        updateUI();
+        settings.coins -= COST_NEW_ORDER;
+        persistSettings();
       }
 
       const id = $('editId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
       const parts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
         name: r.querySelector('.p-name').value, status: r.querySelector('.p-status').value, cost: parseFloat(r.querySelector('.p-cost').value)||0
       })).filter(p=>p.name);
+      
+      const newStatus = $('status').value;
+      if (isEdit) {
+        const oldOrder = orders.find(o => o.id === id);
+        if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') {
+          settings.coins += REWARD_COMPLETED;
+          persistSettings();
+        }
+      }
+
       const order = { 
         id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, 
-        type:$('type').value, status:$('status').value, avitoLink:$('avitoLink').value, 
+        type:$('type').value, status:newStatus, avitoLink:$('avitoLink').value, 
         reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, 
         parts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() 
       };
+      
       const idx = orders.findIndex(o=>o.id===id);
       if(idx>-1) orders[idx]=order; else orders.push(order);
       
-      save(); closeModal(); applyFilters();
-      updateUI(); // Обновляем дашборд
+      saveData(); closeModal(); applyFilters(); updateUI();
     }
 
+    function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(orders)); }
     function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
-    function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); save(); applyFilters(); updateUI(); } }
+    function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); saveData(); applyFilters(); updateUI(); } }
 
     // Detail View
     function openDetail(id) {
@@ -439,12 +430,8 @@
       $('dClient').textContent = o.client; $('dMaster').textContent = settings.master;
       $('dType').textContent = o.type; $('dReason').textContent = o.reason || 'Не указано';
       
-      if (o.avitoLink) {
-        $('dAvito').href = o.avitoLink;
-        $('dAvito').textContent = 'Открыть объявление ↗';
-      } else {
-        $('dAvito').textContent = '—'; $('dAvito').removeAttribute('href');
-      }
+      if (o.avitoLink) { $('dAvito').href = o.avitoLink; $('dAvito').textContent = 'Открыть объявление ↗'; }
+      else { $('dAvito').textContent = '—'; $('dAvito').removeAttribute('href'); }
 
       const tbody = $('dPartsBody'); tbody.innerHTML = '';
       let pSum = 0;
@@ -454,9 +441,7 @@
           const cost = parseFloat(p.cost)||0; pSum += cost;
           tbody.innerHTML += `<tr><td>${p.name}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(cost)}</td></tr>`;
         });
-      } else {
-        $('dNoParts').style.display = 'block'; $('dPartsTable').style.display = 'none';
-      }
+      } else { $('dNoParts').style.display = 'block'; $('dPartsTable').style.display = 'none'; }
 
       const tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0, exp = pSum+tr;
       $('dPartsSum').textContent = fmt(pSum); $('dTrans').textContent = fmt(tr);
@@ -467,22 +452,9 @@
     function closeDetailModal() { $('detailModal').classList.remove('active'); currentDetailId = null; }
     function editFromDetail() { if(currentDetailId) { closeDetailModal(); setTimeout(()=>editOrder(currentDetailId), 100); } }
 
-    // Settings & Promo
+    // Settings
     function openSettings() { $('masterName').value = settings.master; $('settingsModal').classList.add('active'); }
     function closeSettings() { $('settingsModal').classList.remove('active'); }
-    function openPromo() { $('promoModal').classList.add('active'); $('promoInput').focus(); }
-    function closePromo() { $('promoModal').classList.remove('active'); $('promoInput').value = ''; }
-    function applyPromo() {
-      const code = $('promoInput').value.trim();
-      if (code === PROMO_CODE) {
-        settings.coins += 1000;
-        saveSettings(); updateUI();
-        alert(`✅ Успешно! +1000 коинов. Баланс: ${settings.coins}`);
-        closePromo();
-      } else {
-        alert('❌ Неверный код. Попробуйте снова.');
-      }
-    }
 
     // Backup
     function exportData() {
@@ -493,7 +465,7 @@
     function importData(input) {
       const f = input.files[0]; if(!f) return;
       const r = new FileReader(); r.onload = e => {
-        try { orders = JSON.parse(e.target.result); save(); applyFilters(); updateUI(); alert('✅ Импорт успешен'); }
+        try { orders = JSON.parse(e.target.result); saveData(); applyFilters(); updateUI(); alert('✅ Импорт успешен'); }
         catch { alert('❌ Ошибка формата'); }
       }; r.readAsText(f); input.value='';
     }
