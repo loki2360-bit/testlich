@@ -110,7 +110,7 @@
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
     
     .parts-section { margin-top: 14px; padding: 14px; background: #f8fafc; border-radius: 10px; border: 1px dashed var(--border); }
-    .part-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 30px; gap: 8px; margin-bottom: 8px; align-items: end; }
+    .part-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 40px; gap: 8px; margin-bottom: 8px; align-items: end; }
     .part-row input, .part-row select { padding: 7px 10px; font-size: 0.85rem; }
     .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; padding: 12px; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; }
     .total-box { text-align: center; }
@@ -168,7 +168,7 @@
       .part-row, .totals, .form-grid, .detail-grid, .detail-finances, .dashboard { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
       .brand { flex-direction: column; align-items: flex-start; gap: 8px; }
-      .part-row { grid-template-columns: 1fr 1fr 30px; }
+      .part-row { grid-template-columns: 1fr 1fr 40px; }
       .part-row .part-sku-select { grid-column: 1 / -1; }
     }
   </style>
@@ -187,11 +187,12 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v5.0 • Склад</span>
+          <span class="brand-badge">v5.1 • Склад</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <div id="coinBadge" class="coin-badge">🪙 <span id="coinDisplay">0</span></div>
+        <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
         <button class="btn btn-outline" onclick="openSettings()">⚙️ Профиль</button>
         <button class="btn btn-outline" onclick="exportData()">📥 Бэкап</button>
         <label class="btn btn-outline" style="cursor:pointer">📤<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
@@ -232,10 +233,6 @@
           <tbody id="tbody"></tbody>
         </table>
         <div id="emptyState" class="empty hidden">Заявок нет. Нажмите «+ Новая заявка»</div>
-      </div>
-      
-      <div style="margin-top:16px; text-align:right">
-        <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
       </div>
     </div>
 
@@ -668,12 +665,12 @@
 
       row.innerHTML = `
         <div class="part-sku-select">
-          <input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required>
-          <input type="text" placeholder="Артикул" value="${d.sku||''}" class="p-sku" style="margin-top:4px">
+          <input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required style="width:100%;margin-bottom:4px">
+          <input type="text" placeholder="Артикул" value="${d.sku||''}" class="p-sku" style="width:100%">
         </div>
-        <select class="p-status">${statusOptions}</select>
-        <input type="number" step="0.01" placeholder="₽" value="${d.cost||''}" class="p-cost" oninput="calcTotals()">
-        <input type="number" step="0.01" placeholder="Цена" value="${d.price||''}" class="p-price">
+        <select class="p-status" style="width:100%">${statusOptions}</select>
+        <input type="number" step="0.01" placeholder="Закупка" value="${d.cost||''}" class="p-cost" oninput="calcTotals()" style="width:100%">
+        <input type="number" step="0.01" placeholder="Продажа" value="${d.price||''}" class="p-price" style="width:100%">
         <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>
       `;
       $('partsList').appendChild(row);
