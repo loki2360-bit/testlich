@@ -14,14 +14,9 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
     body { background: var(--bg); color: var(--text); padding: 16px; min-height: 100vh; line-height: 1.5; }
-    .container { max-width: 1360px; margin: 0 auto; }
+    .container { max-width: 1400px; margin: 0 auto; }
     
-    header { 
-      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; 
-      margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
-    }
-    
-    /* Modern Branding */
+    header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
     .brand { display: flex; align-items: center; gap: 14px; }
     .brand-logo { width: 44px; height: 44px; filter: drop-shadow(0 2px 4px rgba(0,170,255,0.25)); }
     .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
@@ -49,7 +44,6 @@
     .coin-low { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 2px 6px rgba(239,68,68,0.3); animation: pulse 1.5s infinite; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
 
-    /* Secret Input */
     #secretWrap { display: none; text-align: center; margin: 16px auto; max-width: 260px; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
     #secretInput { width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 10px; text-align: center; font-size: 1.1rem; background: var(--card); outline: none; transition: 0.2s; letter-spacing: 3px; font-weight: 500; }
@@ -63,10 +57,11 @@
     .control-group input:focus, .control-group select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
     .table-wrap { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 1050px; }
-    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.82rem; vertical-align: middle; }
+    table { width: 100%; border-collapse: collapse; min-width: 1150px; }
+    th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.82rem; vertical-align: middle; }
     th { background: #f8fafc; font-weight: 600; color: var(--muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.06em; }
     tr:hover td { background: #fafbfc; }
+    
     .status-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 600; background: #f1f5f9; color: #475569; white-space: nowrap; }
     .status-Принят { background: #dbeafe; color: #1e40af; }
     .status-Диагностика { background: #fef3c7; color: #92400e; }
@@ -74,21 +69,32 @@
     .status-Ожидание-запчастей { background: #f3f4f6; color: #374151; }
     .status-Готово { background: #dcfce7; color: #166534; }
     .status-Выдан { background: #e0e7ff; color: #3730a3; }
+    
+    .inline-status { padding: 4px 6px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.75rem; background: transparent; cursor: pointer; width: 100%; max-width: 130px; }
+    .inline-status:focus { border-color: var(--primary); outline: none; background: #fff; }
+    
+    .action-link { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 6px; background: #f1f5f9; text-decoration: none; margin-right: 4px; transition: 0.15s; font-size: 0.9rem; }
+    .action-link:hover { background: #e2e8f0; transform: scale(1.1); }
+    
+    .w-badge { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
+    .w-badge.active { background: #dcfce7; color: #166534; }
+    .w-badge.warning { background: #fef3c7; color: #92400e; }
+    .w-badge.expired { background: #fee2e2; color: #991b1b; }
+    
     .money { font-variant-numeric: tabular-nums; font-weight: 500; }
     .money.pos { color: var(--success); } .money.neg { color: var(--danger); }
-    .actions { display: flex; gap: 6px; }
+    .actions { display: flex; gap: 5px; }
     .empty { text-align: center; padding: 32px; color: var(--muted); font-size: 0.85rem; }
 
-    /* Modals */
     .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; padding: 16px; z-index: 100; }
     .modal.active { display: flex; }
-    .modal-box { background: var(--card); width: 100%; max-width: 700px; max-height: 92vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); padding: 22px; }
+    .modal-box { background: var(--card); width: 100%; max-width: 720px; max-height: 92vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); padding: 22px; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
     .modal-header h2 { font-size: 1.15rem; font-weight: 700; }
     .close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--muted); line-height: 1; transition: 0.2s; }
     .close:hover { color: var(--text); transform: rotate(90deg); }
 
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
     .form-group { display: flex; flex-direction: column; }
     .form-group label { font-size: 0.75rem; color: var(--muted); margin-bottom: 5px; font-weight: 500; }
     .form-group input, .form-group select, .form-group textarea { padding: 9px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 0.85rem; background: #fafafa; }
@@ -104,12 +110,10 @@
     .total-box .val { font-size: 0.95rem; font-weight: 700; }
     .total-box.profit .val { color: var(--success); }
     .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
-    
     .revert-box { margin-top: 16px; padding: 14px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; text-align: center; }
     .revert-box p { font-size: 0.82rem; color: #991b1b; margin-bottom: 10px; font-weight: 500; }
 
-    /* Detail View */
-    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .detail-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 18px; }
     .detail-card { background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid var(--border); }
     .detail-card h3 { font-size: 0.78rem; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
     .detail-card p { margin: 4px 0; font-size: 0.85rem; }
@@ -117,7 +121,7 @@
     .detail-section { margin-bottom: 18px; }
     .detail-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.85rem; }
     .detail-table th, .detail-table td { padding: 9px; border-bottom: 1px solid var(--border); text-align: left; }
-    .detail-finances { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 14px; }
+    .detail-finances { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 14px; }
     .fin-card { display: flex; flex-direction: column; align-items: center; text-align: center; }
     .fin-card span { font-size: 0.72rem; color: var(--muted); margin-bottom: 2px; }
     .fin-card strong { font-size: 1.05rem; font-weight: 700; }
@@ -144,7 +148,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v2.0 • Offline Ready</span>
+          <span class="brand-badge">v3.0 • Offline Ready</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -156,17 +160,13 @@
       </div>
     </header>
 
-    <!-- Profit Dashboard -->
     <div class="dashboard">
       <div class="stat-card profit"><h3>✅ Готовая к выводу</h3><div class="val" id="statReady">0 ₽</div><small style="color:var(--muted)">Статус: Выдан</small></div>
       <div class="stat-card warning"><h3>⏳ В работе / ожидании</h3><div class="val" id="statActive">0 ₽</div><small style="color:var(--muted)">Статус: кроме Выдан</small></div>
       <div class="stat-card"><h3>📊 Оборот заявок</h3><div class="val" id="statCount">0</div><small style="color:var(--muted)">Всего создано</small></div>
     </div>
 
-    <!-- Hidden Coin Input -->
-    <div id="secretWrap">
-      <input type="text" id="secretInput" placeholder="••••••••" autocomplete="off">
-    </div>
+    <div id="secretWrap"><input type="text" id="secretInput" placeholder="••••••••" autocomplete="off"></div>
 
     <div class="controls">
       <div class="control-group"><label>Поиск</label><input type="text" id="search" placeholder="Клиент, техника..." oninput="applyFilters()"></div>
@@ -179,7 +179,11 @@
 
     <div class="table-wrap">
       <table id="mainTable">
-        <thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Авито</th><th>Устройство</th><th>Этап</th><th>Запчасти</th><th>Себест.</th><th>Стоимость</th><th>Прибыль</th><th>Действия</th></tr></thead>
+        <thead>
+          <tr>
+            <th>ID</th><th>Дата</th><th>Клиент</th><th>Контакты</th><th>Авито</th><th>Устройство</th><th>Этап</th><th>Гарантия</th><th>Себест.</th><th>Стоимость</th><th>Прибыль</th><th>Действия</th>
+          </tr>
+        </thead>
         <tbody id="tbody"></tbody>
       </table>
       <div id="emptyState" class="empty hidden">Заявок нет. Нажмите «+ Новая заявка»</div>
@@ -196,6 +200,7 @@
           <div class="form-group"><label>Телефон клиента</label><input type="tel" id="client" required placeholder="+7..."></div>
           <div class="form-group"><label>Дата приема</label><input type="date" id="orderDate" required></div>
           <div class="form-group"><label>Предв. сдача</label><input type="date" id="estDate"></div>
+          <div class="form-group"><label>Гарантия (дней)</label><input type="number" id="warrantyDays" min="0" value="0"></div>
           <div class="form-group"><label>Тип техники</label><select id="type" required></select></div>
           <div class="form-group"><label>Этап ремонта</label><select id="status"></select></div>
           <div class="form-group"><label>Ссылка на Авито</label><input type="url" id="avitoLink" placeholder="https://www.avito.ru/..."></div>
@@ -213,13 +218,10 @@
           <div class="total-box"><div class="label">Затраты</div><div class="val" id="sumExp">0 ₽</div></div>
           <div class="total-box profit"><div class="label">Прибыль</div><div class="val" id="sumProfit">0 ₽</div></div>
         </div>
-
-        <!-- Revert Section -->
         <div id="revertSection" class="revert-box" style="display:none;">
           <p>⚠️ Статус «Выдан» установлен. Изменение запрещено.</p>
           <button type="button" class="btn btn-danger" onclick="revertOrder()">↩️ Вернуть статус (-150 🪙)</button>
         </div>
-
         <div class="form-actions">
           <button type="button" class="btn btn-outline" onclick="closeModal()">Отмена</button>
           <button type="submit" class="btn btn-primary">💾 Сохранить</button>
@@ -234,7 +236,7 @@
       <div class="modal-header"><h2 id="detailTitle">Заявка #...</h2><button class="close" onclick="closeDetailModal()">&times;</button></div>
       <div class="detail-grid">
         <div class="detail-card"><h3>📅 Даты & Статус</h3><p><strong>Прием:</strong> <span id="dDate"></span></p><p><strong>Сдача:</strong> <span id="dEst"></span></p><p><strong>Статус:</strong> <span id="dStatus" class="status-badge"></span></p></div>
-        <div class="detail-card"><h3>👤 Контакты</h3><p><strong>Клиент:</strong> <span id="dClient"></span></p><p><strong>Авито:</strong> <a id="dAvito" href="#" target="_blank" rel="noopener noreferrer" class="link">—</a></p><p><strong>Мастер:</strong> <span id="dMaster"></span></p></div>
+        <div class="detail-card"><h3>👤 Контакты</h3><p><strong>Клиент:</strong> <span id="dClient"></span></p><p><strong>Авито:</strong> <a id="dAvito" href="#" target="_blank" rel="noopener noreferrer" class="link">—</a></p><p><strong>Гарантия:</strong> <span id="dWarranty">—</span></p></div>
         <div class="detail-card full-width"><h3>🔧 Устройство & Неисправность</h3><p><strong>Тип:</strong> <span id="dType"></span></p><p><strong>Описание:</strong> <span id="dReason"></span></p></div>
       </div>
       <div class="detail-section"><h3>📦 Запчасти</h3><table class="detail-table" id="dPartsTable"><thead><tr><th>Наименование</th><th>Статус</th><th>Стоимость</th></tr></thead><tbody id="dPartsBody"></tbody></table><p id="dNoParts" class="empty" style="padding:10px 0">Запчасти не указаны</p></div>
@@ -260,9 +262,9 @@
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
     const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
     
-    const DB_KEY = 'repair_db_v8';
-    const SETTINGS_KEY = 'repair_settings_v5';
-    const SECRET_CODE = 'AVITO2026'; // Скрытый код для пополнения
+    const DB_KEY = 'repair_db_v9';
+    const SETTINGS_KEY = 'repair_settings_v6';
+    const SECRET_CODE = 'AVITO2026';
     const COST_NEW_ORDER = 30;
     const REWARD_COMPLETED = 10;
     const COST_REVERT = 150;
@@ -274,6 +276,7 @@
     const $ = id => document.getElementById(id);
     const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
+    const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
 
     window.onload = () => {
       const selType = $('filterType'), selStatus = $('filterStatus'), typeSel = $('type'), statusSel = $('status');
@@ -284,7 +287,6 @@
       renderTable();
       $('repairCost').oninput = $('transportCost').oninput = calcTotals;
       
-      // Secret input handler
       $('secretInput').addEventListener('keyup', (e) => {
         if (e.key === 'Enter') {
           const val = $('secretInput').value.trim();
@@ -326,6 +328,16 @@
       $('statCount').textContent = orders.length;
     }
 
+    function getWarrantyBadge(order) {
+      if (!order.warrantyUntil) return '<span style="color:var(--muted)">—</span>';
+      const today = new Date(); today.setHours(0,0,0,0);
+      const end = new Date(order.warrantyUntil);
+      const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+      if (diff < 0) return `<span class="w-badge expired" title="Истекла ${toDate(order.warrantyUntil)}">Истекла</span>`;
+      if (diff <= 7) return `<span class="w-badge warning" title="До ${toDate(order.warrantyUntil)}">${diff} дн.</span>`;
+      return `<span class="w-badge active" title="До ${toDate(order.warrantyUntil)}">${diff} дн.</span>`;
+    }
+
     function renderTable(data = orders) {
       const tb = $('tbody'), empty = $('emptyState');
       tb.innerHTML = '';
@@ -336,17 +348,26 @@
         const exp = partsSum + (parseFloat(o.transport)||0);
         const profit = (parseFloat(o.cost)||0) - exp;
         const partsStr = o.parts.map(p=>`<span class="status-badge">${p.name}</span>`).join(' ');
-        const avitoLink = o.avitoLink ? `<a href="${o.avitoLink}" target="_blank" rel="noopener noreferrer" class="link" title="Открыть объявление">🔗 Авито</a>` : '<span style="color:var(--muted)">—</span>';
+        const avitoLink = o.avitoLink ? `<a href="${o.avitoLink}" target="_blank" rel="noopener noreferrer" class="link" title="Открыть объявление">🔗</a>` : '';
+        
+        const cleanPhone = getCleanPhone(o.client);
+        const contacts = `
+          <a href="tel:${cleanPhone}" class="action-link" title="Позвонить">📞</a>
+          <a href="https://wa.me/${cleanPhone}?text=${encodeURIComponent('Здравствуйте! По заявке #' + o.id.slice(-6).toUpperCase() + ': ')}" target="_blank" class="action-link" title="WhatsApp">💬</a>
+        `;
+
+        const statusSelect = `<select class="inline-status" onchange="handleInlineStatus('${o.id}', this.value)">${STATUSES.map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>`;
         
         tb.innerHTML += `
           <tr>
             <td>${o.id.slice(-6).toUpperCase()}</td>
             <td>${toDate(o.date)}</td>
             <td>${o.client}</td>
+            <td>${contacts}</td>
             <td>${avitoLink}</td>
             <td>${o.type}</td>
-            <td><span class="status-badge status-${STATUS_CLASSES[o.status]||''}">${o.status}</span></td>
-            <td style="font-size:0.75rem">${partsStr||'—'}</td>
+            <td>${statusSelect}</td>
+            <td>${getWarrantyBadge(o)}</td>
             <td class="money">${fmt(exp)}</td>
             <td class="money" style="font-weight:600">${fmt(o.cost)}</td>
             <td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td>
@@ -357,6 +378,22 @@
             </td>
           </tr>`;
       });
+    }
+
+    function handleInlineStatus(id, newStatus) {
+      const order = orders.find(x => x.id === id);
+      if (!order) return;
+      if (order.status === 'Выдан') {
+        alert('⛔ Статус «Выдан» нельзя изменить напрямую. Откройте заявку (👁️) и используйте кнопку «↩️ Вернуть статус».');
+        applyFilters(); // Reset dropdown visually
+        return;
+      }
+      if (newStatus === 'Выдан' && order.status !== 'Выдан') {
+        settings.coins += REWARD_COMPLETED;
+        persistSettings();
+      }
+      order.status = newStatus;
+      saveData(); updateUI(); applyFilters();
     }
 
     function applyFilters() {
@@ -381,6 +418,7 @@
       $('client').value = o?.client || '';
       $('orderDate').value = o?.date || new Date().toISOString().split('T')[0];
       $('estDate').value = o?.est || '';
+      $('warrantyDays').value = o?.warrantyDays || 0;
       $('type').value = o?.type || '';
       $('status').value = o?.status || 'Принят';
       $('avitoLink').value = o?.avitoLink || '';
@@ -391,11 +429,8 @@
       if (o?.parts?.length) o.parts.forEach(p=>addPartRow(p)); else addPartRow();
       calcTotals();
       
-      // Status Lock Logic
-      const isIssued = o?.status === 'Выдан';
-      $('status').disabled = isIssued;
-      $('revertSection').style.display = isIssued ? 'block' : 'none';
-      
+      $('status').disabled = o?.status === 'Выдан';
+      $('revertSection').style.display = o?.status === 'Выдан' ? 'block' : 'none';
       form.onsubmit = handleSubmit;
     }
     function closeModal() { modal.classList.remove('active'); form.reset(); }
@@ -423,27 +458,27 @@
     function handleSubmit(e) {
       e.preventDefault();
       const isEdit = !!$('editId').value;
-      
-      // Security: prevent status change if already Выдан
       let newStatus = $('status').value;
+      
       if (isEdit) {
         const oldOrder = orders.find(o => o.id === $('editId').value);
         if (oldOrder?.status === 'Выдан') newStatus = 'Выдан';
-        
-        // Reward logic: +10 only on first transition to Выдан
         if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') {
-          settings.coins += REWARD_COMPLETED;
-          persistSettings();
+          settings.coins += REWARD_COMPLETED; persistSettings();
         }
       }
 
       if (!isEdit) {
-        if (settings.coins < COST_NEW_ORDER) {
-          alert(`❌ Недостаточно коинов!\nНужно: ${COST_NEW_ORDER}, доступно: ${settings.coins}`);
-          return;
-        }
-        settings.coins -= COST_NEW_ORDER;
-        persistSettings();
+        if (settings.coins < COST_NEW_ORDER) { alert(`❌ Недостаточно коинов!\nНужно: ${COST_NEW_ORDER}, доступно: ${settings.coins}`); return; }
+        settings.coins -= COST_NEW_ORDER; persistSettings();
+      }
+
+      const warrantyDays = parseInt($('warrantyDays').value) || 0;
+      let warrantyUntil = null;
+      if (warrantyDays > 0) {
+        const d = new Date($('orderDate').value);
+        d.setDate(d.getDate() + warrantyDays);
+        warrantyUntil = d.toISOString().split('T')[0];
       }
 
       const id = $('editId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
@@ -452,7 +487,7 @@
       })).filter(p=>p.name);
       
       const order = { 
-        id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, 
+        id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, warrantyDays, warrantyUntil,
         type:$('type').value, status:newStatus, avitoLink:$('avitoLink').value, 
         reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, 
         parts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() 
@@ -460,28 +495,19 @@
       
       const idx = orders.findIndex(o=>o.id===id);
       if(idx>-1) orders[idx]=order; else orders.push(order);
-      
       saveData(); closeModal(); applyFilters(); updateUI();
     }
 
     function revertOrder() {
       const id = $('editId').value;
       if (!id) return;
-      if (settings.coins < COST_REVERT) {
-        alert(`❌ Недостаточно коинов для возврата!\nНужно: ${COST_REVERT}, доступно: ${settings.coins}`);
-        return;
-      }
+      if (settings.coins < COST_REVERT) { alert(`❌ Недостаточно коинов для возврата!\nНужно: ${COST_REVERT}, доступно: ${settings.coins}`); return; }
       if (!confirm(`Вернуть заявку из статуса «Выдан»?\nБудет списано ${COST_REVERT} коинов.`)) return;
-
       const order = orders.find(x => x.id === id);
       if (order) {
-        order.status = 'Готово'; // Возврат на предыдущий логический этап
+        order.status = 'Готово';
         settings.coins -= COST_REVERT;
-        persistSettings();
-        saveData();
-        closeModal();
-        applyFilters();
-        updateUI();
+        persistSettings(); saveData(); closeModal(); applyFilters(); updateUI();
         alert('✅ Статус возвращен на «Готово».');
       }
     }
@@ -499,6 +525,7 @@
       $('dStatus').textContent = o.status; $('dStatus').className = `status-badge status-${STATUS_CLASSES[o.status]||''}`;
       $('dClient').textContent = o.client; $('dMaster').textContent = settings.master;
       $('dType').textContent = o.type; $('dReason').textContent = o.reason || 'Не указано';
+      $('dWarranty').innerHTML = o.warrantyUntil ? `${o.warrantyDays} дн. (до ${toDate(o.warrantyUntil)})` : 'Не указана';
       
       if (o.avitoLink) { $('dAvito').href = o.avitoLink; $('dAvito').textContent = 'Открыть объявление ↗'; }
       else { $('dAvito').textContent = '—'; $('dAvito').removeAttribute('href'); }
@@ -507,10 +534,7 @@
       let pSum = 0;
       if (o.parts.length) {
         $('dNoParts').style.display = 'none'; $('dPartsTable').style.display = 'table';
-        o.parts.forEach(p => {
-          const cost = parseFloat(p.cost)||0; pSum += cost;
-          tbody.innerHTML += `<tr><td>${p.name}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(cost)}</td></tr>`;
-        });
+        o.parts.forEach(p => { pSum += parseFloat(p.cost)||0; tbody.innerHTML += `<tr><td>${p.name}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`; });
       } else { $('dNoParts').style.display = 'block'; $('dPartsTable').style.display = 'none'; }
 
       const tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0, exp = pSum+tr;
@@ -522,11 +546,9 @@
     function closeDetailModal() { $('detailModal').classList.remove('active'); currentDetailId = null; }
     function editFromDetail() { if(currentDetailId) { closeDetailModal(); setTimeout(()=>editOrder(currentDetailId), 100); } }
 
-    // Settings
     function openSettings() { $('masterName').value = settings.master; $('settingsModal').classList.add('active'); }
     function closeSettings() { $('settingsModal').classList.remove('active'); }
 
-    // Backup
     function exportData() {
       const blob = new Blob([JSON.stringify(orders,null,2)], {type:'application/json'});
       const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
