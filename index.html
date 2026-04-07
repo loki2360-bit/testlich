@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AVITO SELLER | Учёт ремонтов</title>
+  <!-- Подключаем Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -212,6 +213,14 @@
     .shop-item { padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
     .shop-item h4 { margin: 0 0 4px; font-size: 0.9rem; }
     .shop-item p { margin: 0 0 8px; font-size: 0.75rem; color: var(--muted); }
+
+    /* Profile Status Display */
+    .profile-info-display {
+      background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 16px;
+      font-size: 0.85rem; color: var(--text);
+    }
+    .profile-info-display strong { display: block; margin-bottom: 4px; font-size: 1rem; }
+    .profile-info-display span { color: var(--muted); }
 
     /* === LANDING PAGE STYLES === */
     .landing-overlay {
@@ -455,9 +464,18 @@
     </div>
   </div>
 
-  <!-- Settings Modal -->
+  <!-- Settings Modal (Updated) -->
   <div id="settingsModal" class="modal" onclick="if(event.target===this) closeSettings()">
-    <div class="modal-box" style="max-width:420px;"><h2>⚙️ Профиль мастера</h2><div class="form-group" style="margin-top:18px"><label>Отображаемое имя</label><input type="text" id="masterName" placeholder="Иванов И.И."></div><div class="form-actions" style="justify-content:center"><button class="btn btn-primary" onclick="persistSettings()">💾 Сохранить</button></div></div>
+    <div class="modal-box" style="max-width:420px;">
+      <div class="modal-header"><h2>⚙️ Профиль мастера</h2><button class="close" onclick="closeSettings()">&times;</button></div>
+      <div class="profile-info-display">
+        <strong id="profileMasterName">Мастер</strong>
+        <span>🏆 Уровень: <span id="profileLevel">Новичок</span></span><br>
+        <span>📝 Статус: <span id="profileStatus">Не установлен</span></span>
+      </div>
+      <div class="form-group" style="margin-top:18px"><label>Отображаемое имя</label><input type="text" id="masterName" placeholder="Иванов И.И."></div>
+      <div class="form-actions" style="justify-content:center"><button class="btn btn-primary" onclick="persistSettings()">💾 Сохранить</button></div>
+    </div>
   </div>
 
   <!-- Support Chat Modal -->
@@ -578,6 +596,7 @@
       settings.master = $('masterName')?.value || settings.master || 'Мастер';
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
       updateCoinUI();
+      updateProfileModal(); // Обновляем инфо в профиле
     }
     function showCoinAnimation(amount, reason) {
       const el = document.createElement('div'); el.className = 'coin-popup';
@@ -591,6 +610,11 @@
       if (!badge || !display) return;
       display.textContent = settings.coins;
       badge.title = `Уровень: ${settings.levelName}${settings.unlocks?.status ? ' • ' + settings.unlocks.status : ''}`;
+    }
+    function updateProfileModal() {
+      if($('profileMasterName')) $('profileMasterName').textContent = settings.master || 'Мастер';
+      if($('profileLevel')) $('profileLevel').textContent = settings.levelName || 'Новичок';
+      if($('profileStatus')) $('profileStatus').textContent = settings.unlocks?.status || 'Не установлен';
     }
     function applyCosmetic(type, value) {
       if (!settings.unlocks) settings.unlocks = {};
@@ -788,7 +812,11 @@
     function closeDetailModal() { $('detailModal').classList.remove('active'); currentDetailId = null; }
     function editFromDetail() { if(currentDetailId) { closeDetailModal(); setTimeout(()=>editOrder(currentDetailId), 100); } }
 
-    function openSettings() { $('masterName').value = settings.master; $('settingsModal').classList.add('active'); }
+    function openSettings() { 
+      $('masterName').value = settings.master; 
+      updateProfileModal();
+      $('settingsModal').classList.add('active'); 
+    }
     function closeSettings() { $('settingsModal').classList.remove('active'); }
     function exportData() { const d = { orders, inventory, settings, date: new Date().toISOString() }; const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)])); a.download=`seller_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); }
     function importData(input) { const f = input.files[0]; if(!f) return; const r = new FileReader(); r.onload = e => { try { const d=JSON.parse(e.target.result); if(d.orders) orders=d.orders; if(d.inventory) inventory=d.inventory; if(d.settings) settings=d.settings; localStorage.setItem(DB_KEY, JSON.stringify(orders)); localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); applyFilters(); renderInventory(); updateUI(); alert('✅ Импорт успешен'); } catch(err) { alert('❌ Ошибка: ' + err.message); } }; r.readAsText(f); input.value=''; }
@@ -844,7 +872,15 @@
     async function checkChatConnection() { const el=$('chatConnectionStatus'); if(!el||!supabaseClient)return; try{const{error}=await supabaseClient.from('support_messages').select('id').limit(1);if(error)throw error;el.textContent='● Онлайн';el.className='chat-status online'}catch{el.textContent='● Офлайн';el.className='chat-status offline'} }
     function openSupportChat() { $('supportChatModal').classList.add('active'); const s=localStorage.getItem('chat_username'); if(s)$('chatUsername').value=s; checkChatConnection(); loadChatHistory(); subscribeToNewMessages(); $('chatInput')?.focus(); }
     function closeSupportChat() { $('supportChatModal').classList.remove('active'); if(chatSubscription){supabaseClient?.removeChannel(chatSubscription);chatSubscription=null;} }
-    async function loadChatHistory() { const c=$('chatMessages'); if(!supabaseClient){c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';return} c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>'; const{d,e}=await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); if(e){c.innerHTML='❌ '+e.message;return} renderChatMsgs(d||[]); }
+    async function loadChatHistory() { 
+      const c=$('chatMessages'); 
+      if(!supabaseClient){c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';return} 
+      c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>'; 
+      // ИСПРАВЛЕНО: Используем правильные имена переменных data и error
+      const { data, error } = await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); 
+      if(error){c.innerHTML='❌ '+error.message;return} 
+      renderChatMsgs(data||[]); 
+    }
     function renderChatMsgs(msgs) { const c=$('chatMessages'); if(!msgs.length){c.innerHTML='<div class="chat-system">👋 Чат пуст</div>';return} c.innerHTML=msgs.map(m=>m.user_meta?.type==='system_context'?'':`<div class="chat-msg-row ${m.is_user?'user':'support'}"><div class="chat-name">${m.user_name||'Аноним'}</div><div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></div>`).join(''); c.scrollTop=c.scrollHeight; }
     function subscribeToNewMessages() { if(!supabaseClient||chatSubscription)return; chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{if(p.new.user_meta?.type==='system_context')return;const c=$('chatMessages'),t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),m=`<div class="chat-msg-row ${p.new.is_user?'user':'support'}"><div class="chat-name">${p.new.user_name||'Аноним'}</div><div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${t}</span></div>`;c.insertAdjacentHTML('beforeend',m);c.scrollTop=c.scrollHeight}).subscribe(); }
     async function sendChatMessage() { const i=$('chatInput'),n=$('chatUsername'),t=i?.value?.trim(),name=n?.value?.trim(); if(!t||!name){if(!n?.value)n?.focus();return} localStorage.setItem('chat_username',name); if(!supabaseClient){alert('❌ Чат не настроен');return} const b=i.nextElementSibling; b.disabled=true; try{const{error}=await supabaseClient.from('support_messages').insert({user_name:name,message:t,is_user:true,user_meta:{appVersion:'v6.2',ua:navigator.userAgent.substring(0,50)}});if(error)throw error;i.value=''}catch(err){alert('❌ '+err.message)}finally{b.disabled=false;i?.focus()} }
