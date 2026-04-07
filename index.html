@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AVITO SELLER | Учёт ремонтов</title>
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
@@ -184,6 +186,23 @@
     .template-link { display: inline-flex; align-items: center; gap: 4px; color: var(--primary); font-size: 0.8rem; cursor: pointer; text-decoration: underline; margin-top: 8px; }
     .template-link:hover { color: var(--primary-hover); }
 
+    /* Support Chat Styles */
+    #chatMessages { flex:1; overflow-y:auto; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:10px; font-size:0.85rem; min-height:300px; }
+    .chat-msg { margin:8px 0; display:flex; flex-direction:column; }
+    .chat-msg.user { align-items:flex-end; }
+    .chat-msg.support { align-items:flex-start; }
+    .chat-bubble { max-width:85%; padding:10px 14px; border-radius:14px; line-height:1.4; word-wrap:break-word; }
+    .chat-msg.user .chat-bubble { background:var(--primary); color:#fff; border-bottom-right-radius:4px; }
+    .chat-msg.support .chat-bubble { background:#e2e8f0; color:var(--text); border-bottom-left-radius:4px; }
+    .chat-time { font-size:0.65rem; color:var(--muted); margin-top:4px; }
+    .chat-system { text-align:center; color:var(--muted); font-size:0.75rem; padding:12px; background:#f1f5f9; border-radius:8px; margin:8px 0; }
+    .chat-input-wrap { display:flex; gap:8px; }
+    .chat-input-wrap input { flex:1; padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:0.9rem; background:#fff; }
+    .chat-input-wrap input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(37,99,235,0.1); }
+    .chat-status { font-size:0.7rem; color:var(--muted); text-align:center; margin-top:8px; }
+    .chat-status.online { color:var(--success); }
+    .chat-status.offline { color:var(--danger); }
+
     @media (max-width: 768px) {
       .part-row, .totals, .form-grid, .detail-grid, .detail-finances, .dashboard { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
@@ -207,13 +226,14 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v6.0 • Импорт CSV</span>
+          <span class="brand-badge">v6.1 • Чат поддержки</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <div id="coinBadge" class="coin-badge">🪙 <span id="coinDisplay">0</span></div>
         <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
         <button class="btn btn-outline" onclick="openSettings()">⚙️ Профиль</button>
+        <button class="btn btn-outline" onclick="openSupportChat()">💬 Поддержка</button>
         <button class="btn btn-outline" onclick="exportData()">📥 Бэкап</button>
         <label class="btn btn-outline" style="cursor:pointer">📤<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
       </div>
@@ -445,7 +465,32 @@
     <div class="modal-box" style="max-width:420px;"><h2>⚙️ Профиль мастера</h2><div class="form-group" style="margin-top:18px"><label>Отображаемое имя</label><input type="text" id="masterName" placeholder="Иванов И.И."></div><div class="form-actions" style="justify-content:center"><button class="btn btn-primary" onclick="persistSettings()">💾 Сохранить</button></div></div>
   </div>
 
+  <!-- Support Chat Modal -->
+  <div id="supportChatModal" class="modal" onclick="if(event.target===this) closeSupportChat()">
+    <div class="modal-box" style="max-width:520px; display:flex; flex-direction:column; height:85vh;">
+      <div class="modal-header" style="margin-bottom:8px; padding-bottom:10px; border-bottom:1px solid var(--border);">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <h2 style="font-size:1.05rem; margin:0;">💬 Техподдержка</h2>
+          <span id="chatConnectionStatus" class="chat-status offline">● Офлайн</span>
+        </div>
+        <button class="close" onclick="closeSupportChat()" style="font-size:1.3rem;">&times;</button>
+      </div>
+      
+      <div id="chatMessages"></div>
+      
+      <div class="chat-input-wrap">
+        <input type="text" id="chatInput" placeholder="Опишите проблему..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+        <button class="btn btn-primary" onclick="sendChatMessage()" style="padding:10px 16px;">➤</button>
+      </div>
+      
+      <div style="font-size:0.68rem; color:var(--muted); margin-top:10px; text-align:center; line-height:1.4;">
+        💡 Чат работает через Supabase • Все данные шифруются • Ответим в рабочее время (Пн-Пт 9:00-18:00 МСК)
+      </div>
+    </div>
+  </div>
+
   <script>
+    // === КОНФИГУРАЦИЯ ===
     const TYPES = ['Микроволновки','Колонки','Музыкальные центры','Наушники','Телефоны','Ноутбуки','Планшеты','Стиральные машины','Роутеры','ПК','Мониторы','Пылесосы'];
     const STATUSES = ['Принят','Диагностика','В работе','Ожидание запчастей','Готово','Выдан'];
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
@@ -458,6 +503,40 @@
     const COST_NEW_ORDER = 30;
     const REWARD_COMPLETED = 10;
     const COST_REVERT = 150;
+
+    // === SUPABASE CHAT CONFIG ===
+    // ⚠️ ЗАМЕНИТЕ НА СВОИ ДАННЫЕ ИЗ СУПАБЕЙС
+    const SUPABASE_URL = 'https://wdbjpcpodkydaitotqqr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYmpwY3BvZGt5ZGFpdG90cXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTM4NDksImV4cCI6MjA5MTEyOTg0OX0.REToOamR3fU6cZcaa8DsHd0OORMyYy5AkErHweLihz4';
+    
+    let supabase = null;
+    let chatSubscription = null;
+    let CHAT_SESSION = null;
+    let hasSentContext = false;
+
+    // Инициализация Supabase (если ключи заданы)
+    function initSupabase() {
+      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) {
+        console.warn('⚠️ Supabase не настроен. Замените SUPABASE_URL и SUPABASE_ANON_KEY в коде.');
+        return false;
+      }
+      try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        return true;
+      } catch(e) {
+        console.error('❌ Ошибка инициализации Supabase:', e);
+        return false;
+      }
+    }
+
+    function getSessionId() {
+      let sid = localStorage.getItem('support_session_id');
+      if (!sid) {
+        sid = 'sess_' + Date.now().toString(36) + Math.random().toString(36).substr(2,6);
+        localStorage.setItem('support_session_id', sid);
+      }
+      return sid;
+    }
 
     let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
     let inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || '[]');
@@ -472,7 +551,11 @@
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
     const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
 
-    window.onload = () => {
+    window.onload = async () => {
+      // Инициализация супабейс
+      const supabaseReady = initSupabase();
+      CHAT_SESSION = getSessionId();
+      
       const selType = $('filterType'), selStatus = $('filterStatus'), typeSel = $('type'), statusSel = $('status');
       TYPES.forEach(t => { const o = document.createElement('option'); o.value=t; o.textContent=t; selType.appendChild(o); typeSel.appendChild(o.cloneNode(true)); });
       STATUSES.forEach(s => { const o = document.createElement('option'); o.value=s; o.textContent=s; selStatus.appendChild(o); statusSel.appendChild(o.cloneNode(true)); });
@@ -500,7 +583,237 @@
 
       $('inventoryForm').onsubmit = handleInventorySubmit;
       setupCsvDragDrop();
+
+      // Проверка соединения с чатом при загрузке
+      if (supabaseReady) {
+        await checkChatConnection();
+      }
     };
+
+    // === ЧАТ ПОДДЕРЖКИ ===
+    
+    async function checkChatConnection() {
+      const statusEl = $('chatConnectionStatus');
+      if (!statusEl) return;
+      
+      try {
+        const { error } = await supabase.from('support_messages').select('id').limit(1);
+        if (error) throw error;
+        statusEl.textContent = '● Онлайн';
+        statusEl.className = 'chat-status online';
+      } catch(e) {
+        statusEl.textContent = '● Офлайн';
+        statusEl.className = 'chat-status offline';
+        console.warn('⚠️ Чат недоступен:', e.message);
+      }
+    }
+
+    function openSupportChat() {
+      const modal = $('supportChatModal');
+      if (!modal) return;
+      modal.classList.add('active');
+      
+      // Обновляем статус соединения
+      checkChatConnection();
+      
+      loadChatHistory();
+      subscribeToNewMessages();
+      $('chatInput')?.focus();
+    }
+
+    function closeSupportChat() {
+      $('supportChatModal')?.classList.remove('active');
+      if (chatSubscription) {
+        supabase?.removeChannel(chatSubscription);
+        chatSubscription = null;
+      }
+    }
+
+    async function loadChatHistory() {
+      const container = $('chatMessages');
+      if (!container) return;
+      
+      if (!supabase) {
+        container.innerHTML = '<div class="chat-system">⚠️ Чат не настроен. Обратитесь к разработчику для настройки Supabase.</div>';
+        return;
+      }
+      
+      container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">🔄 Загрузка...</div>';
+      
+      const { data, error } = await supabase
+        .from('support_messages')
+        .select('*')
+        .eq('session_id', CHAT_SESSION)
+        .order('created_at', { ascending: true })
+        .limit(100);
+        
+      if (error) {
+        container.innerHTML = '<div style="color:var(--danger); text-align:center; padding:20px;">❌ Ошибка: ' + error.message + '</div>';
+        return;
+      }
+      
+      // Авто-отправка контекста при первом обращении
+      if (!hasSentContext && (!data || data.length === 0)) {
+        await sendSystemContext();
+        hasSentContext = true;
+      }
+      
+      renderChatMessages(data || []);
+    }
+
+    async function sendSystemContext() {
+      const context = `
+[🔧 Контекст системы]
+• Мастер: ${settings.master || 'Не указан'}
+• Версия приложения: ${$('brand-badge')?.textContent || 'v6.1'}
+• Заявок в базе: ${orders.length}
+• Запчастей на складе: ${inventory.length}
+• Браузер: ${navigator.userAgent?.substring(0,80) || 'N/A'}
+• Время: ${new Date().toLocaleString('ru-RU')}
+• ОС: ${navigator.platform}
+      `.trim();
+      
+      await supabase.from('support_messages').insert({
+        session_id: CHAT_SESSION,
+        user_name: settings.master || 'Мастер',
+        message: context,
+        is_user: true,
+        user_meta: { type: 'system_context', auto: true }
+      });
+    }
+
+    function renderChatMessages(messages) {
+      const container = $('chatMessages');
+      if (!container) return;
+      
+      if (!messages || !messages.length) {
+        container.innerHTML = '<div class="chat-system">👋 Здравствуйте! Напишите нам — мы ответим в рабочее время (Пн-Пт 9:00-18:00 МСК)</div>';
+        return;
+      }
+      
+      container.innerHTML = messages.map(msg => {
+        // Системные сообщения
+        if (msg.user_meta?.type === 'system_context') {
+          return `<div class="chat-system">📋 Отправлен контекст системы</div>`;
+        }
+        
+        const isUser = msg.is_user;
+        const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+        const safeMsg = msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        
+        return `
+          <div class="chat-msg ${isUser ? 'user' : 'support'}">
+            <div class="chat-bubble">${safeMsg}</div>
+            <span class="chat-time">${time}</span>
+          </div>
+        `;
+      }).join('');
+      
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function subscribeToNewMessages() {
+      if (!supabase || chatSubscription) return;
+      
+      chatSubscription = supabase
+        .channel(`chat:${CHAT_SESSION}`)
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'support_messages',
+          filter: `session_id=eq.${CHAT_SESSION}`
+        }, payload => {
+          const msg = payload.new;
+          
+          // Пропускаем системные сообщения в реальном времени
+          if (msg.user_meta?.type === 'system_context') return;
+          
+          const container = $('chatMessages');
+          if (!container) return;
+          
+          const isUser = msg.is_user;
+          const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
+          const safeMsg = msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+          
+          const msgHtml = `
+            <div class="chat-msg ${isUser ? 'user' : 'support'}">
+              <div class="chat-bubble">${safeMsg}</div>
+              <span class="chat-time">${time}</span>
+            </div>
+          `;
+          container.insertAdjacentHTML('beforeend', msgHtml);
+          container.scrollTop = container.scrollHeight;
+          
+          // Обновляем статус если пришло сообщение от поддержки
+          if (!isUser) {
+            const statusEl = $('chatConnectionStatus');
+            if (statusEl) {
+              statusEl.textContent = '● Печатает...';
+              setTimeout(() => {
+                statusEl.textContent = '● Онлайн';
+                statusEl.className = 'chat-status online';
+              }, 2000);
+            }
+          }
+        })
+        .subscribe(status => {
+          const statusEl = $('chatConnectionStatus');
+          if (statusEl) {
+            if (status === 'SUBSCRIBED') {
+              statusEl.textContent = '● Онлайн';
+              statusEl.className = 'chat-status online';
+            } else {
+              statusEl.textContent = '● Подключение...';
+              statusEl.className = 'chat-status offline';
+            }
+          }
+        });
+    }
+
+    async function sendChatMessage() {
+      const input = $('chatInput');
+      const text = input?.value?.trim();
+      if (!text) return;
+      
+      if (!supabase) {
+        alert('❌ Чат не настроен. Пожалуйста, замените SUPABASE_URL и SUPABASE_ANON_KEY в коде.');
+        return;
+      }
+      
+      // Блокируем кнопку на время отправки
+      const btn = input.nextElementSibling;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳';
+      btn.disabled = true;
+      
+      try {
+        const { error } = await supabase.from('support_messages').insert({
+          session_id: CHAT_SESSION,
+          user_name: settings.master || 'Мастер',
+          user_meta: {
+            appVersion: $('brand-badge')?.textContent || 'v6.1',
+            userAgent: navigator.userAgent.substring(0, 100),
+            ordersCount: orders.length,
+            inventoryCount: inventory.length
+          },
+          message: text,
+          is_user: true
+        });
+        
+        if (error) throw error;
+        
+        input.value = '';
+        // Сообщение появится через realtime-подписку
+      } catch(err) {
+        alert('❌ Не удалось отправить: ' + err.message);
+      } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        input?.focus();
+      }
+    }
+
+    // === ОСНОВНЫЕ ФУНКЦИИ ПРОГРАММЫ ===
 
     function switchTab(tab) {
       currentTab = tab;
@@ -815,7 +1128,7 @@
     function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
     function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); saveData(); applyFilters(); updateUI(); } }
 
-    // Detail View - FIXED
+    // Detail View
     function openDetail(id) {
       currentDetailId = id;
       const o = orders.find(x=>x.id===id); 
@@ -905,7 +1218,7 @@
       }; r.readAsText(f); input.value='';
     }
 
-    // Inventory Functions - TABLE VIEW
+    // Inventory Functions
     function renderInventory() {
       const tbody = $('invTbody');
       const empty = $('invEmpty');
@@ -1091,7 +1404,6 @@
     }
 
     function parseCsv(text) {
-      // Auto-detect delimiter
       const firstLine = text.split('\n')[0];
       let delimiter = ';';
       if (firstLine.split(';').length < firstLine.split(',').length) {
@@ -1101,11 +1413,9 @@
       const lines = text.split('\n').filter(line => line.trim());
       if (lines.length < 2) return [];
 
-      // Skip header
       const dataLines = lines.slice(1);
       
       return dataLines.map(line => {
-        // Handle quoted fields
         const values = [];
         let current = '';
         let inQuotes = false;
@@ -1123,7 +1433,6 @@
         }
         values.push(current.trim());
 
-        // Map to our fields: Название;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание
         const item = {
           name: values[0] || '',
           sku: values[1] || '',
@@ -1189,18 +1498,15 @@
       let updated = 0;
 
       pendingCsvData.forEach(newItem => {
-        // Check if item with same SKU or name exists
         const existingIdx = inventory.findIndex(item => 
           (item.sku && item.sku === newItem.sku) || 
           (item.name === newItem.name)
         );
 
         if (existingIdx > -1) {
-          // Update existing
           inventory[existingIdx] = { ...inventory[existingIdx], ...newItem };
           updated++;
         } else {
-          // Add new
           newItem.id = Date.now().toString(36) + Math.random().toString(36).substr(2,5);
           inventory.push(newItem);
           added++;
