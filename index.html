@@ -32,6 +32,7 @@
     .btn { padding: 8px 14px; border: none; border-radius: 9px; cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: 0.15s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
     .btn:hover { transform: translateY(-1px); }
     .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%); color: #fff; box-shadow: 0 2px 6px rgba(37,99,235,0.25); }
+    .btn-success { background: var(--success); color: white; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
     .btn-danger { background: var(--danger); color: white; }
     .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
@@ -96,6 +97,7 @@
     .modal.active { display: flex; }
     .modal-box { background: var(--card); width: 100%; max-width: 720px; max-height: 92vh; overflow-y: auto; border-radius: 14px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); padding: 22px; }
     .modal-box.large { max-width: 900px; }
+    .modal-box.xlarge { max-width: 1100px; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
     .modal-header h2 { font-size: 1.15rem; font-weight: 700; }
     .close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--muted); line-height: 1; transition: 0.2s; }
@@ -164,6 +166,24 @@
     .part-item-stock.in { background: #dcfce7; color: #166534; }
     .part-item-stock.out { background: #fee2e2; color: #991b1b; }
 
+    /* CSV Import Styles */
+    .import-area { border: 2px dashed var(--border); border-radius: 12px; padding: 30px; text-align: center; margin-bottom: 16px; transition: 0.2s; cursor: pointer; background: #fafafa; }
+    .import-area:hover, .import-area.dragover { border-color: var(--primary); background: #f0f9ff; }
+    .import-area .icon { font-size: 2.5rem; margin-bottom: 8px; }
+    .import-area p { color: var(--muted); font-size: 0.9rem; }
+    .import-area .hint { font-size: 0.75rem; color: var(--muted); margin-top: 8px; }
+    
+    .import-preview { max-height: 300px; overflow-y: auto; margin: 16px 0; border: 1px solid var(--border); border-radius: 8px; }
+    .import-preview table { font-size: 0.75rem; }
+    .import-preview th { background: #e0f2fe; color: #0369a1; position: sticky; top: 0; }
+    .import-stats { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+    .import-stat { padding: 8px 16px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border); }
+    .import-stat .label { font-size: 0.7rem; color: var(--muted); }
+    .import-stat .val { font-size: 1.1rem; font-weight: 700; }
+
+    .template-link { display: inline-flex; align-items: center; gap: 4px; color: var(--primary); font-size: 0.8rem; cursor: pointer; text-decoration: underline; margin-top: 8px; }
+    .template-link:hover { color: var(--primary-hover); }
+
     @media (max-width: 768px) {
       .part-row, .totals, .form-grid, .detail-grid, .detail-finances, .dashboard { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
@@ -187,7 +207,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v5.1 • Склад</span>
+          <span class="brand-badge">v6.0 • Импорт CSV</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -243,7 +263,10 @@
           <h2 style="font-size:1.2rem; margin-bottom:4px">📦 Складской учёт</h2>
           <p style="color:var(--muted); font-size:0.85rem">Управление запчастями и остатками</p>
         </div>
-        <button class="btn btn-primary" onclick="openInventoryModal()">+ Добавить запчасть</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-success" onclick="openCsvImport()">📊 Импорт из CSV</button>
+          <button class="btn btn-primary" onclick="openInventoryModal()">+ Добавить запчасть</button>
+        </div>
       </div>
 
       <div class="controls">
@@ -261,7 +284,7 @@
           </thead>
           <tbody id="invTbody"></tbody>
         </table>
-        <div id="invEmpty" class="empty hidden">Запчастей нет. Нажмите «+ Добавить запчасть»</div>
+        <div id="invEmpty" class="empty hidden">Запчастей нет. Нажмите «+ Добавить запчасть» или «📊 Импорт из CSV»</div>
       </div>
     </div>
   </div>
@@ -306,6 +329,45 @@
           <button type="submit" class="btn btn-primary">💾 Сохранить</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- CSV Import Modal -->
+  <div id="csvImportModal" class="modal" onclick="if(event.target===this) closeCsvImport()">
+    <div class="modal-box xlarge">
+      <div class="modal-header">
+        <h2>📊 Импорт запчастей из CSV</h2>
+        <button class="close" onclick="closeCsvImport()">&times;</button>
+      </div>
+      
+      <div id="csvImportStep1">
+        <div class="import-area" id="csvDropZone" onclick="document.getElementById('csvFileInput').click()">
+          <div class="icon">📁</div>
+          <p>Нажмите или перетащите CSV файл сюда</p>
+          <div class="hint">Экспорт из Google Таблиц: Файл → Скачать → CSV</div>
+          <input type="file" id="csvFileInput" accept=".csv,.txt" style="display:none" onchange="handleCsvFile(this)">
+        </div>
+        
+        <div style="text-align:center; margin-bottom:16px">
+          <div class="template-link" onclick="downloadTemplate()">📄 Скачать шаблон CSV для Google Таблиц</div>
+        </div>
+
+        <div id="csvFormatInfo" style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px; margin-bottom:16px; font-size:0.82rem;">
+          <strong>Ожидаемый формат:</strong><br>
+          <code>Название;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание</code><br><br>
+          <strong>Разделитель:</strong> точка с запятой (;) или запятая (,) — автоопределение<br>
+          <strong>Кодировка:</strong> UTF-8 (стандарт Google Таблиц)
+        </div>
+      </div>
+
+      <div id="csvImportStep2" class="hidden">
+        <div class="import-stats" id="csvStats"></div>
+        <div class="import-preview" id="csvPreview"></div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-outline" onclick="cancelCsvImport()">Отмена</button>
+          <button type="button" class="btn btn-success" onclick="confirmCsvImport()">✅ Импортировать</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -403,6 +465,7 @@
     let currentDetailId = null;
     let currentTab = 'orders';
     let currentPhotoBase64 = null;
+    let pendingCsvData = [];
 
     const $ = id => { const el = document.getElementById(id); if(!el) console.warn('Element not found:', id); return el; };
     const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
@@ -436,6 +499,7 @@
       });
 
       $('inventoryForm').onsubmit = handleInventorySubmit;
+      setupCsvDragDrop();
     };
 
     function switchTab(tab) {
@@ -973,6 +1037,192 @@
       inventory = inventory.filter(x => x.id !== id);
       localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
       renderInventory();
+    }
+
+    // CSV Import Functions
+    function openCsvImport() {
+      pendingCsvData = [];
+      $('csvImportStep1').classList.remove('hidden');
+      $('csvImportStep2').classList.add('hidden');
+      $('csvFileInput').value = '';
+      $('csvImportModal').classList.add('active');
+    }
+    function closeCsvImport() { $('csvImportModal').classList.remove('active'); pendingCsvData = []; }
+    function cancelCsvImport() { pendingCsvData = []; $('csvImportStep1').classList.remove('hidden'); $('csvImportStep2').classList.add('hidden'); $('csvFileInput').value = ''; }
+
+    function setupCsvDragDrop() {
+      const zone = $('csvDropZone');
+      if (!zone) return;
+      zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file && (file.name.endsWith('.csv') || file.name.endsWith('.txt'))) {
+          processCsvFile(file);
+        } else {
+          alert('❌ Пожалуйста, выберите CSV файл');
+        }
+      });
+    }
+
+    function handleCsvFile(input) {
+      const file = input.files[0];
+      if (file) processCsvFile(file);
+    }
+
+    function processCsvFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = e.target.result;
+          pendingCsvData = parseCsv(text);
+          if (pendingCsvData.length === 0) {
+            alert('❌ Файл пуст или не содержит данных');
+            return;
+          }
+          showCsvPreview();
+        } catch(err) {
+          alert('❌ Ошибка чтения файла: ' + err.message);
+        }
+      };
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    function parseCsv(text) {
+      // Auto-detect delimiter
+      const firstLine = text.split('\n')[0];
+      let delimiter = ';';
+      if (firstLine.split(';').length < firstLine.split(',').length) {
+        delimiter = ',';
+      }
+
+      const lines = text.split('\n').filter(line => line.trim());
+      if (lines.length < 2) return [];
+
+      // Skip header
+      const dataLines = lines.slice(1);
+      
+      return dataLines.map(line => {
+        // Handle quoted fields
+        const values = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            inQuotes = !inQuotes;
+          } else if (char === delimiter && !inQuotes) {
+            values.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        values.push(current.trim());
+
+        // Map to our fields: Название;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание
+        const item = {
+          name: values[0] || '',
+          sku: values[1] || '',
+          category: values[2] || 'Другое',
+          cost: parseFloat(values[3]) || 0,
+          price: parseFloat(values[4]) || 0,
+          inStock: parseInt(values[5]) || 0,
+          reserved: parseInt(values[6]) || 0,
+          toOrder: parseInt(values[7]) || 0,
+          ordered: parseInt(values[8]) || 0,
+          description: values[9] || '',
+          photo: null,
+          updatedAt: Date.now()
+        };
+
+        return item.name ? item : null;
+      }).filter(item => item !== null);
+    }
+
+    function showCsvPreview() {
+      $('csvImportStep1').classList.add('hidden');
+      $('csvImportStep2').classList.remove('hidden');
+
+      const stats = $('csvStats');
+      stats.innerHTML = `
+        <div class="import-stat"><div class="label">Найдено записей</div><div class="val">${pendingCsvData.length}</div></div>
+        <div class="import-stat"><div class="label">Цена закупки (всего)</div><div class="val">${fmt(pendingCsvData.reduce((s,i)=>s+i.cost,0))}</div></div>
+        <div class="import-stat"><div class="label">Цена продажи (всего)</div><div class="val">${fmt(pendingCsvData.reduce((s,i)=>s+i.price,0))}</div></div>
+        <div class="import-stat"><div class="label">В наличии (всего)</div><div class="val">${pendingCsvData.reduce((s,i)=>s+i.inStock,0)} шт.</div></div>
+      `;
+
+      const preview = $('csvPreview');
+      const headers = ['Название', 'Артикул', 'Категория', 'Закупка', 'Продажа', 'Наличие', 'Резерв', 'Нужно', 'Заказано'];
+      let html = '<table><thead><tr>';
+      headers.forEach(h => html += `<th>${h}</th>`);
+      html += '</tr></thead><tbody>';
+      
+      pendingCsvData.slice(0, 20).forEach(item => {
+        html += `<tr>
+          <td>${item.name}</td>
+          <td>${item.sku || '—'}</td>
+          <td>${item.category}</td>
+          <td>${fmt(item.cost)}</td>
+          <td>${fmt(item.price)}</td>
+          <td>${item.inStock}</td>
+          <td>${item.reserved}</td>
+          <td>${item.toOrder}</td>
+          <td>${item.ordered}</td>
+        </tr>`;
+      });
+      
+      if (pendingCsvData.length > 20) {
+        html += `<tr><td colspan="9" style="text-align:center;color:var(--muted)">... и ещё ${pendingCsvData.length - 20} записей</td></tr>`;
+      }
+      html += '</tbody></table>';
+      preview.innerHTML = html;
+    }
+
+    function confirmCsvImport() {
+      if (!pendingCsvData.length) return;
+
+      let added = 0;
+      let updated = 0;
+
+      pendingCsvData.forEach(newItem => {
+        // Check if item with same SKU or name exists
+        const existingIdx = inventory.findIndex(item => 
+          (item.sku && item.sku === newItem.sku) || 
+          (item.name === newItem.name)
+        );
+
+        if (existingIdx > -1) {
+          // Update existing
+          inventory[existingIdx] = { ...inventory[existingIdx], ...newItem };
+          updated++;
+        } else {
+          // Add new
+          newItem.id = Date.now().toString(36) + Math.random().toString(36).substr(2,5);
+          inventory.push(newItem);
+          added++;
+        }
+      });
+
+      localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+      closeCsvImport();
+      renderInventory();
+      alert(`✅ Импортировано!\nДобавлено: ${added}\nОбновлено: ${updated}\nВсего: ${pendingCsvData.length}`);
+    }
+
+    function downloadTemplate() {
+      const headers = 'Название;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание';
+      const example = 'Дисплей iPhone 11;DISP-11;Дисплеи;2500;4500;10;2;5;0;OLED, оригинал';
+      const csv = headers + '\n' + example;
+      
+      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'template_import_parts.csv';
+      a.click();
     }
   </script>
 </body>
