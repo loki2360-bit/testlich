@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AVITO SELLER | Учёт ремонтов</title>
-  <!-- Подключаем Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -48,8 +47,8 @@
     .stat-card.warning { border-left-color: var(--warning); }
     .stat-card h3 { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
     .stat-card .val { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-    .coin-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(245,158,11,0.3); }
-    .coin-low { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 2px 6px rgba(239,68,68,0.3); animation: pulse 1.5s infinite; }
+    .coin-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(245,158,11,0.3); cursor: default; }
+    .coin-badge { animation: pulse 1.5s infinite; }
     @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
 
     #secretWrap { display: none; text-align: center; margin: 16px auto; max-width: 260px; animation: fadeIn 0.3s ease; }
@@ -139,7 +138,6 @@
     .fin-card strong { font-size: 1.05rem; font-weight: 700; }
     .fin-card.profit strong { color: var(--success); }
 
-    /* Inventory Table Styles */
     .inv-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
     .inv-no-photo { width: 50px; height: 50px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 1.2rem; }
     .stock-indicator { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
@@ -152,7 +150,6 @@
     .file-input-label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: #f8fafc; border: 2px dashed var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; }
     .file-input-label:hover { border-color: var(--primary); background: #f0f9ff; }
 
-    /* Parts Selector Modal */
     .parts-selector-search { margin-bottom: 16px; }
     .parts-selector-search input { width: 100%; padding: 10px 14px; border: 2px solid var(--border); border-radius: 9px; font-size: 0.9rem; }
     .parts-selector-search input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
@@ -168,7 +165,6 @@
     .part-item-stock.in { background: #dcfce7; color: #166534; }
     .part-item-stock.out { background: #fee2e2; color: #991b1b; }
 
-    /* CSV Import Styles */
     .import-area { border: 2px dashed var(--border); border-radius: 12px; padding: 30px; text-align: center; margin-bottom: 16px; transition: 0.2s; cursor: pointer; background: #fafafa; }
     .import-area:hover, .import-area.dragover { border-color: var(--primary); background: #f0f9ff; }
     .import-area .icon { font-size: 2.5rem; margin-bottom: 8px; }
@@ -186,20 +182,15 @@
     .template-link { display: inline-flex; align-items: center; gap: 4px; color: var(--primary); font-size: 0.8rem; cursor: pointer; text-decoration: underline; margin-top: 8px; }
     .template-link:hover { color: var(--primary-hover); }
 
-    /* Support Chat Styles */
     #chatMessages { flex:1; overflow-y:auto; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:10px; font-size:0.85rem; min-height:300px; display:flex; flex-direction:column; gap:8px; }
-    
     .chat-msg-row { display:flex; flex-direction:column; max-width:85%; }
     .chat-msg-row.user { align-self:flex-end; align-items:flex-end; }
     .chat-msg-row.support { align-self:flex-start; align-items:flex-start; }
-    
     .chat-name { font-size:0.7rem; font-weight:700; margin-bottom:2px; color:var(--muted); }
     .chat-msg-row.user .chat-name { color:var(--primary); }
-    
     .chat-bubble { padding:10px 14px; border-radius:14px; line-height:1.4; word-wrap:break-word; position:relative; }
     .chat-msg-row.user .chat-bubble { background:var(--primary); color:#fff; border-bottom-right-radius:4px; }
     .chat-msg-row.support .chat-bubble { background:#e2e8f0; color:var(--text); border-bottom-left-radius:4px; }
-    
     .chat-time { font-size:0.65rem; color:var(--muted); margin-top:4px; text-align:right; }
     .chat-system { text-align:center; color:var(--muted); font-size:0.75rem; padding:12px; background:#f1f5f9; border-radius:8px; margin:8px 0; }
     .chat-input-wrap { display:flex; gap:8px; }
@@ -209,332 +200,76 @@
     .chat-status.online { color:var(--success); }
     .chat-status.offline { color:var(--danger); }
 
+    /* === COIN POPUP & SHOP STYLES === */
+    .coin-popup {
+      position: fixed; top: 18%; left: 50%; transform: translateX(-50%) translateY(10px);
+      background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 10px 18px;
+      border-radius: 12px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 8px 20px rgba(245,158,11,0.4);
+      opacity: 0; pointer-events: none; z-index: 9999; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .coin-popup.show { opacity: 1; transform: translateX(-50%) translateY(-20px); }
+    .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+    .shop-item { padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+    .shop-item h4 { margin: 0 0 4px; font-size: 0.9rem; }
+    .shop-item p { margin: 0 0 8px; font-size: 0.75rem; color: var(--muted); }
+
     /* === LANDING PAGE STYLES === */
     .landing-overlay {
-      position: fixed;
-      inset: 0;
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      z-index: 9999;
-      overflow: hidden;
-      animation: landingFadeIn 0.4s ease-out;
+      position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 9999;
+      overflow: hidden; animation: landingFadeIn 0.4s ease-out;
     }
-    
-    @keyframes landingFadeIn {
-      from { opacity: 0; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    
+    @keyframes landingFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
     .landing-content {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 24px;
-      padding: 40px 32px;
-      max-width: 720px;
-      width: 100%;
-      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
-      position: relative;
-      z-index: 10;
-      animation: contentSlideUp 0.5s ease-out 0.1s both;
+      background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 40px 32px;
+      max-width: 720px; width: 100%; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      position: relative; z-index: 10; animation: contentSlideUp 0.5s ease-out 0.1s both;
     }
-    
-    @keyframes contentSlideUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .landing-header {
-      text-align: center;
-      margin-bottom: 32px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--border);
-    }
-    
-    .landing-logo {
-      margin: 0 auto 16px;
-      width: 72px;
-      height: 72px;
-      filter: drop-shadow(0 8px 24px rgba(0, 170, 255, 0.4));
-      animation: logoFloat 3s ease-in-out infinite;
-    }
-    
-    @keyframes logoFloat {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
-    }
-    
-    .landing-logo-svg {
-      width: 100%;
-      height: 100%;
-    }
-    
-    .landing-title {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: -0.04em;
-      background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 4px;
-    }
-    
-    .landing-subtitle {
-      font-size: 1rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
-    
-    .landing-features {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-      margin-bottom: 28px;
-    }
-    
-    .feature-card {
-      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-      padding: 16px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      transition: transform 0.2s, box-shadow 0.2s;
-      text-align: center;
-    }
-    
-    .feature-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      border-color: var(--avito-blue);
-    }
-    
-    .feature-icon {
-      font-size: 1.8rem;
-      margin-bottom: 8px;
-      display: block;
-    }
-    
-    .feature-card h3 {
-      font-size: 0.9rem;
-      font-weight: 700;
-      margin-bottom: 4px;
-      color: var(--text);
-    }
-    
-    .feature-card p {
-      font-size: 0.75rem;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-    
-    .landing-free-badge {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 12px 20px;
-      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-      border: 2px solid var(--avito-blue);
-      border-radius: 12px;
-      margin-bottom: 24px;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 170, 255, 0.4); }
-      50% { box-shadow: 0 0 0 10px rgba(0, 170, 255, 0); }
-    }
-    
-    .free-label {
-      font-size: 1.2rem;
-      animation: sparkle 1.5s ease-in-out infinite;
-    }
-    
-    .free-label:nth-child(2) { animation-delay: 0.2s; }
-    
-    @keyframes sparkle {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.2); opacity: 0.8; }
-    }
-    
-    .free-text {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #0369a1;
-      text-align: center;
-    }
-    
-    .landing-cta {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    
-    .btn-start {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 16px 32px;
-      background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
-      color: white;
-      border: none;
-      border-radius: 14px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
-      width: 100%;
-      max-width: 400px;
-      justify-content: center;
-    }
-    
-    .btn-start:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(37, 99, 235, 0.5);
-      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-    }
-    
-    .btn-start:active {
-      transform: translateY(0);
-    }
-    
-    .btn-arrow {
-      font-size: 1.2rem;
-      transition: transform 0.2s;
-    }
-    
-    .btn-start:hover .btn-arrow {
-      transform: translateX(4px);
-    }
-    
-    .landing-note {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 12px;
-      line-height: 1.4;
-    }
-    
-    .landing-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-    
-    .version-badge {
-      background: #f1f5f9;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-weight: 600;
-    }
-    
-    .made-with {
-      font-style: italic;
-    }
-    
-    /* Декоративные элементы фона */
-    .landing-decoration {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(60px);
-      opacity: 0.15;
-      z-index: 1;
-    }
-    
-    .decoration-1 {
-      width: 400px;
-      height: 400px;
-      background: var(--avito-blue);
-      top: -150px;
-      right: -100px;
-      animation: float 8s ease-in-out infinite;
-    }
-    
-    .decoration-2 {
-      width: 300px;
-      height: 300px;
-      background: var(--success);
-      bottom: -100px;
-      left: -50px;
-      animation: float 10s ease-in-out infinite reverse;
-    }
-    
-    .decoration-3 {
-      width: 250px;
-      height: 250px;
-      background: var(--warning);
-      bottom: 20%;
-      right: 10%;
-      animation: float 12s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      25% { transform: translate(20px, -20px) scale(1.05); }
-      50% { transform: translate(0, -40px) scale(1); }
-      75% { transform: translate(-20px, -20px) scale(0.95); }
-    }
-    
-    /* Адаптивность */
-    @media (max-width: 640px) {
-      .landing-content {
-        padding: 28px 20px;
-        margin: 10px;
-      }
-      
-      .landing-title {
-        font-size: 1.6rem;
-      }
-      
-      .landing-features {
-        grid-template-columns: 1fr;
-      }
-      
-      .feature-card {
-        padding: 14px;
-      }
-      
-      .btn-start {
-        padding: 14px 24px;
-        font-size: 0.95rem;
-      }
-      
-      .landing-free-badge {
-        flex-direction: column;
-        gap: 6px;
-        padding: 10px 16px;
-      }
-    }
-    
-    /* Скрытие основного контента при показе лендинга */
-    body.landing-active .container {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    
-    /* Плавное скрытие лендинга */
-    .landing-overlay.hiding {
-      animation: landingFadeOut 0.3s ease-in forwards;
-      pointer-events: none;
-    }
-    
-    @keyframes landingFadeOut {
-      to { opacity: 0; transform: scale(1.02); }
-    }
-    
-    .landing-overlay.hiding .landing-content {
-      animation: contentSlideDown 0.3s ease-in forwards;
-    }
-    
-    @keyframes contentSlideDown {
-      to { opacity: 0; transform: translateY(10px); }
-    }
+    @keyframes contentSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .landing-header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .landing-logo { margin: 0 auto 16px; width: 72px; height: 72px; filter: drop-shadow(0 8px 24px rgba(0, 170, 255, 0.4)); animation: logoFloat 3s ease-in-out infinite; }
+    @keyframes logoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    .landing-logo-svg { width: 100%; height: 100%; }
+    .landing-title { font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(135deg, #0f172a 0%, #334155 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+    .landing-subtitle { font-size: 1rem; color: var(--muted); font-weight: 500; }
+    .landing-features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 28px; }
+    .feature-card { background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); padding: 16px; border-radius: 14px; border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s; text-align: center; }
+    .feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); border-color: var(--avito-blue); }
+    .feature-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
+    .feature-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+    .feature-card p { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+    .landing-free-badge { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid var(--avito-blue); border-radius: 12px; margin-bottom: 24px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 170, 255, 0.4); } 50% { box-shadow: 0 0 0 10px rgba(0, 170, 255, 0); } }
+    .free-label { font-size: 1.2rem; animation: sparkle 1.5s ease-in-out infinite; }
+    @keyframes sparkle { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.8; } }
+    .free-text { font-size: 0.85rem; font-weight: 700; color: #0369a1; text-align: center; }
+    .landing-cta { text-align: center; margin-bottom: 20px; }
+    .btn-start { display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%); color: white; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35); width: 100%; max-width: 400px; justify-content: center; }
+    .btn-start:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(37, 99, 235, 0.5); background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); }
+    .btn-arrow { font-size: 1.2rem; transition: transform 0.2s; }
+    .btn-start:hover .btn-arrow { transform: translateX(4px); }
+    .landing-note { font-size: 0.75rem; color: var(--muted); margin-top: 12px; line-height: 1.4; }
+    .landing-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--muted); }
+    .version-badge { background: #f1f5f9; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .made-with { font-style: italic; }
+    .landing-decoration { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.15; z-index: 1; }
+    .decoration-1 { width: 400px; height: 400px; background: var(--avito-blue); top: -150px; right: -100px; animation: float 8s ease-in-out infinite; }
+    .decoration-2 { width: 300px; height: 300px; background: var(--success); bottom: -100px; left: -50px; animation: float 10s ease-in-out infinite reverse; }
+    .decoration-3 { width: 250px; height: 250px; background: var(--warning); bottom: 20%; right: 10%; animation: float 12s ease-in-out infinite; }
+    @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 25% { transform: translate(20px, -20px) scale(1.05); } 50% { transform: translate(0, -40px) scale(1); } 75% { transform: translate(-20px, -20px) scale(0.95); } }
+    body.landing-active .container { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .landing-overlay.hiding { animation: landingFadeOut 0.3s ease-in forwards; pointer-events: none; }
+    @keyframes landingFadeOut { to { opacity: 0; transform: scale(1.02); } }
+    .landing-overlay.hiding .landing-content { animation: contentSlideDown 0.3s ease-in forwards; }
+    @keyframes contentSlideDown { to { opacity: 0; transform: translateY(10px); } }
 
-    @media (max-width: 768px) {
+    @media (max-width: 640px) {
+      .landing-content { padding: 28px 20px; margin: 10px; }
+      .landing-title { font-size: 1.6rem; }
+      .landing-features { grid-template-columns: 1fr; }
+      .feature-card { padding: 14px; }
+      .btn-start { padding: 14px 24px; font-size: 0.95rem; }
+      .landing-free-badge { flex-direction: column; gap: 6px; padding: 10px 16px; }
       .part-row, .totals, .form-grid, .detail-grid, .detail-finances, .dashboard { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
       .brand { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -557,11 +292,12 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v6.2 •Beta relize</span>
+          <span class="brand-badge">v6.2 • Beta</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <div id="coinBadge" class="coin-badge">🪙 <span id="coinDisplay">0</span></div>
+        <button class="btn btn-outline" onclick="openAchievements()">🛒 Магазин</button>
         <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
         <button class="btn btn-outline" onclick="openSettings()">⚙️ Профиль</button>
         <button class="btn btn-outline" onclick="openSupportChat()">💬 Чат поддержки</button>
@@ -575,16 +311,13 @@
       <button class="nav-tab" onclick="switchTab('inventory')">📦 Склад запчастей</button>
     </div>
 
-    <!-- Orders Section -->
     <div id="ordersSection">
       <div class="dashboard">
         <div class="stat-card profit"><h3>✅ Готовая к выводу</h3><div class="val" id="statReady">0 ₽</div><small style="color:var(--muted)">Статус: Выдан</small></div>
         <div class="stat-card warning"><h3>⏳ В работе / ожидании</h3><div class="val" id="statActive">0 ₽</div><small style="color:var(--muted)">Статус: кроме Выдан</small></div>
         <div class="stat-card"><h3>📊 Оборот заявок</h3><div class="val" id="statCount">0</div><small style="color:var(--muted)">Всего создано</small></div>
       </div>
-
       <div id="secretWrap"><input type="text" id="secretInput" placeholder="••••••••" autocomplete="off"></div>
-
       <div class="controls">
         <div class="control-group"><label>Поиск</label><input type="text" id="search" placeholder="Клиент, техника..." oninput="applyFilters()"></div>
         <div class="control-group"><label>Тип техники</label><select id="filterType" onchange="applyFilters()"><option value="">Все</option></select></div>
@@ -593,46 +326,31 @@
         <div class="control-group"><label>По дату</label><input type="date" id="dateTo" onchange="applyFilters()"></div>
         <div class="control-group"><button class="btn btn-outline" style="width:100%;margin-top:20px" onclick="resetFilters()">Сброс</button></div>
       </div>
-
       <div class="table-wrap">
         <table id="mainTable">
-          <thead>
-            <tr>
-              <th>ID</th><th>Дата</th><th>Клиент</th><th>Контакты</th><th>Авито</th><th>Устройство</th><th>Этап</th><th>Гарантия</th><th>Себест.</th><th>Стоимость</th><th>Прибыль</th><th>Действия</th>
-            </tr>
-          </thead>
+          <thead><tr><th>ID</th><th>Дата</th><th>Клиент</th><th>Контакты</th><th>Авито</th><th>Устройство</th><th>Этап</th><th>Гарантия</th><th>Себест.</th><th>Стоимость</th><th>Прибыль</th><th>Действия</th></tr></thead>
           <tbody id="tbody"></tbody>
         </table>
         <div id="emptyState" class="empty hidden">Заявок нет. Нажмите «+ Новая заявка»</div>
       </div>
     </div>
 
-    <!-- Inventory Section -->
     <div id="inventorySection" class="hidden">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px">
-        <div>
-          <h2 style="font-size:1.2rem; margin-bottom:4px">📦 Складской учёт</h2>
-          <p style="color:var(--muted); font-size:0.85rem">Управление запчастями и остатками</p>
-        </div>
+        <div><h2 style="font-size:1.2rem; margin-bottom:4px">📦 Складской учёт</h2><p style="color:var(--muted); font-size:0.85rem">Управление запчастями и остатками</p></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-success" onclick="openCsvImport()">📊 Импорт из CSV</button>
           <button class="btn btn-primary" onclick="openInventoryModal()">+ Добавить запчасть</button>
         </div>
       </div>
-
       <div class="controls">
         <div class="control-group"><label>Поиск запчастей</label><input type="text" id="invSearch" placeholder="Название, артикул..." oninput="renderInventory()"></div>
         <div class="control-group"><label>Категория</label><select id="invCategoryFilter" onchange="renderInventory()"><option value="">Все</option><option>Дисплеи</option><option>Аккумуляторы</option><option>Кнопки/Разъемы</option><option>Платы</option><option>Корпуса</option><option>Другое</option></select></div>
         <div class="control-group"><label>Статус</label><select id="invFilter" onchange="renderInventory()"><option value="">Все</option><option value="in-stock">В наличии</option><option value="low-stock">Мало</option><option value="out-stock">Нет</option></select></div>
       </div>
-
       <div class="table-wrap">
         <table id="inventoryTable">
-          <thead>
-            <tr>
-              <th>Фото</th><th>Название</th><th>Артикул</th><th>Категория</th><th>Цена</th><th>В наличии</th><th>В резерве</th><th>Нужно</th><th>Заказано</th><th>Действия</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Фото</th><th>Название</th><th>Артикул</th><th>Категория</th><th>Цена</th><th>В наличии</th><th>В резерве</th><th>Нужно</th><th>Заказано</th><th>Действия</th></tr></thead>
           <tbody id="invTbody"></tbody>
         </table>
         <div id="invEmpty" class="empty hidden">Запчастей нет. Нажмите «+ Добавить запчасть» или «📊 Импорт из CSV»</div>
@@ -640,7 +358,7 @@
     </div>
   </div>
 
-  <!-- Order Form Modal -->
+  <!-- Order Modal -->
   <div id="modal" class="modal" onclick="if(event.target===this) closeModal()">
     <div class="modal-box">
       <div class="modal-header"><h2 id="modalTitle">Новая заявка</h2><button class="close" onclick="closeModal()">&times;</button></div>
@@ -659,10 +377,7 @@
           <div class="form-group"><label>Транспорт (₽)</label><input type="number" id="transportCost" step="0.01" value="0"></div>
         </div>
         <div class="parts-section">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
-            <h3>Запчасти из заказа</h3>
-            <button type="button" class="btn btn-outline btn-sm" onclick="openPartsSelector()">📦 Выбрать со склада</button>
-          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px"><h3>Запчасти из заказа</h3><button type="button" class="btn btn-outline btn-sm" onclick="openPartsSelector()">📦 Выбрать со склада</button></div>
           <div id="partsList"></div>
           <button type="button" class="btn btn-outline" onclick="addPartRow()" style="margin-top:8px; font-size:0.8rem">+ Добавить вручную</button>
         </div>
@@ -671,14 +386,8 @@
           <div class="total-box"><div class="label">Затраты</div><div class="val" id="sumExp">0 ₽</div></div>
           <div class="total-box profit"><div class="label">Прибыль</div><div class="val" id="sumProfit">0 ₽</div></div>
         </div>
-        <div id="revertSection" class="revert-box" style="display:none;">
-          <p>⚠️ Статус «Выдан» установлен. Изменение запрещено.</p>
-          <button type="button" class="btn btn-danger" onclick="revertOrder()">↩️ Вернуть статус (-150 🪙)</button>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn btn-outline" onclick="closeModal()">Отмена</button>
-          <button type="submit" class="btn btn-primary">💾 Сохранить</button>
-        </div>
+        <div id="revertSection" class="revert-box" style="display:none;"><p>⚠️ Статус «Выдан» установлен. Изменение запрещено.</p><button type="button" class="btn btn-danger" onclick="revertOrder()">↩️ Вернуть статус</button></div>
+        <div class="form-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Отмена</button><button type="submit" class="btn btn-primary">💾 Сохранить</button></div>
       </form>
     </div>
   </div>
@@ -686,62 +395,32 @@
   <!-- CSV Import Modal -->
   <div id="csvImportModal" class="modal" onclick="if(event.target===this) closeCsvImport()">
     <div class="modal-box xlarge">
-      <div class="modal-header">
-        <h2>📊 Импорт запчастей из CSV</h2>
-        <button class="close" onclick="closeCsvImport()">&times;</button>
-      </div>
-      
+      <div class="modal-header"><h2>📊 Импорт запчастей из CSV</h2><button class="close" onclick="closeCsvImport()">&times;</button></div>
       <div id="csvImportStep1">
-        <div class="import-area" id="csvDropZone" onclick="document.getElementById('csvFileInput').click()">
-          <div class="icon">📁</div>
-          <p>Нажмите или перетащите CSV файл сюда</p>
-          <div class="hint">Экспорт из Google Таблиц: Файл → Скачать → CSV</div>
-          <input type="file" id="csvFileInput" accept=".csv,.txt" style="display:none" onchange="handleCsvFile(this)">
-        </div>
-        
-        <div style="text-align:center; margin-bottom:16px">
-          <div class="template-link" onclick="downloadTemplate()">📄 Скачать шаблон CSV для Google Таблиц</div>
-        </div>
-
-        <div id="csvFormatInfo" style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px; margin-bottom:16px; font-size:0.82rem;">
-          <strong>Ожидаемый формат:</strong><br>
-          <code>Название;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание</code><br><br>
-          <strong>Разделитель:</strong> точка с запятой (;) или запятая (,) — автоопределение<br>
-          <strong>Кодировка:</strong> UTF-8 (стандарт Google Таблиц)
-        </div>
+        <div class="import-area" id="csvDropZone" onclick="document.getElementById('csvFileInput').click()"><div class="icon">📁</div><p>Нажмите или перетащите CSV файл сюда</p><div class="hint">Экспорт из Google Таблиц: Файл → Скачать → CSV</div><input type="file" id="csvFileInput" accept=".csv,.txt" style="display:none" onchange="handleCsvFile(this)"></div>
+        <div style="text-align:center; margin-bottom:16px"><div class="template-link" onclick="downloadTemplate()">📄 Скачать шаблон CSV для Google Таблиц</div></div>
+        <div id="csvFormatInfo" style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:12px; margin-bottom:16px; font-size:0.82rem;"><strong>Ожидаемый формат:</strong><br><code>Название;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание</code><br><br><strong>Разделитель:</strong> точка с запятой (;) или запятая (,) — автоопределение<br><strong>Кодировка:</strong> UTF-8</div>
       </div>
-
       <div id="csvImportStep2" class="hidden">
-        <div class="import-stats" id="csvStats"></div>
-        <div class="import-preview" id="csvPreview"></div>
-        <div class="form-actions">
-          <button type="button" class="btn btn-outline" onclick="cancelCsvImport()">Отмена</button>
-          <button type="button" class="btn btn-success" onclick="confirmCsvImport()">✅ Импортировать</button>
-        </div>
+        <div class="import-stats" id="csvStats"></div><div class="import-preview" id="csvPreview"></div>
+        <div class="form-actions"><button type="button" class="btn btn-outline" onclick="cancelCsvImport()">Отмена</button><button type="button" class="btn btn-success" onclick="confirmCsvImport()">✅ Импортировать</button></div>
       </div>
     </div>
   </div>
 
   <!-- Parts Selector Modal -->
   <div id="partsSelectorModal" class="modal" onclick="if(event.target===this) closePartsSelector()">
-    <div class="modal-box large">
-      <div class="modal-header"><h2>Выбор запчасти со склада</h2><button class="close" onclick="closePartsSelector()">&times;</button></div>
-      <div class="parts-selector-search">
-        <input type="text" id="partsSearchInput" placeholder="🔍 Поиск по названию или артикулу..." oninput="renderPartsSelector()">
-      </div>
+    <div class="modal-box large"><div class="modal-header"><h2>Выбор запчасти со склада</h2><button class="close" onclick="closePartsSelector()">&times;</button></div>
+      <div class="parts-selector-search"><input type="text" id="partsSearchInput" placeholder="🔍 Поиск по названию или артикулу..." oninput="renderPartsSelector()"></div>
       <div id="partsSelectorList" class="parts-list"></div>
-      <div class="form-actions" style="margin-top:16px">
-        <button type="button" class="btn btn-outline" onclick="closePartsSelector()">Закрыть</button>
-      </div>
+      <div class="form-actions" style="margin-top:16px"><button type="button" class="btn btn-outline" onclick="closePartsSelector()">Закрыть</button></div>
     </div>
   </div>
 
   <!-- Inventory Modal -->
   <div id="inventoryModal" class="modal" onclick="if(event.target===this) closeInventoryModal()">
-    <div class="modal-box large">
-      <div class="modal-header"><h2 id="invModalTitle">Добавить запчасть</h2><button class="close" onclick="closeInventoryModal()">&times;</button></div>
-      <form id="inventoryForm">
-        <input type="hidden" id="invEditId">
+    <div class="modal-box large"><div class="modal-header"><h2 id="invModalTitle">Добавить запчасть</h2><button class="close" onclick="closeInventoryModal()">&times;</button></div>
+      <form id="inventoryForm"><input type="hidden" id="invEditId">
         <div class="form-grid">
           <div class="form-group" style="grid-column:1/-1"><label>Название запчасти</label><input type="text" id="invName" required placeholder="Например: Дисплей iPhone 11"></div>
           <div class="form-group"><label>Категория</label><select id="invCategory"><option>Дисплеи</option><option>Аккумуляторы</option><option>Кнопки/Разъемы</option><option>Платы</option><option>Корпуса</option><option>Другое</option></select></div>
@@ -752,28 +431,17 @@
           <div class="form-group"><label>В резерве (шт)</label><input type="number" id="invReserved" min="0" value="0"></div>
           <div class="form-group"><label>Нужно заказать (шт)</label><input type="number" id="invToOrder" min="0" value="0"></div>
           <div class="form-group"><label>Заказано (шт)</label><input type="number" id="invOrdered" min="0" value="0"></div>
-          <div class="form-group" style="grid-column:1/-1">
-            <label>Фото запчасти</label>
-            <div class="file-input-wrapper">
-              <label class="file-input-label" for="invPhoto">📷 Загрузить фото</label>
-              <input type="file" id="invPhoto" accept="image/*" onchange="handlePhotoUpload(this)">
-            </div>
-            <div id="photoPreview" style="margin-top:8px"></div>
-          </div>
+          <div class="form-group" style="grid-column:1/-1"><label>Фото запчасти</label><div class="file-input-wrapper"><label class="file-input-label" for="invPhoto">📷 Загрузить фото</label><input type="file" id="invPhoto" accept="image/*" onchange="handlePhotoUpload(this)"></div><div id="photoPreview" style="margin-top:8px"></div></div>
           <div class="form-group" style="grid-column:1/-1"><label>Описание</label><textarea id="invDescription" rows="2" placeholder="Совместимость, особенности..."></textarea></div>
         </div>
-        <div class="form-actions">
-          <button type="button" class="btn btn-outline" onclick="closeInventoryModal()">Отмена</button>
-          <button type="submit" class="btn btn-primary">💾 Сохранить</button>
-        </div>
+        <div class="form-actions"><button type="button" class="btn btn-outline" onclick="closeInventoryModal()">Отмена</button><button type="submit" class="btn btn-primary">💾 Сохранить</button></div>
       </form>
     </div>
   </div>
 
-  <!-- Detail View Modal -->
+  <!-- Detail Modal -->
   <div id="detailModal" class="modal" onclick="if(event.target===this) closeDetailModal()">
-    <div class="modal-box" style="max-width:800px;">
-      <div class="modal-header"><h2 id="detailTitle">Заявка #...</h2><button class="close" onclick="closeDetailModal()">&times;</button></div>
+    <div class="modal-box" style="max-width:800px;"><div class="modal-header"><h2 id="detailTitle">Заявка #...</h2><button class="close" onclick="closeDetailModal()">&times;</button></div>
       <div class="detail-grid">
         <div class="detail-card"><h3>📅 Даты & Статус</h3><p><strong>Прием:</strong> <span id="dDate"></span></p><p><strong>Сдача:</strong> <span id="dEst"></span></p><p><strong>Статус:</strong> <span id="dStatus" class="status-badge"></span></p></div>
         <div class="detail-card"><h3>👤 Контакты</h3><p><strong>Клиент:</strong> <span id="dClient"></span></p><p><strong>Авито:</strong> <a id="dAvito" href="#" target="_blank" rel="noopener noreferrer" class="link">—</a></p><p><strong>Гарантия:</strong> <span id="dWarranty">—</span></p></div>
@@ -781,11 +449,7 @@
       </div>
       <div class="detail-section"><h3>📦 Запчасти</h3><table class="detail-table" id="dPartsTable"><thead><tr><th>Наименование</th><th>Статус</th><th>Стоимость</th></tr></thead><tbody id="dPartsBody"></tbody></table><p id="dNoParts" class="empty" style="padding:10px 0">Запчасти не указаны</p></div>
       <div class="detail-finances">
-        <div class="fin-card"><span>Запчасти</span><strong id="dPartsSum">0 ₽</strong></div>
-        <div class="fin-card"><span>Транспорт</span><strong id="dTrans">0 ₽</strong></div>
-        <div class="fin-card"><span>Затраты</span><strong id="dExp">0 ₽</strong></div>
-        <div class="fin-card"><span>Стоимость</span><strong id="dCost">0 ₽</strong></div>
-        <div class="fin-card profit"><span>Прибыль</span><strong id="dProfit">0 ₽</strong></div>
+        <div class="fin-card"><span>Запчасти</span><strong id="dPartsSum">0 ₽</strong></div><div class="fin-card"><span>Транспорт</span><strong id="dTrans">0 ₽</strong></div><div class="fin-card"><span>Затраты</span><strong id="dExp">0 ₽</strong></div><div class="fin-card"><span>Стоимость</span><strong id="dCost">0 ₽</strong></div><div class="fin-card profit"><span>Прибыль</span><strong id="dProfit">0 ₽</strong></div>
       </div>
       <div class="form-actions"><button class="btn btn-outline" onclick="editFromDetail()">✏️ Редактировать</button><button class="btn btn-primary" onclick="closeDetailModal()">Закрыть</button></div>
     </div>
@@ -799,95 +463,42 @@
   <!-- Support Chat Modal -->
   <div id="supportChatModal" class="modal" onclick="if(event.target===this) closeSupportChat()">
     <div class="modal-box" style="max-width:520px; display:flex; flex-direction:column; height:85vh;">
-      <div class="modal-header" style="margin-bottom:8px; padding-bottom:10px; border-bottom:1px solid var(--border);">
-        <div style="display:flex; align-items:center; gap:10px;">
-          <h2 style="font-size:1.05rem; margin:0;">💬 чат поддержки</h2>
-          <span id="chatConnectionStatus" class="chat-status offline">● Офлайн</span>
-        </div>
-        <button class="close" onclick="closeSupportChat()" style="font-size:1.3rem;">&times;</button>
-      </div>
-      
+      <div class="modal-header" style="margin-bottom:8px; padding-bottom:10px; border-bottom:1px solid var(--border);"><div style="display:flex; align-items:center; gap:10px;"><h2 style="font-size:1.05rem; margin:0;">💬 чат поддержки</h2><span id="chatConnectionStatus" class="chat-status offline">● Офлайн</span></div><button class="close" onclick="closeSupportChat()" style="font-size:1.3rem;">&times;</button></div>
       <div id="chatMessages"></div>
-      
-      <div style="margin-bottom:8px; display:flex; gap:8px; align-items:center;">
-        <input type="text" id="chatUsername" placeholder="Ваше имя..." style="width:140px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:0.85rem;">
-      </div>
-
-      <div class="chat-input-wrap">
-        <input type="text" id="chatInput" placeholder="Написать сообщение..." onkeypress="if(event.key==='Enter') sendChatMessage()">
-        <button class="btn btn-primary" onclick="sendChatMessage()" style="padding:10px 16px;">➤</button>
-      </div>
-      
-      <div style="font-size:0.68rem; color:var(--muted); margin-top:10px; text-align:center; line-height:1.4;">
-        💡 Сообщения видны всем пользователям • Данные хранятся в облаке
-      </div>
+      <div style="margin-bottom:8px; display:flex; gap:8px; align-items:center;"><input type="text" id="chatUsername" placeholder="Ваше имя..." style="width:140px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:0.85rem;"></div>
+      <div class="chat-input-wrap"><input type="text" id="chatInput" placeholder="Написать сообщение..." onkeypress="if(event.key==='Enter') sendChatMessage()"><button class="btn btn-primary" onclick="sendChatMessage()" style="padding:10px 16px;">➤</button></div>
+      <div style="font-size:0.68rem; color:var(--muted); margin-top:10px; text-align:center; line-height:1.4;">💡 Сообщения видны всем пользователям • Данные хранятся в облаке</div>
     </div>
   </div>
 
-  <!-- === LANDING PAGE OVERLAY === -->
+  <!-- Cosmetics Shop Modal -->
+  <div id="cosmeticsModal" class="modal" onclick="if(event.target===this) closeCosmetics()">
+    <div class="modal-box" style="max-width:480px;">
+      <div class="modal-header"><h2>🛒 Магазин кастомизации</h2><button class="close" onclick="closeCosmetics()">&times;</button></div>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px">Тратьте коины на украшение профиля и мотивацию. Никаких платных функций.</p>
+      <div id="shopList" class="shop-grid"></div>
+      <div class="form-actions"><button class="btn btn-outline" onclick="closeCosmetics()">Закрыть</button></div>
+    </div>
+  </div>
+
+  <!-- Landing Page Overlay -->
   <div id="landingOverlay" class="landing-overlay">
     <div class="landing-content">
       <div class="landing-header">
-        <div class="landing-logo">
-          <svg viewBox="0 0 44 44" fill="none" class="landing-logo-svg">
-            <defs><linearGradient id="gradLanding" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#00AAFF"/><stop offset="1" stop-color="#0066FF"/></linearGradient></defs>
-            <rect width="44" height="44" rx="12" fill="url(#gradLanding)"/>
-            <path d="M14 16C14 16 16 12 22 12C28 12 30 16 30 16V28C30 28 28 32 22 32C16 32 14 28 14 28V16Z" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M18 20H26M18 24H23" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
-            <circle cx="22" cy="34" r="3" fill="#97CF26"/>
-          </svg>
-        </div>
-        <h1 class="landing-title">AVITO SELLER</h1>
-        <p class="landing-subtitle">Система учёта ремонтов для мастеров</p>
+        <div class="landing-logo"><svg viewBox="0 0 44 44" fill="none" class="landing-logo-svg"><defs><linearGradient id="gradLanding" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#00AAFF"/><stop offset="1" stop-color="#0066FF"/></linearGradient></defs><rect width="44" height="44" rx="12" fill="url(#gradLanding)"/><path d="M14 16C14 16 16 12 22 12C28 12 30 16 30 16V28C30 28 28 32 22 32C16 32 14 28 14 28V16Z" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 20H26M18 24H23" stroke="white" stroke-width="2.2" stroke-linecap="round"/><circle cx="22" cy="34" r="3" fill="#97CF26"/></svg></div>
+        <h1 class="landing-title">AVITO SELLER</h1><p class="landing-subtitle">Система учёта ремонтов для мастеров</p>
       </div>
-
       <div class="landing-features">
-        <div class="feature-card">
-          <div class="feature-icon">📋</div>
-          <h3>Учёт заявок</h3>
-          <p>Создавайте, отслеживайте и управляйте заказами в одном месте</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📦</div>
-          <h3>Склад запчастей</h3>
-          <p>Контролируйте остатки, бронируйте детали, импортируйте из CSV</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">💰</div>
-          <h3>Финансы</h3>
-          <p>Считайте себестоимость, прибыль и отслеживайте гарантии</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">☁️</div>
-          <h3>Бэкап в облако</h3>
-          <p>Экспорт/импорт данных — ваши данные всегда под защитой</p>
-        </div>
+        <div class="feature-card"><div class="feature-icon">📋</div><h3>Учёт заявок</h3><p>Создавайте, отслеживайте и управляйте заказами в одном месте</p></div>
+        <div class="feature-card"><div class="feature-icon">📦</div><h3>Склад запчастей</h3><p>Контролируйте остатки, бронируйте детали, импортируйте из CSV</p></div>
+        <div class="feature-card"><div class="feature-icon">💰</div><h3>Финансы</h3><p>Считайте себестоимость, прибыль и отслеживайте гарантии</p></div>
+        <div class="feature-card"><div class="feature-icon">☁️</div><h3>Бэкап в облако</h3><p>Экспорт/импорт данных — ваши данные всегда под защитой</p></div>
       </div>
-
-      <div class="landing-free-badge">
-        <span class="free-label">✨</span>
-        <span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span>
-        <span class="free-label">✨</span>
-      </div>
-
-      <div class="landing-cta">
-        <button class="btn-start" id="startButton">
-          <span class="btn-text">Начать пользоваться бесплатно</span>
-          <span class="btn-arrow">→</span>
-        </button>
-        <p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p>
-      </div>
-
-      <div class="landing-footer">
-        <span class="version-badge">v6.2 • Beta</span>
-        <span class="made-with">Сделано с ❤️ для мастеров</span>
-      </div>
+      <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
+      <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p></div>
+      <div class="landing-footer"><span class="version-badge">v6.2 • Beta</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
     </div>
-    
-    <!-- Декоративные элементы -->
-    <div class="landing-decoration decoration-1"></div>
-    <div class="landing-decoration decoration-2"></div>
-    <div class="landing-decoration decoration-3"></div>
+    <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
 
   <script>
@@ -901,37 +512,38 @@
     const SETTINGS_KEY = 'repair_settings_v8';
     const INVENTORY_KEY = 'repair_inventory_v2';
     const SECRET_CODE = 'AVITO2026';
-    const COST_NEW_ORDER = 30;
-    const REWARD_COMPLETED = 10;
-    const COST_REVERT = 150;
 
-    // === SUPABASE CHAT CONFIG ===
+    const LEVELS = [
+      { level: 1, name: 'Новичок 🌱', threshold: 0 },
+      { level: 2, name: 'Ученик 📖', threshold: 60 },
+      { level: 3, name: 'Практик 🛠️', threshold: 150 },
+      { level: 4, name: 'Мастер 🔧', threshold: 300 },
+      { level: 5, name: 'Эксперт 🎓', threshold: 500 },
+      { level: 6, name: 'Гуру 👑', threshold: 1000 },
+      { level: 7, name: 'Легенда ⭐', threshold: 2000 }
+    ];
+
+    const COIN_REWARDS = { CREATE: 3, COMPLETE: 12, QUALITY_FIELDS: 2, ADD_PART: 2, SECRET: 500, DAILY_LOGIN: 1 };
+    const COSMETICS = [
+      { id: 'status', name: '📝 Персональный статус', cost: 40, desc: 'Ваша подпись в профиле и бейдже', type: 'text' },
+      { id: 'certificate', name: '📜 Почётная грамота', cost: 150, desc: 'Красивая сводка ваших достижений', type: 'cert' }
+    ];
+
     const SUPABASE_URL = 'https://wdbjpcpodkydaitotqqr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYmpwY3BvZGt5ZGFpdG90cXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTM4NDksImV4cCI6MjA5MTEyOTg0OX0.REToOamR3fU6cZcaa8DsHd0OORMyYy5AkErHweLihz4';
     
     let supabaseClient = null;
     let chatSubscription = null;
-    let hasSentContext = false;
 
     function initSupabase() {
-      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) {
-        console.warn('⚠️ Supabase не настроен. Замените SUPABASE_URL и SUPABASE_ANON_KEY в коде.');
-        return false;
-      }
-      try {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        return true;
-      } catch(e) {
-        console.error('❌ Ошибка инициализации Supabase:', e);
-        return false;
-      }
+      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) return false;
+      try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); return true; } catch(e) { return false; }
     }
 
     let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
     let inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || '[]');
-    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":50}');
+    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":0,"totalEarned":0,"unlocks":{},"level":1,"levelName":"Новичок 🌱"}');
     let currentDetailId = null;
-    let currentTab = 'orders';
     let currentPhotoBase64 = null;
     let pendingCsvData = [];
 
@@ -940,399 +552,147 @@
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
     const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
 
-    window.onload = async () => {
-      const supabaseReady = initSupabase();
-      
-      const selType = $('filterType'), selStatus = $('filterStatus'), typeSel = $('type'), statusSel = $('status');
-      TYPES.forEach(t => { const o = document.createElement('option'); o.value=t; o.textContent=t; selType.appendChild(o); typeSel.appendChild(o.cloneNode(true)); });
-      STATUSES.forEach(s => { const o = document.createElement('option'); o.value=s; o.textContent=s; selStatus.appendChild(o); statusSel.appendChild(o.cloneNode(true)); });
-      $('masterName').value = settings.master;
-      
-      // Скрываем основной контент, если лендинг ещё не был показан
-      if (localStorage.getItem('avito_seller_landing_seen_v2') !== 'true') {
-        document.body.classList.add('landing-active');
-      }
-      
+    // === COIN & LEVEL SYSTEM ===
+    function addCoins(amount, reason = '') {
+      settings.coins += amount;
+      settings.totalEarned += amount;
+      checkLevel();
+      persistSettings();
+      showCoinAnimation(amount, reason);
+      updateCoinUI();
+    }
+    function spendCoins(amount) {
+      if (settings.coins >= amount) { settings.coins -= amount; persistSettings(); updateCoinUI(); return true; }
+      alert('❌ Недостаточно коинов!');
+      return false;
+    }
+    function checkLevel() {
+      let newLevel = LEVELS[0];
+      for (let l of LEVELS) if (settings.totalEarned >= l.threshold) newLevel = l;
+      if (newLevel.level > settings.level) {
+        settings.level = newLevel.level; settings.levelName = newLevel.name;
+        showCoinAnimation(0, `🎉 Уровень повышен: ${newLevel.name}!`);
+      } else { settings.level = newLevel.level; settings.levelName = newLevel.name; }
+    }
+    function persistSettings() {
+      settings.master = $('masterName')?.value || settings.master || 'Мастер';
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+      updateCoinUI();
+    }
+    function showCoinAnimation(amount, reason) {
+      const el = document.createElement('div'); el.className = 'coin-popup';
+      el.innerHTML = amount > 0 ? `+${amount} 🪙 <span style="display:block;font-size:0.7rem;color:#64748b">${reason}</span>` : `🎉 ${reason}`;
+      document.body.appendChild(el);
+      setTimeout(() => el.classList.add('show'), 10);
+      setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 2000);
+    }
+    function updateCoinUI() {
+      const badge = $('coinBadge'), display = $('coinDisplay');
+      if (!badge || !display) return;
+      display.textContent = settings.coins;
+      badge.title = `Уровень: ${settings.levelName}${settings.unlocks?.status ? ' • ' + settings.unlocks.status : ''}`;
+    }
+    function applyCosmetic(type, value) {
+      if (!settings.unlocks) settings.unlocks = {};
+      settings.unlocks[type] = value;
+      persistSettings();
       updateUI();
-      renderTable();
-      renderInventory();
-      $('repairCost').oninput = $('transportCost').oninput = calcTotals;
-      
-      $('secretInput').addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') {
-          const val = $('secretInput').value.trim();
-          if (val === SECRET_CODE) {
-            settings.coins += 1000;
-            persistSettings();
-            $('secretInput').className = 'ok';
-            setTimeout(() => { $('secretInput').value = ''; $('secretInput').className = ''; }, 1500);
-          } else {
-            $('secretInput').className = 'err';
-            $('secretInput').value = '';
-            setTimeout(() => $('secretInput').className = '', 600);
-          }
+    }
+    function generateCertificate() {
+      if (!spendCoins(150)) return;
+      const completed = orders.filter(o=>o.status==='Выдан').length;
+      const stats = `📜 ПОЧЁТНАЯ ГРАМОТА\n\n👤 Мастер: ${settings.master}\n🏆 Уровень: ${settings.levelName}\n📋 Заявок закрыто: ${completed}\n🪙 Всего заработано: ${settings.totalEarned} коинов\n\n✅ Вы настоящий профи! Сохраните эту грамоту в сердце.`;
+      alert(stats);
+    }
+    function openAchievements() { $('cosmeticsModal')?.classList.add('active'); renderCosmetics(); }
+    function closeCosmetics() { $('cosmeticsModal')?.classList.remove('active'); }
+    function renderCosmetics() {
+      const list = $('shopList'); if (!list) return;
+      list.innerHTML = COSMETICS.map(item => {
+        let content = '';
+        if (item.type === 'text') {
+          const current = settings.unlocks?.status || '';
+          content = `<input type="text" id="input_status_shop" placeholder="Например: Делаю качественно..." value="${current}" style="width:100%;margin-bottom:6px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem"><button class="btn btn-primary btn-sm" onclick="buyCosmetic('status', $('input_status_shop').value)">Установить (${item.cost} 🪙)</button>`;
+        } else if (item.type === 'cert') {
+          content = `<button class="btn btn-outline btn-sm" style="width:100%" onclick="generateCertificate()">🖨️ Получить (${item.cost} 🪙)</button>`;
         }
-      });
-
-      $('inventoryForm').onsubmit = handleInventorySubmit;
-      setupCsvDragDrop();
-
-      if (supabaseReady) {
-        await checkChatConnection();
-      }
-    };
-
-    // === LANDING PAGE LOGIC ===
-    (function() {
-      const LANDING_SEEN_KEY = 'avito_seller_landing_seen_v2';
-      const overlay = document.getElementById('landingOverlay');
-      const startBtn = document.getElementById('startButton');
-      
-      function hasSeenLanding() {
-        return localStorage.getItem(LANDING_SEEN_KEY) === 'true';
-      }
-      
-      function shouldShowLanding() {
-        return !hasSeenLanding();
-      }
-      
-      function hideLanding() {
-        if (!overlay) return;
-        overlay.classList.add('hiding');
-        localStorage.setItem(LANDING_SEEN_KEY, 'true');
-        setTimeout(() => {
-          overlay.style.display = 'none';
-          document.body.classList.remove('landing-active');
-        }, 300);
-      }
-      
-      function initLanding() {
-        if (shouldShowLanding() && overlay) {
-          document.body.classList.add('landing-active');
-          if (startBtn) {
-            startBtn.addEventListener('click', function(e) {
-              e.preventDefault();
-              hideLanding();
-              setTimeout(() => {
-                console.log('🎉 Пользователь начал работу с сервисом');
-              }, 100);
-            });
-          }
-        } else if (overlay) {
-          overlay.style.display = 'none';
-        }
-      }
-      
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initLanding);
-      } else {
-        initLanding();
-      }
-      
-      window.resetLanding = function() {
-        localStorage.removeItem(LANDING_SEEN_KEY);
-        console.log('🔄 Лендинг сброшен. Обновите страницу для проверки.');
-      };
-    })();
-
-    // === ЧАТ ПОДДЕРЖКИ (ОБЩИЙ) ===
-    
-    async function checkChatConnection() {
-      const statusEl = $('chatConnectionStatus');
-      if (!statusEl) return;
-      if (!supabaseClient) return;
-      try {
-        const { error } = await supabaseClient.from('support_messages').select('id').limit(1);
-        if (error) throw error;
-        statusEl.textContent = '● Онлайн';
-        statusEl.className = 'chat-status online';
-      } catch(e) {
-        statusEl.textContent = '● Офлайн';
-        statusEl.className = 'chat-status offline';
-        console.warn('⚠️ Чат недоступен:', e.message);
-      }
-    }
-
-    function openSupportChat() {
-      const modal = $('supportChatModal');
-      if (!modal) return;
-      modal.classList.add('active');
-      const savedName = localStorage.getItem('chat_username');
-      if (savedName) $('chatUsername').value = savedName;
-      checkChatConnection();
-      loadChatHistory();
-      subscribeToNewMessages();
-      $('chatInput')?.focus();
-    }
-
-    function closeSupportChat() {
-      $('supportChatModal')?.classList.remove('active');
-      if (chatSubscription) {
-        supabaseClient?.removeChannel(chatSubscription);
-        chatSubscription = null;
-      }
-    }
-
-    async function loadChatHistory() {
-      const container = $('chatMessages');
-      if (!container) return;
-      if (!supabaseClient) {
-        container.innerHTML = '<div class="chat-system">⚠️ Чат не настроен. Обратитесь к разработчику для настройки Supabase.</div>';
-        return;
-      }
-      container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">🔄 Загрузка...</div>';
-      const { data, error } = await supabaseClient
-        .from('support_messages')
-        .select('*')
-        .order('created_at', { ascending: true })
-        .limit(100);
-      if (error) {
-        container.innerHTML = '<div style="color:var(--danger); text-align:center; padding:20px;">❌ Ошибка: ' + error.message + '</div>';
-        return;
-      }
-      renderChatMessages(data || []);
-    }
-
-    function renderChatMessages(messages) {
-      const container = $('chatMessages');
-      if (!container) return;
-      if (!messages || !messages.length) {
-        container.innerHTML = '<div class="chat-system">👋 Чат пуст. Будьте первым!</div>';
-        return;
-      }
-      container.innerHTML = messages.map(msg => {
-        if (msg.user_meta?.type === 'system_context') return '';
-        const isUser = msg.is_user;
-        const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
-        const safeMsg = msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
-        const authorName = msg.user_name || 'Аноним';
-        return `
-          <div class="chat-msg-row ${isUser ? 'user' : 'support'}">
-            <div class="chat-name">${authorName}</div>
-            <div class="chat-bubble">${safeMsg}</div>
-            <span class="chat-time">${time}</span>
-          </div>
-        `;
+        return `<div class="shop-item"><h4>${item.name}</h4><p>${item.desc}</p><div class="shop-actions">${content}</div></div>`;
       }).join('');
-      container.scrollTop = container.scrollHeight;
+    }
+    function buyCosmetic(id, value) {
+      const item = COSMETICS.find(i => i.id === id);
+      if (!item || !spendCoins(item.cost)) return;
+      applyCosmetic(item.type, value);
+      alert('✅ Настройка сохранена!'); renderCosmetics();
     }
 
-    function subscribeToNewMessages() {
-      if (!supabaseClient || chatSubscription) return;
-      chatSubscription = supabaseClient
-        .channel('public:all_messages')
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'support_messages'
-        }, payload => {
-          const msg = payload.new;
-          if (msg.user_meta?.type === 'system_context') return;
-          const container = $('chatMessages');
-          if (!container) return;
-          const isUser = msg.is_user;
-          const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
-          const safeMsg = msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
-          const authorName = msg.user_name || 'Аноним';
-          const msgHtml = `
-            <div class="chat-msg-row ${isUser ? 'user' : 'support'}">
-              <div class="chat-name">${authorName}</div>
-              <div class="chat-bubble">${safeMsg}</div>
-              <span class="chat-time">${time}</span>
-            </div>
-          `;
-          container.insertAdjacentHTML('beforeend', msgHtml);
-          container.scrollTop = container.scrollHeight;
-        })
-        .subscribe(status => {
-          const statusEl = $('chatConnectionStatus');
-          if (statusEl) {
-            if (status === 'SUBSCRIBED') {
-              statusEl.textContent = '● Онлайн';
-              statusEl.className = 'chat-status online';
-            } else {
-              statusEl.textContent = '● Подключение...';
-              statusEl.className = 'chat-status offline';
-            }
-          }
-        });
-    }
-
-    async function sendChatMessage() {
-      const input = $('chatInput');
-      const nameInput = $('chatUsername');
-      const text = input?.value?.trim();
-      const name = nameInput?.value?.trim();
-      if (!text) return;
-      if (!name) { alert('Пожалуйста, введите ваше имя'); nameInput?.focus(); return; }
-      localStorage.setItem('chat_username', name);
-      if (!supabaseClient) {
-        alert('❌ Чат не настроен. Пожалуйста, замените SUPABASE_URL и SUPABASE_ANON_KEY в коде.');
-        return;
-      }
-      const btn = input.nextElementSibling;
-      const originalText = btn.innerHTML;
-      btn.innerHTML = '⏳';
-      btn.disabled = true;
-      try {
-        const { error } = await supabaseClient.from('support_messages').insert({
-          user_name: name,
-          user_meta: {
-            appVersion: $('brand-badge')?.textContent || 'v6.2',
-            userAgent: navigator.userAgent.substring(0, 100),
-            ordersCount: orders.length,
-            inventoryCount: inventory.length
-          },
-          message: text,
-          is_user: true
-        });
-        if (error) throw error;
-        input.value = '';
-      } catch(err) {
-        alert('❌ Не удалось отправить: ' + err.message);
-      } finally {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        input?.focus();
-      }
-    }
-
-    // === ОСНОВНЫЕ ФУНКЦИИ ПРОГРАММЫ ===
-
+    // === MAIN FUNCTIONS ===
     function switchTab(tab) {
-      currentTab = tab;
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
       event.target.classList.add('active');
-      if (tab === 'orders') {
-        $('ordersSection').classList.remove('hidden');
-        $('inventorySection').classList.add('hidden');
-      } else {
-        $('ordersSection').classList.add('hidden');
-        $('inventorySection').classList.remove('hidden');
-        renderInventory();
-      }
+      $('ordersSection').classList.toggle('hidden', tab !== 'orders');
+      $('inventorySection').classList.toggle('hidden', tab !== 'inventory');
+      if (tab === 'inventory') renderInventory();
     }
-
-    function persistSettings() {
-      settings.master = $('masterName').value || 'Мастер';
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-      updateUI();
-    }
-
     function updateUI() {
       $('coinDisplay').textContent = settings.coins;
-      $('coinBadge').className = settings.coins < COST_NEW_ORDER ? 'coin-badge coin-low' : 'coin-badge';
-      $('secretWrap').style.display = settings.coins < COST_NEW_ORDER ? 'block' : 'none';
-
+      $('coinBadge').title = `Уровень: ${settings.levelName}`;
+      $('secretWrap').style.display = 'none';
       let ready = 0, active = 0;
       orders.forEach(o => {
         const partsSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
         const exp = partsSum + (parseFloat(o.transport)||0);
         const profit = (parseFloat(o.cost)||0) - exp;
-        if (o.status === 'Выдан') ready += profit;
-        else active += profit;
+        if (o.status === 'Выдан') ready += profit; else active += profit;
       });
-      $('statReady').textContent = fmt(ready);
-      $('statActive').textContent = fmt(active);
-      $('statCount').textContent = orders.length;
+      $('statReady').textContent = fmt(ready); $('statActive').textContent = fmt(active); $('statCount').textContent = orders.length;
     }
-
     function getWarrantyBadge(order) {
       if (!order.warrantyUntil) return '<span style="color:var(--muted)">—</span>';
-      const today = new Date(); today.setHours(0,0,0,0);
-      const end = new Date(order.warrantyUntil);
-      const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+      const today = new Date(); today.setHours(0,0,0,0); const end = new Date(order.warrantyUntil);
+      const diff = Math.ceil((end - today) / 86400000);
       if (diff < 0) return `<span class="w-badge expired" title="Истекла ${toDate(order.warrantyUntil)}">Истекла</span>`;
       if (diff <= 7) return `<span class="w-badge warning" title="До ${toDate(order.warrantyUntil)}">${diff} дн.</span>`;
       return `<span class="w-badge active" title="До ${toDate(order.warrantyUntil)}">${diff} дн.</span>`;
     }
-
     function renderTable(data = orders) {
-      const tb = $('tbody'), empty = $('emptyState');
-      if (!tb || !empty) return;
-      tb.innerHTML = '';
+      const tb = $('tbody'), empty = $('emptyState'); tb.innerHTML = '';
       if (!data.length) { empty.classList.remove('hidden'); return; }
       empty.classList.add('hidden');
       data.sort((a,b)=>b.createdAt-a.createdAt).forEach(o => {
         const partsSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
         const exp = partsSum + (parseFloat(o.transport)||0);
         const profit = (parseFloat(o.cost)||0) - exp;
-        const partsStr = o.parts.map(p=>`<span class="status-badge">${p.name}</span>`).join(' ');
-        const avitoLink = o.avitoLink ? `<a href="${o.avitoLink}" target="_blank" rel="noopener noreferrer" class="link" title="Открыть объявление">🔗</a>` : '';
+        const avitoLink = o.avitoLink ? `<a href="${o.avitoLink}" target="_blank" rel="noopener noreferrer" class="link" title="Открыть">🔗</a>` : '';
         const cleanPhone = getCleanPhone(o.client);
-        const contacts = `
-          <a href="tel:${cleanPhone}" class="action-link" title="Позвонить">📞</a>
-          <a href="https://wa.me/${cleanPhone}?text=${encodeURIComponent('Здравствуйте! По заявке #' + o.id.slice(-6).toUpperCase() + ': ')}" target="_blank" class="action-link" title="WhatsApp">💬</a>
-        `;
+        const contacts = `<a href="tel:${cleanPhone}" class="action-link" title="Позвонить">📞</a><a href="https://wa.me/${cleanPhone}?text=Здравствуйте!" target="_blank" class="action-link" title="WhatsApp">💬</a>`;
         const statusSelect = `<select class="inline-status" onchange="handleInlineStatus('${o.id}', this.value)">${STATUSES.map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>`;
-        tb.innerHTML += `
-          <tr>
-            <td>${o.id.slice(-6).toUpperCase()}</td>
-            <td>${toDate(o.date)}</td>
-            <td>${o.client}</td>
-            <td>${contacts}</td>
-            <td>${avitoLink}</td>
-            <td>${o.type}</td>
-            <td>${statusSelect}</td>
-            <td>${getWarrantyBadge(o)}</td>
-            <td class="money">${fmt(exp)}</td>
-            <td class="money" style="font-weight:600">${fmt(o.cost)}</td>
-            <td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td>
-            <td class="actions">
-              <button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button>
-              <button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button>
-              <button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button>
-            </td>
-          </tr>`;
+        tb.innerHTML += `<tr><td>${o.id.slice(-6).toUpperCase()}</td><td>${toDate(o.date)}</td><td>${o.client}</td><td>${contacts}</td><td>${avitoLink}</td><td>${o.type}</td><td>${statusSelect}</td><td>${getWarrantyBadge(o)}</td><td class="money">${fmt(exp)}</td><td class="money" style="font-weight:600">${fmt(o.cost)}</td><td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td><td class="actions"><button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button><button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button></td></tr>`;
       });
     }
-
     function handleInlineStatus(id, newStatus) {
-      const order = orders.find(x => x.id === id);
-      if (!order) return;
-      if (order.status === 'Выдан') {
-        alert('⛔ Статус «Выдан» нельзя изменить напрямую. Откройте заявку (👁️) и используйте кнопку «↩️ Вернуть статус».');
-        applyFilters();
-        return;
-      }
-      if (newStatus === 'Выдан' && order.status !== 'Выдан') {
-        settings.coins += REWARD_COMPLETED;
-        persistSettings();
-      }
+      const order = orders.find(x => x.id === id); if (!order) return;
       order.status = newStatus;
+      if (newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Быстрый статус');
       saveData(); updateUI(); applyFilters();
     }
-
     function applyFilters() {
       const q = $('search').value.toLowerCase(), t = $('filterType').value, s = $('filterStatus').value;
       const d1 = $('dateFrom').value, d2 = $('dateTo').value;
-      const res = orders.filter(o => {
-        const matchQ = !q || o.client.toLowerCase().includes(q) || o.type.toLowerCase().includes(q) || (o.reason||'').toLowerCase().includes(q);
-        const matchT = !t || o.type===t, matchS = !s || o.status===s;
-        const matchD = (!d1 || o.date>=d1) && (!d2 || o.date<=d2);
-        return matchQ && matchT && matchS && matchD;
-      });
-      renderTable(res);
+      renderTable(orders.filter(o => (!q || o.client.toLowerCase().includes(q) || o.type.toLowerCase().includes(q)) && (!t || o.type===t) && (!s || o.status===s) && (!d1 || o.date>=d1) && (!d2 || o.date<=d2)));
     }
     function resetFilters() { $('search').value=''; $('filterType').value=''; $('filterStatus').value=''; $('dateFrom').value=''; $('dateTo').value=''; renderTable(); }
 
-    // Order Modal
     const modal = $('modal'), form = $('orderForm');
     function openModal(o=null) {
-      if (!modal || !form) return;
       modal.classList.add('active');
       $('modalTitle').textContent = o ? 'Редактирование заявки' : 'Новая заявка';
-      $('editId').value = o?.id || '';
-      $('client').value = o?.client || '';
+      $('editId').value = o?.id || ''; $('client').value = o?.client || '';
       $('orderDate').value = o?.date || new Date().toISOString().split('T')[0];
-      $('estDate').value = o?.est || '';
-      $('warrantyDays').value = o?.warrantyDays || 0;
-      $('type').value = o?.type || '';
-      $('status').value = o?.status || 'Принят';
-      $('avitoLink').value = o?.avitoLink || '';
-      $('reason').value = o?.reason || '';
-      $('repairCost').value = o?.cost || '';
-      $('transportCost').value = o?.transport || 0;
+      $('estDate').value = o?.est || ''; $('warrantyDays').value = o?.warrantyDays || 0;
+      $('type').value = o?.type || ''; $('status').value = o?.status || 'Принят';
+      $('avitoLink').value = o?.avitoLink || ''; $('reason').value = o?.reason || '';
+      $('repairCost').value = o?.cost || ''; $('transportCost').value = o?.transport || 0;
       $('partsList').innerHTML = '';
       if (o?.parts?.length) o.parts.forEach(p=>addPartRow(p)); else addPartRow();
       calcTotals();
@@ -1340,530 +700,183 @@
       $('revertSection').style.display = o?.status === 'Выдан' ? 'block' : 'none';
       form.onsubmit = handleSubmit;
     }
-    function closeModal() { if(modal) modal.classList.remove('active'); if(form) form.reset(); }
-
-    // Parts Selector Functions
-    function openPartsSelector() {
-      const modal = $('partsSelectorModal');
-      if (!modal) return;
-      $('partsSearchInput').value = '';
-      renderPartsSelector();
-      modal.classList.add('active');
-    }
+    function closeModal() { modal.classList.remove('active'); form.reset(); }
+    function openPartsSelector() { $('partsSelectorModal').classList.add('active'); $('partsSearchInput').value = ''; renderPartsSelector(); }
     function closePartsSelector() { $('partsSelectorModal').classList.remove('active'); }
-
     function renderPartsSelector() {
-      const list = $('partsSelectorList');
-      const search = $('partsSearchInput').value.toLowerCase();
+      const list = $('partsSelectorList'), search = $('partsSearchInput').value.toLowerCase();
       if (!list) return;
-      const filtered = inventory.filter(item => {
-        const nameMatch = item.name.toLowerCase().includes(search);
-        const skuMatch = (item.sku || '').toLowerCase().includes(search);
-        return nameMatch || skuMatch;
-      });
-      if (!filtered.length) {
-        list.innerHTML = '<div class="empty">Запчасти не найдены</div>';
-        return;
-      }
+      const filtered = inventory.filter(i => i.name.toLowerCase().includes(search) || (i.sku||'').toLowerCase().includes(search));
+      if (!filtered.length) { list.innerHTML = '<div class="empty">Запчасти не найдены</div>'; return; }
       list.innerHTML = filtered.map(item => {
         const available = item.inStock - item.reserved;
-        const inStock = available > 0;
-        const stockBadge = inStock 
-          ? `<span class="part-item-stock in">✓ ${available} шт.</span>`
-          : `<span class="part-item-stock out">✗ Нет</span>`;
-        const imgHtml = item.photo 
-          ? `<img src="${item.photo}" alt="${item.name}">`
-          : `<div class="inv-no-photo" style="width:40px;height:40px;font-size:1rem">📦</div>`;
-        return `
-          <div class="part-item" onclick="selectPartFromInventory('${item.id}')">
-            ${imgHtml}
-            <div class="part-item-info">
-              <div class="part-item-name">${item.name} ${stockBadge}</div>
-              <div class="part-item-meta">${item.category || 'Без категории'} ${item.sku ? '• ' + item.sku : ''}</div>
-            </div>
-            <div class="part-item-price">${fmt(item.price)}</div>
-          </div>
-        `;
+        const stockBadge = available > 0 ? `<span class="part-item-stock in">✓ ${available} шт.</span>` : `<span class="part-item-stock out">✗ Нет</span>`;
+        const imgHtml = item.photo ? `<img src="${item.photo}" alt="${item.name}">` : `<div class="inv-no-photo" style="width:40px;height:40px;font-size:1rem">📦</div>`;
+        return `<div class="part-item" onclick="selectPartFromInventory('${item.id}')">${imgHtml}<div class="part-item-info"><div class="part-item-name">${item.name} ${stockBadge}</div><div class="part-item-meta">${item.category || 'Без категории'} ${item.sku ? '• ' + item.sku : ''}</div></div><div class="part-item-price">${fmt(item.price)}</div></div>`;
       }).join('');
     }
-
     function selectPartFromInventory(itemId) {
-      const item = inventory.find(x => x.id === itemId);
-      if (!item) return;
-      const available = item.inStock - item.reserved;
-      const status = available > 0 ? 'in_stock' : 'search';
-      addPartRow({
-        name: item.name,
-        sku: item.sku,
-        cost: item.cost,
-        price: item.price,
-        status: status
-      });
-      closePartsSelector();
-      calcTotals();
+      const item = inventory.find(x => x.id === itemId); if (!item) return;
+      addPartRow({ name: item.name, sku: item.sku, cost: item.cost, price: item.price, status: (item.inStock-item.reserved)>0?'in_stock':'search' });
+      closePartsSelector(); calcTotals();
     }
-
     function addPartRow(d={}) {
-      const row = document.createElement('div'); 
-      row.className = 'part-row';
-      const statusOptions = Object.entries(PART_STATUS).map(([k,v]) => 
-        `<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`
-      ).join('');
-      row.innerHTML = `
-        <div class="part-sku-select">
-          <input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required style="width:100%;margin-bottom:4px">
-          <input type="text" placeholder="Артикул" value="${d.sku||''}" class="p-sku" style="width:100%">
-        </div>
-        <select class="p-status" style="width:100%">${statusOptions}</select>
-        <input type="number" step="0.01" placeholder="Закупка" value="${d.cost||''}" class="p-cost" oninput="calcTotals()" style="width:100%">
-        <input type="number" step="0.01" placeholder="Продажа" value="${d.price||''}" class="p-price" style="width:100%">
-        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>
-      `;
+      const row = document.createElement('div'); row.className = 'part-row';
+      row.innerHTML = `<div class="part-sku-select"><input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required style="width:100%;margin-bottom:4px"><input type="text" placeholder="Артикул" value="${d.sku||''}" class="p-sku" style="width:100%"></div><select class="p-status" style="width:100%">${Object.entries(PART_STATUS).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`).join('')}</select><input type="number" step="0.01" placeholder="Закупка" value="${d.cost||''}" class="p-cost" oninput="calcTotals()" style="width:100%"><input type="number" step="0.01" placeholder="Продажа" value="${d.price||''}" class="p-price" style="width:100%"><button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>`;
       $('partsList').appendChild(row);
     }
-
     function calcTotals() {
-      const costs = Array.from(document.querySelectorAll('.p-cost')).map(i=>parseFloat(i.value)||0);
-      const pSum = costs.reduce((a,b)=>a+b,0);
-      const tr = parseFloat($('transportCost').value)||0;
-      const cost = parseFloat($('repairCost').value)||0;
-      const exp = pSum+tr;
-      $('sumParts').textContent = fmt(pSum); $('sumExp').textContent = fmt(exp);
-      $('sumProfit').textContent = fmt(cost-exp); $('sumProfit').style.color = (cost-exp)>=0 ? 'var(--success)' : 'var(--danger)';
+      const pSum = Array.from(document.querySelectorAll('.p-cost')).reduce((s,i)=>s+(parseFloat(i.value)||0),0);
+      const tr = parseFloat($('transportCost').value)||0, cost = parseFloat($('repairCost').value)||0;
+      $('sumParts').textContent = fmt(pSum); $('sumExp').textContent = fmt(pSum+tr);
+      $('sumProfit').textContent = fmt(cost-pSum-tr); $('sumProfit').style.color = (cost-pSum-tr)>=0 ? 'var(--success)' : 'var(--danger)';
     }
-
     function handleSubmit(e) {
       e.preventDefault();
       const isEdit = !!$('editId').value;
       let newStatus = $('status').value;
       if (isEdit) {
-        const oldOrder = orders.find(o => o.id === $('editId').value);
-        if (oldOrder?.status === 'Выдан') newStatus = 'Выдан';
-        if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') {
-          settings.coins += REWARD_COMPLETED; persistSettings();
-        }
-      }
-      if (!isEdit) {
-        if (settings.coins < COST_NEW_ORDER) { alert(`❌ Недостаточно коинов!\nНужно: ${COST_NEW_ORDER}, доступно: ${settings.coins}`); return; }
-        settings.coins -= COST_NEW_ORDER; persistSettings();
-      }
+        const old = orders.find(o => o.id === $('editId').value);
+        if (old?.status === 'Выдан') newStatus = 'Выдан';
+        if (old && old.status !== 'Выдан' && newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Заявка выдана');
+      } else addCoins(COIN_REWARDS.CREATE, '📋 Новая заявка');
+
+      const fieldsFilled = [$('client').value, $('type').value, $('reason').value, $('repairCost').value].every(Boolean);
+      if (fieldsFilled && !isEdit) addCoins(COIN_REWARDS.QUALITY_FIELDS, '📝 Полная заявка');
+
       const warrantyDays = parseInt($('warrantyDays').value) || 0;
       let warrantyUntil = null;
-      if (warrantyDays > 0) {
-        const d = new Date($('orderDate').value);
-        d.setDate(d.getDate() + warrantyDays);
-        warrantyUntil = d.toISOString().split('T')[0];
-      }
+      if (warrantyDays > 0) { const d = new Date($('orderDate').value); d.setDate(d.getDate() + warrantyDays); warrantyUntil = d.toISOString().split('T')[0]; }
+
       const id = $('editId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
       const parts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
-        name: r.querySelector('.p-name').value,
-        sku: r.querySelector('.p-sku').value,
-        status: r.querySelector('.p-status').value, 
-        cost: parseFloat(r.querySelector('.p-cost').value)||0,
-        price: parseFloat(r.querySelector('.p-price').value)||0
+        name: r.querySelector('.p-name').value, sku: r.querySelector('.p-sku').value, status: r.querySelector('.p-status').value, cost: parseFloat(r.querySelector('.p-cost').value)||0, price: parseFloat(r.querySelector('.p-price').value)||0
       })).filter(p=>p.name);
-      const order = { 
-        id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, warrantyDays, warrantyUntil,
-        type:$('type').value, status:newStatus, avitoLink:$('avitoLink').value, 
-        reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, 
-        parts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() 
-      };
+      const order = { id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, warrantyDays, warrantyUntil, type:$('type').value, status:newStatus, avitoLink:$('avitoLink').value, reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, parts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() };
       const idx = orders.findIndex(o=>o.id===id);
       if(idx>-1) orders[idx]=order; else orders.push(order);
       saveData(); closeModal(); applyFilters(); updateUI();
     }
-
     function revertOrder() {
-      const id = $('editId').value;
-      if (!id) return;
-      if (settings.coins < COST_REVERT) { alert(`❌ Недостаточно коинов для возврата!\nНужно: ${COST_REVERT}, доступно: ${settings.coins}`); return; }
-      if (!confirm(`Вернуть заявку из статуса «Выдан»?\nБудет списано ${COST_REVERT} коинов.`)) return;
+      const id = $('editId').value; if (!id) return;
+      if (!confirm(`Вернуть заявку из статуса «Выдан»?`)) return;
       const order = orders.find(x => x.id === id);
-      if (order) {
-        order.status = 'Готово';
-        settings.coins -= COST_REVERT;
-        persistSettings(); saveData(); closeModal(); applyFilters(); updateUI();
-        alert('✅ Статус возвращен на «Готово».');
-      }
+      if (order) { order.status = 'Готово'; saveData(); closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен.'); }
     }
-
     function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(orders)); }
     function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
     function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); saveData(); applyFilters(); updateUI(); } }
 
-    // Detail View
     function openDetail(id) {
-      currentDetailId = id;
-      const o = orders.find(x=>x.id===id); 
-      if(!o) return;
-      const detailModal = $('detailModal');
-      if (!detailModal) return;
+      currentDetailId = id; const o = orders.find(x=>x.id===id); if(!o) return;
       $('detailTitle').textContent = `Заявка #${o.id.slice(-6).toUpperCase()}`;
-      $('dDate').textContent = toDate(o.date); 
-      $('dEst').textContent = o.est ? toDate(o.est) : 'Не указана';
-      $('dStatus').textContent = o.status; 
-      $('dStatus').className = `status-badge status-${STATUS_CLASSES[o.status]||''}`;
-      $('dClient').textContent = o.client; 
-      $('dType').textContent = o.type; 
-      $('dReason').textContent = o.reason || 'Не указано';
+      $('dDate').textContent = toDate(o.date); $('dEst').textContent = o.est ? toDate(o.est) : 'Не указана';
+      $('dStatus').textContent = o.status; $('dStatus').className = `status-badge status-${STATUS_CLASSES[o.status]||''}`;
+      $('dClient').textContent = o.client; $('dType').textContent = o.type; $('dReason').textContent = o.reason || 'Не указано';
       $('dWarranty').innerHTML = o.warrantyUntil ? `${o.warrantyDays} дн. (до ${toDate(o.warrantyUntil)})` : 'Не указана';
       const dAvito = $('dAvito');
-      if (dAvito) {
-        if (o.avitoLink) { 
-          dAvito.href = o.avitoLink; 
-          dAvito.textContent = 'Открыть объявление ↗'; 
-        } else { 
-          dAvito.textContent = '—'; 
-          dAvito.removeAttribute('href'); 
-        }
-      }
-      const tbody = $('dPartsBody'); 
-      const dPartsTable = $('dPartsTable');
-      const dNoParts = $('dNoParts');
-      if (tbody && dPartsTable && dNoParts) {
-        tbody.innerHTML = '';
-        let pSum = 0;
-        if (o.parts.length) {
-          dNoParts.style.display = 'none'; 
-          dPartsTable.style.display = 'table';
-          o.parts.forEach(p => { 
-            pSum += parseFloat(p.cost)||0; 
-            tbody.innerHTML += `<tr><td>${p.name}${p.sku ? ` <small style="color:var(--muted)">(${p.sku})</small>` : ''}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`; 
-          });
-        } else { 
-          dNoParts.style.display = 'block'; 
-          dPartsTable.style.display = 'none'; 
-        }
-      }
-      const tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0;
-      const pSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
-      const exp = pSum+tr;
-      $('dPartsSum').textContent = fmt(pSum); 
-      $('dTrans').textContent = fmt(tr);
-      $('dExp').textContent = fmt(exp); 
-      $('dCost').textContent = fmt(cost);
-      $('dProfit').textContent = fmt(cost-exp);
-      detailModal.classList.add('active');
+      if (o.avitoLink) { dAvito.href = o.avitoLink; dAvito.textContent = 'Открыть ↗'; } else { dAvito.textContent = '—'; dAvito.removeAttribute('href'); }
+      const tbody = $('dPartsBody'); tbody.innerHTML = '';
+      if (o.parts.length) {
+        $('dNoParts').style.display = 'none'; $('dPartsTable').style.display = 'table';
+        o.parts.forEach(p => tbody.innerHTML += `<tr><td>${p.name}${p.sku?` <small>(${p.sku})</small>`:''}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`);
+      } else { $('dNoParts').style.display = 'block'; $('dPartsTable').style.display = 'none'; }
+      const pSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0), tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0;
+      $('dPartsSum').textContent = fmt(pSum); $('dTrans').textContent = fmt(tr); $('dExp').textContent = fmt(pSum+tr); $('dCost').textContent = fmt(cost); $('dProfit').textContent = fmt(cost-pSum-tr);
+      $('detailModal').classList.add('active');
     }
-    function closeDetailModal() { const dm = $('detailModal'); if(dm) dm.classList.remove('active'); currentDetailId = null; }
+    function closeDetailModal() { $('detailModal').classList.remove('active'); currentDetailId = null; }
     function editFromDetail() { if(currentDetailId) { closeDetailModal(); setTimeout(()=>editOrder(currentDetailId), 100); } }
 
-    // Settings
     function openSettings() { $('masterName').value = settings.master; $('settingsModal').classList.add('active'); }
     function closeSettings() { $('settingsModal').classList.remove('active'); }
+    function exportData() { const d = { orders, inventory, settings, date: new Date().toISOString() }; const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)])); a.download=`seller_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); }
+    function importData(input) { const f = input.files[0]; if(!f) return; const r = new FileReader(); r.onload = e => { try { const d=JSON.parse(e.target.result); if(d.orders) orders=d.orders; if(d.inventory) inventory=d.inventory; if(d.settings) settings=d.settings; localStorage.setItem(DB_KEY, JSON.stringify(orders)); localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); applyFilters(); renderInventory(); updateUI(); alert('✅ Импорт успешен'); } catch(err) { alert('❌ Ошибка: ' + err.message); } }; r.readAsText(f); input.value=''; }
 
-    function exportData() {
-      const data = { orders, inventory, settings, exportDate: new Date().toISOString() };
-      const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
-      const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
-      a.download = `seller_backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
-    }
-    function importData(input) {
-      const f = input.files[0]; if(!f) return;
-      const r = new FileReader(); r.onload = e => {
-        try { 
-          const data = JSON.parse(e.target.result);
-          if(data.orders) orders = data.orders;
-          if(data.inventory) inventory = data.inventory;
-          if(data.settings) settings = data.settings;
-          localStorage.setItem(DB_KEY, JSON.stringify(orders));
-          localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
-          localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-          applyFilters(); renderInventory(); updateUI(); alert('✅ Импорт успешен'); 
-        }
-        catch(err) { alert('❌ Ошибка формата: ' + err.message); }
-      }; r.readAsText(f); input.value='';
-    }
-
-    // Inventory Functions
     function renderInventory() {
-      const tbody = $('invTbody');
-      const empty = $('invEmpty');
-      const search = $('invSearch')?.value.toLowerCase() || '';
-      const categoryFilter = $('invCategoryFilter')?.value || '';
-      const filter = $('invFilter')?.value || '';
+      const tbody = $('invTbody'), empty = $('invEmpty'), search = $('invSearch')?.value.toLowerCase()||'', cat = $('invCategoryFilter')?.value||'', fil = $('invFilter')?.value||'';
       if (!tbody || !empty) return;
-      let items = inventory.filter(item => {
-        const matchSearch = !search || item.name.toLowerCase().includes(search) || (item.sku||'').toLowerCase().includes(search);
-        const matchCategory = !categoryFilter || item.category === categoryFilter;
-        const available = item.inStock - item.reserved;
-        let matchFilter = true;
-        if (filter === 'in-stock') matchFilter = available > 5;
-        else if (filter === 'low-stock') matchFilter = available > 0 && available <= 5;
-        else if (filter === 'out-stock') matchFilter = available <= 0;
-        return matchSearch && matchCategory && matchFilter;
+      let items = inventory.filter(i => {
+        const mS = !search || i.name.toLowerCase().includes(search) || (i.sku||'').toLowerCase().includes(search);
+        const mC = !cat || i.category === cat;
+        const av = i.inStock - i.reserved;
+        let mF = true; if(fil==='in-stock') mF=av>5; else if(fil==='low-stock') mF=av>0&&av<=5; else if(fil==='out-stock') mF=av<=0;
+        return mS && mC && mF;
       });
       if (!items.length) { empty.classList.remove('hidden'); tbody.innerHTML = ''; return; }
       empty.classList.add('hidden');
-      tbody.innerHTML = items.map(item => {
-        const available = item.inStock - item.reserved;
-        let stockClass = 'ok', stockText = `${available} шт.`;
-        if (available <= 0) { stockClass = 'none'; stockText = 'Нет'; }
-        else if (available <= 5) { stockClass = 'low'; stockText = `${available} шт.`; }
-        const imgHtml = item.photo 
-          ? `<img src="${item.photo}" class="inv-thumb" alt="${item.name}">`
-          : `<div class="inv-no-photo">📦</div>`;
-        return `
-          <tr>
-            <td>${imgHtml}</td>
-            <td><strong>${item.name}</strong>${item.description ? `<br><small style="color:var(--muted)">${item.description.substring(0,50)}${item.description.length>50?'...':''}</small>` : ''}</td>
-            <td>${item.sku || '—'}</td>
-            <td>${item.category || '—'}</td>
-            <td class="money"><strong>${fmt(item.price)}</strong><br><small style="color:var(--muted)">${fmt(item.cost)}</small></td>
-            <td><span class="stock-indicator ${stockClass}">${stockText}</span></td>
-            <td>${item.reserved > 0 ? item.reserved : '—'}</td>
-            <td>${item.toOrder > 0 ? item.toOrder : '—'}</td>
-            <td>${item.ordered > 0 ? item.ordered : '—'}</td>
-            <td class="actions">
-              <button class="btn btn-outline btn-sm" onclick="editInventory('${item.id}')">✏️</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteInventory('${item.id}')">🗑️</button>
-            </td>
-          </tr>
-        `;
+      tbody.innerHTML = items.map(i => {
+        const av = i.inStock - i.reserved; let sc='ok', st=`${av} шт.`;
+        if(av<=0){sc='none'; st='Нет';} else if(av<=5){sc='low'; st=`${av} шт.`;}
+        const img = i.photo ? `<img src="${i.photo}" class="inv-thumb">` : `<div class="inv-no-photo">📦</div>`;
+        return `<tr><td>${img}</td><td><strong>${i.name}</strong>${i.description?`<br><small style="color:var(--muted)">${i.description.substring(0,50)}${i.description.length>50?'...':''}</small>`:''}</td><td>${i.sku||'—'}</td><td>${i.category||'—'}</td><td class="money"><strong>${fmt(i.price)}</strong><br><small style="color:var(--muted)">${fmt(i.cost)}</small></td><td><span class="stock-indicator ${sc}">${st}</span></td><td>${i.reserved>0?i.reserved:'—'}</td><td>${i.toOrder>0?i.toOrder:'—'}</td><td>${i.ordered>0?i.ordered:'—'}</td><td><button class="btn btn-outline btn-sm" onclick="editInventory('${i.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteInventory('${i.id}')">🗑️</button></td></tr>`;
       }).join('');
     }
-
-    function openInventoryModal(item=null) {
-      const modal = $('inventoryModal');
-      if (!modal) return;
-      modal.classList.add('active');
-      $('invModalTitle').textContent = item ? 'Редактировать запчасть' : 'Добавить запчасть';
-      $('invEditId').value = item?.id || '';
-      $('invName').value = item?.name || '';
-      $('invCategory').value = item?.category || 'Другое';
-      $('invSku').value = item?.sku || '';
-      $('invCost').value = item?.cost || '';
-      $('invPrice').value = item?.price || '';
-      $('invInStock').value = item?.inStock || 0;
-      $('invReserved').value = item?.reserved || 0;
-      $('invToOrder').value = item?.toOrder || 0;
-      $('invOrdered').value = item?.ordered || 0;
-      $('invDescription').value = item?.description || '';
-      currentPhotoBase64 = item?.photo || null;
-      updatePhotoPreview();
-      $('inventoryForm').onsubmit = handleInventorySubmit;
+    function openInventoryModal(i=null) {
+      $('inventoryModal').classList.add('active'); $('invModalTitle').textContent = i?'Редактировать запчасть':'Добавить запчасть';
+      $('invEditId').value = i?.id||''; $('invName').value = i?.name||''; $('invCategory').value = i?.category||'Другое'; $('invSku').value = i?.sku||'';
+      $('invCost').value = i?.cost||''; $('invPrice').value = i?.price||''; $('invInStock').value = i?.inStock||0; $('invReserved').value = i?.reserved||0;
+      $('invToOrder').value = i?.toOrder||0; $('invOrdered').value = i?.ordered||0; $('invDescription').value = i?.description||'';
+      currentPhotoBase64 = i?.photo||null; updatePhotoPreview(); $('inventoryForm').onsubmit = handleInventorySubmit;
     }
     function closeInventoryModal() { $('inventoryModal').classList.remove('active'); }
-
-    function handlePhotoUpload(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => { currentPhotoBase64 = e.target.result; updatePhotoPreview(); };
-      reader.readAsDataURL(file);
-    }
-
-    function updatePhotoPreview() {
-      const preview = $('photoPreview');
-      if (!preview) return;
-      if (currentPhotoBase64) {
-        preview.innerHTML = `<img src="${currentPhotoBase64}" style="max-width:150px;max-height:100px;border-radius:8px;border:1px solid var(--border)">`;
-      } else {
-        preview.innerHTML = '';
-      }
-    }
-
+    function handlePhotoUpload(input) { if(input.files[0]) { const r = new FileReader(); r.onload=e=>{currentPhotoBase64=e.target.result; updatePhotoPreview();}; r.readAsDataURL(input.files[0]); } }
+    function updatePhotoPreview() { $('photoPreview').innerHTML = currentPhotoBase64 ? `<img src="${currentPhotoBase64}" style="max-width:150px;max-height:100px;border-radius:8px;border:1px solid var(--border)">` : ''; }
     function handleInventorySubmit(e) {
-      e.preventDefault();
-      const id = $('invEditId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
-      const item = {
-        id,
-        name: $('invName').value,
-        category: $('invCategory').value,
-        sku: $('invSku').value,
-        cost: parseFloat($('invCost').value) || 0,
-        price: parseFloat($('invPrice').value) || 0,
-        inStock: parseInt($('invInStock').value) || 0,
-        reserved: parseInt($('invReserved').value) || 0,
-        toOrder: parseInt($('invToOrder').value) || 0,
-        ordered: parseInt($('invOrdered').value) || 0,
-        description: $('invDescription').value,
-        photo: currentPhotoBase64,
-        updatedAt: Date.now()
-      };
-      const idx = inventory.findIndex(x => x.id === id);
-      if (idx > -1) inventory[idx] = item;
-      else inventory.push(item);
-      localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
-      closeInventoryModal();
-      renderInventory();
+      e.preventDefault(); const id = $('invEditId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5); const isNew = !$('invEditId').value;
+      const item = { id, name:$('invName').value, category:$('invCategory').value, sku:$('invSku').value, cost:parseFloat($('invCost').value)||0, price:parseFloat($('invPrice').value)||0, inStock:parseInt($('invInStock').value)||0, reserved:parseInt($('invReserved').value)||0, toOrder:parseInt($('invToOrder').value)||0, ordered:parseInt($('invOrdered').value)||0, description:$('invDescription').value, photo:currentPhotoBase64, updatedAt:Date.now() };
+      const idx = inventory.findIndex(x=>x.id===id); if(idx>-1) inventory[idx]=item; else { inventory.push(item); if(isNew) addCoins(COIN_REWARDS.ADD_PART, '📦 Новая запчасть'); }
+      localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); closeInventoryModal(); renderInventory();
     }
+    function editInventory(id) { const i=inventory.find(x=>x.id===id); if(i) openInventoryModal(i); }
+    function deleteInventory(id) { if(confirm('Удалить запчасть?')) { inventory=inventory.filter(x=>x.id!==id); localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); renderInventory(); } }
+    function openCsvImport() { pendingCsvData=[]; $('csvImportStep1').classList.remove('hidden'); $('csvImportStep2').classList.add('hidden'); $('csvFileInput').value=''; $('csvImportModal').classList.add('active'); }
+    function closeCsvImport() { $('csvImportModal').classList.remove('active'); pendingCsvData=[]; }
+    function cancelCsvImport() { closeCsvImport(); }
+    function setupCsvDragDrop() { const z=$('csvDropZone'); z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')}); z.addEventListener('dragleave',()=>z.classList.remove('dragover')); z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f&&(f.name.endsWith('.csv')||f.name.endsWith('.txt')))processCsvFile(f)}); }
+    function handleCsvFile(input) { if(input.files[0]) processCsvFile(input.files[0]); }
+    function processCsvFile(file) { const r=new FileReader(); r.onload=e=>{try{pendingCsvData=parseCsv(e.target.result);if(!pendingCsvData.length){alert('❌ Пусто');return}showCsvPreview()}catch(err){alert('❌ '+err.message)}}; r.readAsText(file,'UTF-8'); }
+    function parseCsv(text) { const dl=text.split('\n')[0].includes(';')?';':','; return text.split('\n').slice(1).filter(l=>l.trim()).map(l=>{const v=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===dl&&!q){v.push(c.trim());c=''}else c+=ch;}v.push(c.trim());return v[0]?{name:v[0]||'',sku:v[1]||'',category:v[2]||'Другое',cost:parseFloat(v[3])||0,price:parseFloat(v[4])||0,inStock:parseInt(v[5])||0,reserved:parseInt(v[6])||0,toOrder:parseInt(v[7])||0,ordered:parseInt(v[8])||0,description:v[9]||'',photo:null,updatedAt:Date.now()}:null}).filter(Boolean); }
+    function showCsvPreview() { $('csvImportStep1').classList.add('hidden'); $('csvImportStep2').classList.remove('hidden'); $('csvStats').innerHTML=`<div class="import-stat"><div class="label">Записей</div><div class="val">${pendingCsvData.length}</div></div>`; let h='<table><thead><tr>Название;Артикул;Категория;Закупка;Продажа;Наличие</tr></thead><tbody>'; pendingCsvData.slice(0,10).forEach(i=>h+=`<tr><td>${i.name}</td><td>${i.sku||'—'}</td><td>${i.category}</td><td>${fmt(i.cost)}</td><td>${fmt(i.price)}</td><td>${i.inStock}</td></tr>`); $('csvPreview').innerHTML=h+'</tbody></table>'; }
+    function confirmCsvImport() { if(!pendingCsvData.length)return; let a=0,u=0; pendingCsvData.forEach(n=>{const i=inventory.findIndex(x=>x.sku&&x.sku===n.sku||x.name===n.name);if(i>-1){inventory[i]={...inventory[i],...n};u++}else{n.id=Date.now().toString(36)+Math.random().toString(36).substr(2,5);inventory.push(n);a++}}); localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); closeCsvImport(); renderInventory(); alert(`✅ Добавлено: ${a}, Обновлено: ${u}`); }
+    function downloadTemplate() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeffНазвание;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание\nДисплей;DISP-01;Дисплеи;1500;3000;5;0;2;0;Пример'])); a.download='template.csv'; a.click(); }
 
-    function editInventory(id) {
-      const item = inventory.find(x => x.id === id);
-      if (item) openInventoryModal(item);
-    }
+    async function checkChatConnection() { const el=$('chatConnectionStatus'); if(!el||!supabaseClient)return; try{const{error}=await supabaseClient.from('support_messages').select('id').limit(1);if(error)throw error;el.textContent='● Онлайн';el.className='chat-status online'}catch{el.textContent='● Офлайн';el.className='chat-status offline'} }
+    function openSupportChat() { $('supportChatModal').classList.add('active'); const s=localStorage.getItem('chat_username'); if(s)$('chatUsername').value=s; checkChatConnection(); loadChatHistory(); subscribeToNewMessages(); $('chatInput')?.focus(); }
+    function closeSupportChat() { $('supportChatModal').classList.remove('active'); if(chatSubscription){supabaseClient?.removeChannel(chatSubscription);chatSubscription=null;} }
+    async function loadChatHistory() { const c=$('chatMessages'); if(!supabaseClient){c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';return} c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>'; const{d,e}=await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); if(e){c.innerHTML='❌ '+e.message;return} renderChatMsgs(d||[]); }
+    function renderChatMsgs(msgs) { const c=$('chatMessages'); if(!msgs.length){c.innerHTML='<div class="chat-system">👋 Чат пуст</div>';return} c.innerHTML=msgs.map(m=>m.user_meta?.type==='system_context'?'':`<div class="chat-msg-row ${m.is_user?'user':'support'}"><div class="chat-name">${m.user_name||'Аноним'}</div><div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></div>`).join(''); c.scrollTop=c.scrollHeight; }
+    function subscribeToNewMessages() { if(!supabaseClient||chatSubscription)return; chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{if(p.new.user_meta?.type==='system_context')return;const c=$('chatMessages'),t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),m=`<div class="chat-msg-row ${p.new.is_user?'user':'support'}"><div class="chat-name">${p.new.user_name||'Аноним'}</div><div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${t}</span></div>`;c.insertAdjacentHTML('beforeend',m);c.scrollTop=c.scrollHeight}).subscribe(); }
+    async function sendChatMessage() { const i=$('chatInput'),n=$('chatUsername'),t=i?.value?.trim(),name=n?.value?.trim(); if(!t||!name){if(!n?.value)n?.focus();return} localStorage.setItem('chat_username',name); if(!supabaseClient){alert('❌ Чат не настроен');return} const b=i.nextElementSibling; b.disabled=true; try{const{error}=await supabaseClient.from('support_messages').insert({user_name:name,message:t,is_user:true,user_meta:{appVersion:'v6.2',ua:navigator.userAgent.substring(0,50)}});if(error)throw error;i.value=''}catch(err){alert('❌ '+err.message)}finally{b.disabled=false;i?.focus()} }
 
-    function deleteInventory(id) {
-      if (!confirm('Удалить запчасть?')) return;
-      inventory = inventory.filter(x => x.id !== id);
-      localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
-      renderInventory();
-    }
+    // === INIT ===
+    window.onload = async () => {
+      initSupabase();
+      const selType=$('filterType'),selStatus=$('filterStatus'),typeSel=$('type'),statusSel=$('status');
+      TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;selType.appendChild(o);typeSel.appendChild(o.cloneNode(true))});
+      STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;selStatus.appendChild(o);statusSel.appendChild(o.cloneNode(true))});
+      if($('masterName')) $('masterName').value=settings.master||'Мастер';
+      
+      updateUI(); renderTable(); renderInventory();
+      $('repairCost').oninput=$('transportCost').oninput=calcTotals;
+      $('secretInput')?.addEventListener('keyup',e=>{if(e.key==='Enter'&&e.target.value.trim()===SECRET_CODE){addCoins(COIN_REWARDS.SECRET,'🤫 Секрет');e.target.value=''}});
+      $('inventoryForm').onsubmit=handleInventorySubmit; setupCsvDragDrop();
+      if(supabaseClient) await checkChatConnection();
 
-    // CSV Import Functions
-    function openCsvImport() {
-      pendingCsvData = [];
-      $('csvImportStep1').classList.remove('hidden');
-      $('csvImportStep2').classList.add('hidden');
-      $('csvFileInput').value = '';
-      $('csvImportModal').classList.add('active');
-    }
-    function closeCsvImport() { $('csvImportModal').classList.remove('active'); pendingCsvData = []; }
-    function cancelCsvImport() { pendingCsvData = []; $('csvImportStep1').classList.remove('hidden'); $('csvImportStep2').classList.add('hidden'); $('csvFileInput').value = ''; }
+      const last=localStorage.getItem('last_login_date'), today=new Date().toISOString().split('T')[0];
+      if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Ежедневный вход');localStorage.setItem('last_login_date',today)}
+    };
 
-    function setupCsvDragDrop() {
-      const zone = $('csvDropZone');
-      if (!zone) return;
-      zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dragover'); });
-      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-      zone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        zone.classList.remove('dragover');
-        const file = e.dataTransfer.files[0];
-        if (file && (file.name.endsWith('.csv') || file.name.endsWith('.txt'))) {
-          processCsvFile(file);
-        } else {
-          alert('❌ Пожалуйста, выберите CSV файл');
-        }
-      });
-    }
-
-    function handleCsvFile(input) {
-      const file = input.files[0];
-      if (file) processCsvFile(file);
-    }
-
-    function processCsvFile(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const text = e.target.result;
-          pendingCsvData = parseCsv(text);
-          if (pendingCsvData.length === 0) {
-            alert('❌ Файл пуст или не содержит данных');
-            return;
-          }
-          showCsvPreview();
-        } catch(err) {
-          alert('❌ Ошибка чтения файла: ' + err.message);
-        }
-      };
-      reader.readAsText(file, 'UTF-8');
-    }
-
-    function parseCsv(text) {
-      const firstLine = text.split('\n')[0];
-      let delimiter = ';';
-      if (firstLine.split(';').length < firstLine.split(',').length) {
-        delimiter = ',';
-      }
-      const lines = text.split('\n').filter(line => line.trim());
-      if (lines.length < 2) return [];
-      const dataLines = lines.slice(1);
-      return dataLines.map(line => {
-        const values = [];
-        let current = '';
-        let inQuotes = false;
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          if (char === '"') {
-            inQuotes = !inQuotes;
-          } else if (char === delimiter && !inQuotes) {
-            values.push(current.trim());
-            current = '';
-          } else {
-            current += char;
-          }
-        }
-        values.push(current.trim());
-        const item = {
-          name: values[0] || '',
-          sku: values[1] || '',
-          category: values[2] || 'Другое',
-          cost: parseFloat(values[3]) || 0,
-          price: parseFloat(values[4]) || 0,
-          inStock: parseInt(values[5]) || 0,
-          reserved: parseInt(values[6]) || 0,
-          toOrder: parseInt(values[7]) || 0,
-          ordered: parseInt(values[8]) || 0,
-          description: values[9] || '',
-          photo: null,
-          updatedAt: Date.now()
-        };
-        return item.name ? item : null;
-      }).filter(item => item !== null);
-    }
-
-    function showCsvPreview() {
-      $('csvImportStep1').classList.add('hidden');
-      $('csvImportStep2').classList.remove('hidden');
-      const stats = $('csvStats');
-      stats.innerHTML = `
-        <div class="import-stat"><div class="label">Найдено записей</div><div class="val">${pendingCsvData.length}</div></div>
-        <div class="import-stat"><div class="label">Цена закупки (всего)</div><div class="val">${fmt(pendingCsvData.reduce((s,i)=>s+i.cost,0))}</div></div>
-        <div class="import-stat"><div class="label">Цена продажи (всего)</div><div class="val">${fmt(pendingCsvData.reduce((s,i)=>s+i.price,0))}</div></div>
-        <div class="import-stat"><div class="label">В наличии (всего)</div><div class="val">${pendingCsvData.reduce((s,i)=>s+i.inStock,0)} шт.</div></div>
-      `;
-      const preview = $('csvPreview');
-      const headers = ['Название', 'Артикул', 'Категория', 'Закупка', 'Продажа', 'Наличие', 'Резерв', 'Нужно', 'Заказано'];
-      let html = '<table><thead><tr>';
-      headers.forEach(h => html += `<th>${h}</th>`);
-      html += '</tr></thead><tbody>';
-      pendingCsvData.slice(0, 20).forEach(item => {
-        html += `<tr>
-          <td>${item.name}</td>
-          <td>${item.sku || '—'}</td>
-          <td>${item.category}</td>
-          <td>${fmt(item.cost)}</td>
-          <td>${fmt(item.price)}</td>
-          <td>${item.inStock}</td>
-          <td>${item.reserved}</td>
-          <td>${item.toOrder}</td>
-          <td>${item.ordered}</td>
-        </tr>`;
-      });
-      if (pendingCsvData.length > 20) {
-        html += `<tr><td colspan="9" style="text-align:center;color:var(--muted)">... и ещё ${pendingCsvData.length - 20} записей</td></tr>`;
-      }
-      html += '</tbody></table>';
-      preview.innerHTML = html;
-    }
-
-    function confirmCsvImport() {
-      if (!pendingCsvData.length) return;
-      let added = 0;
-      let updated = 0;
-      pendingCsvData.forEach(newItem => {
-        const existingIdx = inventory.findIndex(item => 
-          (item.sku && item.sku === newItem.sku) || 
-          (item.name === newItem.name)
-        );
-        if (existingIdx > -1) {
-          inventory[existingIdx] = { ...inventory[existingIdx], ...newItem };
-          updated++;
-        } else {
-          newItem.id = Date.now().toString(36) + Math.random().toString(36).substr(2,5);
-          inventory.push(newItem);
-          added++;
-        }
-      });
-      localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
-      closeCsvImport();
-      renderInventory();
-      alert(`✅ Импортировано!\nДобавлено: ${added}\nОбновлено: ${updated}\nВсего: ${pendingCsvData.length}`);
-    }
-
-    function downloadTemplate() {
-      const headers = 'Название;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание';
-      const example = 'Дисплей iPhone 11;DISP-11;Дисплеи;2500;4500;10;2;5;0;OLED, оригинал';
-      const csv = headers + '\n' + example;
-      const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'template_import_parts.csv';
-      a.click();
-    }
+    // === LANDING LOGIC ===
+    (function(){
+      const KEY='avito_seller_landing_seen_v2';
+      const ov=$('landingOverlay'), btn=$('startButton');
+      if(localStorage.getItem(KEY)!=='true' && ov){
+        document.body.classList.add('landing-active');
+        btn?.addEventListener('click',e=>{e.preventDefault(); ov.classList.add('hiding'); localStorage.setItem(KEY,'true'); setTimeout(()=>{ov.style.display='none';document.body.classList.remove('landing-active')},300)});
+      } else if(ov) ov.style.display='none';
+      window.resetLanding=()=>{localStorage.removeItem(KEY);console.log('🔄 Сброшено')};
+    })();
   </script>
 </body>
 </html>
