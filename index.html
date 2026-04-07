@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AVITO SELLER | Учёт ремонтов</title>
-  <!-- Supabase CDN -->
+  <!-- Подключаем Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -506,10 +506,11 @@
 
     // === SUPABASE CHAT CONFIG ===
     // ⚠️ ЗАМЕНИТЕ НА СВОИ ДАННЫЕ ИЗ СУПАБЕЙС
-    const SUPABASE_URL = 'https://wdbjpcpodkydaitotqqr.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYmpwY3BvZGt5ZGFpdG90cXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTM4NDksImV4cCI6MjA5MTEyOTg0OX0.REToOamR3fU6cZcaa8DsHd0OORMyYy5AkErHweLihz4';
+    const SUPABASE_URL = 'https://your-project-id.supabase.co';
+    const SUPABASE_ANON_KEY = 'your-anon-key-here';
     
-    let supabase = null;
+    // ВАЖНО: Используем 'supabaseClient' вместо 'supabase', чтобы избежать конфликта с глобальной переменной библиотеки
+    let supabaseClient = null;
     let chatSubscription = null;
     let CHAT_SESSION = null;
     let hasSentContext = false;
@@ -521,7 +522,7 @@
         return false;
       }
       try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         return true;
       } catch(e) {
         console.error('❌ Ошибка инициализации Supabase:', e);
@@ -596,8 +597,10 @@
       const statusEl = $('chatConnectionStatus');
       if (!statusEl) return;
       
+      if (!supabaseClient) return;
+
       try {
-        const { error } = await supabase.from('support_messages').select('id').limit(1);
+        const { error } = await supabaseClient.from('support_messages').select('id').limit(1);
         if (error) throw error;
         statusEl.textContent = '● Онлайн';
         statusEl.className = 'chat-status online';
@@ -624,7 +627,7 @@
     function closeSupportChat() {
       $('supportChatModal')?.classList.remove('active');
       if (chatSubscription) {
-        supabase?.removeChannel(chatSubscription);
+        supabaseClient?.removeChannel(chatSubscription);
         chatSubscription = null;
       }
     }
@@ -633,14 +636,14 @@
       const container = $('chatMessages');
       if (!container) return;
       
-      if (!supabase) {
+      if (!supabaseClient) {
         container.innerHTML = '<div class="chat-system">⚠️ Чат не настроен. Обратитесь к разработчику для настройки Supabase.</div>';
         return;
       }
       
       container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">🔄 Загрузка...</div>';
       
-      const { data, error } = await supabase
+      const { data, error } = await supabaseClient
         .from('support_messages')
         .select('*')
         .eq('session_id', CHAT_SESSION)
@@ -673,7 +676,7 @@
 • ОС: ${navigator.platform}
       `.trim();
       
-      await supabase.from('support_messages').insert({
+      await supabaseClient.from('support_messages').insert({
         session_id: CHAT_SESSION,
         user_name: settings.master || 'Мастер',
         message: context,
@@ -713,9 +716,9 @@
     }
 
     function subscribeToNewMessages() {
-      if (!supabase || chatSubscription) return;
+      if (!supabaseClient || chatSubscription) return;
       
-      chatSubscription = supabase
+      chatSubscription = supabaseClient
         .channel(`chat:${CHAT_SESSION}`)
         .on('postgres_changes', {
           event: 'INSERT',
@@ -775,7 +778,7 @@
       const text = input?.value?.trim();
       if (!text) return;
       
-      if (!supabase) {
+      if (!supabaseClient) {
         alert('❌ Чат не настроен. Пожалуйста, замените SUPABASE_URL и SUPABASE_ANON_KEY в коде.');
         return;
       }
@@ -787,7 +790,7 @@
       btn.disabled = true;
       
       try {
-        const { error } = await supabase.from('support_messages').insert({
+        const { error } = await supabaseClient.from('support_messages').insert({
           session_id: CHAT_SESSION,
           user_name: settings.master || 'Мастер',
           user_meta: {
