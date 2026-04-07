@@ -209,6 +209,331 @@
     .chat-status.online { color:var(--success); }
     .chat-status.offline { color:var(--danger); }
 
+    /* === LANDING PAGE STYLES === */
+    .landing-overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      z-index: 9999;
+      overflow: hidden;
+      animation: landingFadeIn 0.4s ease-out;
+    }
+    
+    @keyframes landingFadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .landing-content {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 24px;
+      padding: 40px 32px;
+      max-width: 720px;
+      width: 100%;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 10;
+      animation: contentSlideUp 0.5s ease-out 0.1s both;
+    }
+    
+    @keyframes contentSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .landing-header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .landing-logo {
+      margin: 0 auto 16px;
+      width: 72px;
+      height: 72px;
+      filter: drop-shadow(0 8px 24px rgba(0, 170, 255, 0.4));
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+    
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    
+    .landing-logo-svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .landing-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    
+    .landing-subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    
+    .landing-features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    
+    .feature-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-align: center;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      border-color: var(--avito-blue);
+    }
+    
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      display: block;
+    }
+    
+    .feature-card h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    
+    .feature-card p {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    
+    .landing-free-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 12px 20px;
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 2px solid var(--avito-blue);
+      border-radius: 12px;
+      margin-bottom: 24px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0, 170, 255, 0.4); }
+      50% { box-shadow: 0 0 0 10px rgba(0, 170, 255, 0); }
+    }
+    
+    .free-label {
+      font-size: 1.2rem;
+      animation: sparkle 1.5s ease-in-out infinite;
+    }
+    
+    .free-label:nth-child(2) { animation-delay: 0.2s; }
+    
+    @keyframes sparkle {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+    }
+    
+    .free-text {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0369a1;
+      text-align: center;
+    }
+    
+    .landing-cta {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .btn-start {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+      width: 100%;
+      max-width: 400px;
+      justify-content: center;
+    }
+    
+    .btn-start:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(37, 99, 235, 0.5);
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    }
+    
+    .btn-start:active {
+      transform: translateY(0);
+    }
+    
+    .btn-arrow {
+      font-size: 1.2rem;
+      transition: transform 0.2s;
+    }
+    
+    .btn-start:hover .btn-arrow {
+      transform: translateX(4px);
+    }
+    
+    .landing-note {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+    
+    .landing-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+    
+    .version-badge {
+      background: #f1f5f9;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    
+    .made-with {
+      font-style: italic;
+    }
+    
+    /* Декоративные элементы фона */
+    .landing-decoration {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.15;
+      z-index: 1;
+    }
+    
+    .decoration-1 {
+      width: 400px;
+      height: 400px;
+      background: var(--avito-blue);
+      top: -150px;
+      right: -100px;
+      animation: float 8s ease-in-out infinite;
+    }
+    
+    .decoration-2 {
+      width: 300px;
+      height: 300px;
+      background: var(--success);
+      bottom: -100px;
+      left: -50px;
+      animation: float 10s ease-in-out infinite reverse;
+    }
+    
+    .decoration-3 {
+      width: 250px;
+      height: 250px;
+      background: var(--warning);
+      bottom: 20%;
+      right: 10%;
+      animation: float 12s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25% { transform: translate(20px, -20px) scale(1.05); }
+      50% { transform: translate(0, -40px) scale(1); }
+      75% { transform: translate(-20px, -20px) scale(0.95); }
+    }
+    
+    /* Адаптивность */
+    @media (max-width: 640px) {
+      .landing-content {
+        padding: 28px 20px;
+        margin: 10px;
+      }
+      
+      .landing-title {
+        font-size: 1.6rem;
+      }
+      
+      .landing-features {
+        grid-template-columns: 1fr;
+      }
+      
+      .feature-card {
+        padding: 14px;
+      }
+      
+      .btn-start {
+        padding: 14px 24px;
+        font-size: 0.95rem;
+      }
+      
+      .landing-free-badge {
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px 16px;
+      }
+    }
+    
+    /* Скрытие основного контента при показе лендинга */
+    body.landing-active .container {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    
+    /* Плавное скрытие лендинга */
+    .landing-overlay.hiding {
+      animation: landingFadeOut 0.3s ease-in forwards;
+      pointer-events: none;
+    }
+    
+    @keyframes landingFadeOut {
+      to { opacity: 0; transform: scale(1.02); }
+    }
+    
+    .landing-overlay.hiding .landing-content {
+      animation: contentSlideDown 0.3s ease-in forwards;
+    }
+    
+    @keyframes contentSlideDown {
+      to { opacity: 0; transform: translateY(10px); }
+    }
+
     @media (max-width: 768px) {
       .part-row, .totals, .form-grid, .detail-grid, .detail-finances, .dashboard { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
@@ -499,6 +824,72 @@
     </div>
   </div>
 
+  <!-- === LANDING PAGE OVERLAY === -->
+  <div id="landingOverlay" class="landing-overlay">
+    <div class="landing-content">
+      <div class="landing-header">
+        <div class="landing-logo">
+          <svg viewBox="0 0 44 44" fill="none" class="landing-logo-svg">
+            <defs><linearGradient id="gradLanding" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#00AAFF"/><stop offset="1" stop-color="#0066FF"/></linearGradient></defs>
+            <rect width="44" height="44" rx="12" fill="url(#gradLanding)"/>
+            <path d="M14 16C14 16 16 12 22 12C28 12 30 16 30 16V28C30 28 28 32 22 32C16 32 14 28 14 28V16Z" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M18 20H26M18 24H23" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+            <circle cx="22" cy="34" r="3" fill="#97CF26"/>
+          </svg>
+        </div>
+        <h1 class="landing-title">AVITO SELLER</h1>
+        <p class="landing-subtitle">Система учёта ремонтов для мастеров</p>
+      </div>
+
+      <div class="landing-features">
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <h3>Учёт заявок</h3>
+          <p>Создавайте, отслеживайте и управляйте заказами в одном месте</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3>Склад запчастей</h3>
+          <p>Контролируйте остатки, бронируйте детали, импортируйте из CSV</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💰</div>
+          <h3>Финансы</h3>
+          <p>Считайте себестоимость, прибыль и отслеживайте гарантии</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">☁️</div>
+          <h3>Бэкап в облако</h3>
+          <p>Экспорт/импорт данных — ваши данные всегда под защитой</p>
+        </div>
+      </div>
+
+      <div class="landing-free-badge">
+        <span class="free-label">✨</span>
+        <span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span>
+        <span class="free-label">✨</span>
+      </div>
+
+      <div class="landing-cta">
+        <button class="btn-start" id="startButton">
+          <span class="btn-text">Начать пользоваться бесплатно</span>
+          <span class="btn-arrow">→</span>
+        </button>
+        <p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p>
+      </div>
+
+      <div class="landing-footer">
+        <span class="version-badge">v6.2 • Beta</span>
+        <span class="made-with">Сделано с ❤️ для мастеров</span>
+      </div>
+    </div>
+    
+    <!-- Декоративные элементы -->
+    <div class="landing-decoration decoration-1"></div>
+    <div class="landing-decoration decoration-2"></div>
+    <div class="landing-decoration decoration-3"></div>
+  </div>
+
   <script>
     // === КОНФИГУРАЦИЯ ===
     const TYPES = ['Микроволновки','Колонки','Музыкальные центры','Наушники','Телефоны','Ноутбуки','Планшеты','Стиральные машины','Роутеры','ПК','Мониторы','Пылесосы'];
@@ -515,16 +906,13 @@
     const COST_REVERT = 150;
 
     // === SUPABASE CHAT CONFIG ===
-    // ⚠️ ЗАМЕНИТЕ НА СВОИ ДАННЫЕ ИЗ СУПАБЕЙС
     const SUPABASE_URL = 'https://wdbjpcpodkydaitotqqr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYmpwY3BvZGt5ZGFpdG90cXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTM4NDksImV4cCI6MjA5MTEyOTg0OX0.REToOamR3fU6cZcaa8DsHd0OORMyYy5AkErHweLihz4';
     
-    // ВАЖНО: Используем 'supabaseClient' вместо 'supabase', чтобы избежать конфликта с глобальной переменной библиотеки
     let supabaseClient = null;
     let chatSubscription = null;
     let hasSentContext = false;
 
-    // Инициализация Supabase (если ключи заданы)
     function initSupabase() {
       if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) {
         console.warn('⚠️ Supabase не настроен. Замените SUPABASE_URL и SUPABASE_ANON_KEY в коде.');
@@ -553,13 +941,18 @@
     const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
 
     window.onload = async () => {
-      // Инициализация супабейс
       const supabaseReady = initSupabase();
       
       const selType = $('filterType'), selStatus = $('filterStatus'), typeSel = $('type'), statusSel = $('status');
       TYPES.forEach(t => { const o = document.createElement('option'); o.value=t; o.textContent=t; selType.appendChild(o); typeSel.appendChild(o.cloneNode(true)); });
       STATUSES.forEach(s => { const o = document.createElement('option'); o.value=s; o.textContent=s; selStatus.appendChild(o); statusSel.appendChild(o.cloneNode(true)); });
       $('masterName').value = settings.master;
+      
+      // Скрываем основной контент, если лендинг ещё не был показан
+      if (localStorage.getItem('avito_seller_landing_seen_v2') !== 'true') {
+        document.body.classList.add('landing-active');
+      }
+      
       updateUI();
       renderTable();
       renderInventory();
@@ -584,20 +977,70 @@
       $('inventoryForm').onsubmit = handleInventorySubmit;
       setupCsvDragDrop();
 
-      // Проверка соединения с чатом при загрузке
       if (supabaseReady) {
         await checkChatConnection();
       }
     };
+
+    // === LANDING PAGE LOGIC ===
+    (function() {
+      const LANDING_SEEN_KEY = 'avito_seller_landing_seen_v2';
+      const overlay = document.getElementById('landingOverlay');
+      const startBtn = document.getElementById('startButton');
+      
+      function hasSeenLanding() {
+        return localStorage.getItem(LANDING_SEEN_KEY) === 'true';
+      }
+      
+      function shouldShowLanding() {
+        return !hasSeenLanding();
+      }
+      
+      function hideLanding() {
+        if (!overlay) return;
+        overlay.classList.add('hiding');
+        localStorage.setItem(LANDING_SEEN_KEY, 'true');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          document.body.classList.remove('landing-active');
+        }, 300);
+      }
+      
+      function initLanding() {
+        if (shouldShowLanding() && overlay) {
+          document.body.classList.add('landing-active');
+          if (startBtn) {
+            startBtn.addEventListener('click', function(e) {
+              e.preventDefault();
+              hideLanding();
+              setTimeout(() => {
+                console.log('🎉 Пользователь начал работу с сервисом');
+              }, 100);
+            });
+          }
+        } else if (overlay) {
+          overlay.style.display = 'none';
+        }
+      }
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initLanding);
+      } else {
+        initLanding();
+      }
+      
+      window.resetLanding = function() {
+        localStorage.removeItem(LANDING_SEEN_KEY);
+        console.log('🔄 Лендинг сброшен. Обновите страницу для проверки.');
+      };
+    })();
 
     // === ЧАТ ПОДДЕРЖКИ (ОБЩИЙ) ===
     
     async function checkChatConnection() {
       const statusEl = $('chatConnectionStatus');
       if (!statusEl) return;
-      
       if (!supabaseClient) return;
-
       try {
         const { error } = await supabaseClient.from('support_messages').select('id').limit(1);
         if (error) throw error;
@@ -614,14 +1057,9 @@
       const modal = $('supportChatModal');
       if (!modal) return;
       modal.classList.add('active');
-      
-      // Восстанавливаем имя пользователя
       const savedName = localStorage.getItem('chat_username');
       if (savedName) $('chatUsername').value = savedName;
-      
-      // Обновляем статус соединения
       checkChatConnection();
-      
       loadChatHistory();
       subscribeToNewMessages();
       $('chatInput')?.focus();
@@ -638,47 +1076,36 @@
     async function loadChatHistory() {
       const container = $('chatMessages');
       if (!container) return;
-      
       if (!supabaseClient) {
         container.innerHTML = '<div class="chat-system">⚠️ Чат не настроен. Обратитесь к разработчику для настройки Supabase.</div>';
         return;
       }
-      
       container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">🔄 Загрузка...</div>';
-      
-      // ИЗМЕНЕНИЕ: Убрали фильтр .eq('session_id', ...) — теперь грузим ВСЕ сообщения
       const { data, error } = await supabaseClient
         .from('support_messages')
         .select('*')
         .order('created_at', { ascending: true })
         .limit(100);
-        
       if (error) {
         container.innerHTML = '<div style="color:var(--danger); text-align:center; padding:20px;">❌ Ошибка: ' + error.message + '</div>';
         return;
       }
-      
       renderChatMessages(data || []);
     }
 
     function renderChatMessages(messages) {
       const container = $('chatMessages');
       if (!container) return;
-      
       if (!messages || !messages.length) {
         container.innerHTML = '<div class="chat-system">👋 Чат пуст. Будьте первым!</div>';
         return;
       }
-      
       container.innerHTML = messages.map(msg => {
-        // Системные сообщения
         if (msg.user_meta?.type === 'system_context') return '';
-        
         const isUser = msg.is_user;
         const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
         const safeMsg = msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
         const authorName = msg.user_name || 'Аноним';
-        
         return `
           <div class="chat-msg-row ${isUser ? 'user' : 'support'}">
             <div class="chat-name">${authorName}</div>
@@ -687,14 +1114,11 @@
           </div>
         `;
       }).join('');
-      
       container.scrollTop = container.scrollHeight;
     }
 
     function subscribeToNewMessages() {
       if (!supabaseClient || chatSubscription) return;
-      
-      // ИЗМЕНЕНИЕ: Убрали фильтр .filter(`session_id=eq...`) — слушаем ВСЕ новые сообщения в таблице
       chatSubscription = supabaseClient
         .channel('public:all_messages')
         .on('postgres_changes', {
@@ -704,15 +1128,12 @@
         }, payload => {
           const msg = payload.new;
           if (msg.user_meta?.type === 'system_context') return;
-          
           const container = $('chatMessages');
           if (!container) return;
-          
           const isUser = msg.is_user;
           const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
           const safeMsg = msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
           const authorName = msg.user_name || 'Аноним';
-          
           const msgHtml = `
             <div class="chat-msg-row ${isUser ? 'user' : 'support'}">
               <div class="chat-name">${authorName}</div>
@@ -742,27 +1163,20 @@
       const nameInput = $('chatUsername');
       const text = input?.value?.trim();
       const name = nameInput?.value?.trim();
-      
       if (!text) return;
       if (!name) { alert('Пожалуйста, введите ваше имя'); nameInput?.focus(); return; }
-
-      // Сохраняем имя
       localStorage.setItem('chat_username', name);
-      
       if (!supabaseClient) {
         alert('❌ Чат не настроен. Пожалуйста, замените SUPABASE_URL и SUPABASE_ANON_KEY в коде.');
         return;
       }
-      
-      // Блокируем кнопку на время отправки
       const btn = input.nextElementSibling;
       const originalText = btn.innerHTML;
       btn.innerHTML = '⏳';
       btn.disabled = true;
-      
       try {
         const { error } = await supabaseClient.from('support_messages').insert({
-          user_name: name, // Используем введенное имя
+          user_name: name,
           user_meta: {
             appVersion: $('brand-badge')?.textContent || 'v6.2',
             userAgent: navigator.userAgent.substring(0, 100),
@@ -772,9 +1186,7 @@
           message: text,
           is_user: true
         });
-        
         if (error) throw error;
-        
         input.value = '';
       } catch(err) {
         alert('❌ Не удалось отправить: ' + err.message);
@@ -791,7 +1203,6 @@
       currentTab = tab;
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
       event.target.classList.add('active');
-      
       if (tab === 'orders') {
         $('ordersSection').classList.remove('hidden');
         $('inventorySection').classList.add('hidden');
@@ -848,15 +1259,12 @@
         const profit = (parseFloat(o.cost)||0) - exp;
         const partsStr = o.parts.map(p=>`<span class="status-badge">${p.name}</span>`).join(' ');
         const avitoLink = o.avitoLink ? `<a href="${o.avitoLink}" target="_blank" rel="noopener noreferrer" class="link" title="Открыть объявление">🔗</a>` : '';
-        
         const cleanPhone = getCleanPhone(o.client);
         const contacts = `
           <a href="tel:${cleanPhone}" class="action-link" title="Позвонить">📞</a>
           <a href="https://wa.me/${cleanPhone}?text=${encodeURIComponent('Здравствуйте! По заявке #' + o.id.slice(-6).toUpperCase() + ': ')}" target="_blank" class="action-link" title="WhatsApp">💬</a>
         `;
-
         const statusSelect = `<select class="inline-status" onchange="handleInlineStatus('${o.id}', this.value)">${STATUSES.map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>`;
-        
         tb.innerHTML += `
           <tr>
             <td>${o.id.slice(-6).toUpperCase()}</td>
@@ -928,7 +1336,6 @@
       $('partsList').innerHTML = '';
       if (o?.parts?.length) o.parts.forEach(p=>addPartRow(p)); else addPartRow();
       calcTotals();
-      
       $('status').disabled = o?.status === 'Выдан';
       $('revertSection').style.display = o?.status === 'Выдан' ? 'block' : 'none';
       form.onsubmit = handleSubmit;
@@ -949,29 +1356,24 @@
       const list = $('partsSelectorList');
       const search = $('partsSearchInput').value.toLowerCase();
       if (!list) return;
-
       const filtered = inventory.filter(item => {
         const nameMatch = item.name.toLowerCase().includes(search);
         const skuMatch = (item.sku || '').toLowerCase().includes(search);
         return nameMatch || skuMatch;
       });
-
       if (!filtered.length) {
         list.innerHTML = '<div class="empty">Запчасти не найдены</div>';
         return;
       }
-
       list.innerHTML = filtered.map(item => {
         const available = item.inStock - item.reserved;
         const inStock = available > 0;
         const stockBadge = inStock 
           ? `<span class="part-item-stock in">✓ ${available} шт.</span>`
           : `<span class="part-item-stock out">✗ Нет</span>`;
-        
         const imgHtml = item.photo 
           ? `<img src="${item.photo}" alt="${item.name}">`
           : `<div class="inv-no-photo" style="width:40px;height:40px;font-size:1rem">📦</div>`;
-
         return `
           <div class="part-item" onclick="selectPartFromInventory('${item.id}')">
             ${imgHtml}
@@ -988,10 +1390,8 @@
     function selectPartFromInventory(itemId) {
       const item = inventory.find(x => x.id === itemId);
       if (!item) return;
-
       const available = item.inStock - item.reserved;
       const status = available > 0 ? 'in_stock' : 'search';
-      
       addPartRow({
         name: item.name,
         sku: item.sku,
@@ -999,7 +1399,6 @@
         price: item.price,
         status: status
       });
-
       closePartsSelector();
       calcTotals();
     }
@@ -1007,11 +1406,9 @@
     function addPartRow(d={}) {
       const row = document.createElement('div'); 
       row.className = 'part-row';
-      
       const statusOptions = Object.entries(PART_STATUS).map(([k,v]) => 
         `<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`
       ).join('');
-
       row.innerHTML = `
         <div class="part-sku-select">
           <input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required style="width:100%;margin-bottom:4px">
@@ -1039,7 +1436,6 @@
       e.preventDefault();
       const isEdit = !!$('editId').value;
       let newStatus = $('status').value;
-      
       if (isEdit) {
         const oldOrder = orders.find(o => o.id === $('editId').value);
         if (oldOrder?.status === 'Выдан') newStatus = 'Выдан';
@@ -1047,12 +1443,10 @@
           settings.coins += REWARD_COMPLETED; persistSettings();
         }
       }
-
       if (!isEdit) {
         if (settings.coins < COST_NEW_ORDER) { alert(`❌ Недостаточно коинов!\nНужно: ${COST_NEW_ORDER}, доступно: ${settings.coins}`); return; }
         settings.coins -= COST_NEW_ORDER; persistSettings();
       }
-
       const warrantyDays = parseInt($('warrantyDays').value) || 0;
       let warrantyUntil = null;
       if (warrantyDays > 0) {
@@ -1060,7 +1454,6 @@
         d.setDate(d.getDate() + warrantyDays);
         warrantyUntil = d.toISOString().split('T')[0];
       }
-
       const id = $('editId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
       const parts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
         name: r.querySelector('.p-name').value,
@@ -1069,14 +1462,12 @@
         cost: parseFloat(r.querySelector('.p-cost').value)||0,
         price: parseFloat(r.querySelector('.p-price').value)||0
       })).filter(p=>p.name);
-      
       const order = { 
         id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, warrantyDays, warrantyUntil,
         type:$('type').value, status:newStatus, avitoLink:$('avitoLink').value, 
         reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, 
         parts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() 
       };
-      
       const idx = orders.findIndex(o=>o.id===id);
       if(idx>-1) orders[idx]=order; else orders.push(order);
       saveData(); closeModal(); applyFilters(); updateUI();
@@ -1105,10 +1496,8 @@
       currentDetailId = id;
       const o = orders.find(x=>x.id===id); 
       if(!o) return;
-      
       const detailModal = $('detailModal');
       if (!detailModal) return;
-      
       $('detailTitle').textContent = `Заявка #${o.id.slice(-6).toUpperCase()}`;
       $('dDate').textContent = toDate(o.date); 
       $('dEst').textContent = o.est ? toDate(o.est) : 'Не указана';
@@ -1118,7 +1507,6 @@
       $('dType').textContent = o.type; 
       $('dReason').textContent = o.reason || 'Не указано';
       $('dWarranty').innerHTML = o.warrantyUntil ? `${o.warrantyDays} дн. (до ${toDate(o.warrantyUntil)})` : 'Не указана';
-      
       const dAvito = $('dAvito');
       if (dAvito) {
         if (o.avitoLink) { 
@@ -1129,7 +1517,6 @@
           dAvito.removeAttribute('href'); 
         }
       }
-
       const tbody = $('dPartsBody'); 
       const dPartsTable = $('dPartsTable');
       const dNoParts = $('dNoParts');
@@ -1148,11 +1535,9 @@
           dPartsTable.style.display = 'none'; 
         }
       }
-
       const tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0;
       const pSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
       const exp = pSum+tr;
-      
       $('dPartsSum').textContent = fmt(pSum); 
       $('dTrans').textContent = fmt(tr);
       $('dExp').textContent = fmt(exp); 
@@ -1197,9 +1582,7 @@
       const search = $('invSearch')?.value.toLowerCase() || '';
       const categoryFilter = $('invCategoryFilter')?.value || '';
       const filter = $('invFilter')?.value || '';
-      
       if (!tbody || !empty) return;
-      
       let items = inventory.filter(item => {
         const matchSearch = !search || item.name.toLowerCase().includes(search) || (item.sku||'').toLowerCase().includes(search);
         const matchCategory = !categoryFilter || item.category === categoryFilter;
@@ -1210,20 +1593,16 @@
         else if (filter === 'out-stock') matchFilter = available <= 0;
         return matchSearch && matchCategory && matchFilter;
       });
-
       if (!items.length) { empty.classList.remove('hidden'); tbody.innerHTML = ''; return; }
       empty.classList.add('hidden');
-      
       tbody.innerHTML = items.map(item => {
         const available = item.inStock - item.reserved;
         let stockClass = 'ok', stockText = `${available} шт.`;
         if (available <= 0) { stockClass = 'none'; stockText = 'Нет'; }
         else if (available <= 5) { stockClass = 'low'; stockText = `${available} шт.`; }
-        
         const imgHtml = item.photo 
           ? `<img src="${item.photo}" class="inv-thumb" alt="${item.name}">`
           : `<div class="inv-no-photo">📦</div>`;
-        
         return `
           <tr>
             <td>${imgHtml}</td>
@@ -1302,11 +1681,9 @@
         photo: currentPhotoBase64,
         updatedAt: Date.now()
       };
-      
       const idx = inventory.findIndex(x => x.id === id);
       if (idx > -1) inventory[idx] = item;
       else inventory.push(item);
-      
       localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
       closeInventoryModal();
       renderInventory();
@@ -1381,17 +1758,13 @@
       if (firstLine.split(';').length < firstLine.split(',').length) {
         delimiter = ',';
       }
-
       const lines = text.split('\n').filter(line => line.trim());
       if (lines.length < 2) return [];
-
       const dataLines = lines.slice(1);
-      
       return dataLines.map(line => {
         const values = [];
         let current = '';
         let inQuotes = false;
-        
         for (let i = 0; i < line.length; i++) {
           const char = line[i];
           if (char === '"') {
@@ -1404,7 +1777,6 @@
           }
         }
         values.push(current.trim());
-
         const item = {
           name: values[0] || '',
           sku: values[1] || '',
@@ -1419,7 +1791,6 @@
           photo: null,
           updatedAt: Date.now()
         };
-
         return item.name ? item : null;
       }).filter(item => item !== null);
     }
@@ -1427,7 +1798,6 @@
     function showCsvPreview() {
       $('csvImportStep1').classList.add('hidden');
       $('csvImportStep2').classList.remove('hidden');
-
       const stats = $('csvStats');
       stats.innerHTML = `
         <div class="import-stat"><div class="label">Найдено записей</div><div class="val">${pendingCsvData.length}</div></div>
@@ -1435,13 +1805,11 @@
         <div class="import-stat"><div class="label">Цена продажи (всего)</div><div class="val">${fmt(pendingCsvData.reduce((s,i)=>s+i.price,0))}</div></div>
         <div class="import-stat"><div class="label">В наличии (всего)</div><div class="val">${pendingCsvData.reduce((s,i)=>s+i.inStock,0)} шт.</div></div>
       `;
-
       const preview = $('csvPreview');
       const headers = ['Название', 'Артикул', 'Категория', 'Закупка', 'Продажа', 'Наличие', 'Резерв', 'Нужно', 'Заказано'];
       let html = '<table><thead><tr>';
       headers.forEach(h => html += `<th>${h}</th>`);
       html += '</tr></thead><tbody>';
-      
       pendingCsvData.slice(0, 20).forEach(item => {
         html += `<tr>
           <td>${item.name}</td>
@@ -1455,7 +1823,6 @@
           <td>${item.ordered}</td>
         </tr>`;
       });
-      
       if (pendingCsvData.length > 20) {
         html += `<tr><td colspan="9" style="text-align:center;color:var(--muted)">... и ещё ${pendingCsvData.length - 20} записей</td></tr>`;
       }
@@ -1465,16 +1832,13 @@
 
     function confirmCsvImport() {
       if (!pendingCsvData.length) return;
-
       let added = 0;
       let updated = 0;
-
       pendingCsvData.forEach(newItem => {
         const existingIdx = inventory.findIndex(item => 
           (item.sku && item.sku === newItem.sku) || 
           (item.name === newItem.name)
         );
-
         if (existingIdx > -1) {
           inventory[existingIdx] = { ...inventory[existingIdx], ...newItem };
           updated++;
@@ -1484,7 +1848,6 @@
           added++;
         }
       });
-
       localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
       closeCsvImport();
       renderInventory();
@@ -1495,7 +1858,6 @@
       const headers = 'Название;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание';
       const example = 'Дисплей iPhone 11;DISP-11;Дисплеи;2500;4500;10;2;5;0;OLED, оригинал';
       const csv = headers + '\n' + example;
-      
       const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
