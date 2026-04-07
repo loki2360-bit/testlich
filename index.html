@@ -110,7 +110,8 @@
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
     
     .parts-section { margin-top: 14px; padding: 14px; background: #f8fafc; border-radius: 10px; border: 1px dashed var(--border); }
-    .part-row { display: grid; grid-template-columns: 2fr 1.3fr 1fr 30px; gap: 8px; margin-bottom: 8px; align-items: end; }
+    .part-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr 30px; gap: 8px; margin-bottom: 8px; align-items: end; }
+    .part-row input, .part-row select { padding: 7px 10px; font-size: 0.85rem; }
     .totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; padding: 12px; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; }
     .total-box { text-align: center; }
     .total-box .label { font-size: 0.7rem; color: var(--muted); margin-bottom: 2px; }
@@ -147,10 +148,28 @@
     .file-input-label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; background: #f8fafc; border: 2px dashed var(--border); border-radius: 8px; cursor: pointer; transition: 0.2s; }
     .file-input-label:hover { border-color: var(--primary); background: #f0f9ff; }
 
+    /* Parts Selector Modal */
+    .parts-selector-search { margin-bottom: 16px; }
+    .parts-selector-search input { width: 100%; padding: 10px 14px; border: 2px solid var(--border); border-radius: 9px; font-size: 0.9rem; }
+    .parts-selector-search input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+    .parts-list { max-height: 400px; overflow-y: auto; }
+    .part-item { display: flex; align-items: center; gap: 12px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; }
+    .part-item:hover { background: #f8fafc; border-color: var(--primary); }
+    .part-item img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; }
+    .part-item-info { flex: 1; }
+    .part-item-name { font-weight: 600; font-size: 0.9rem; }
+    .part-item-meta { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .part-item-price { font-weight: 700; color: var(--primary); }
+    .part-item-stock { font-size: 0.75rem; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
+    .part-item-stock.in { background: #dcfce7; color: #166534; }
+    .part-item-stock.out { background: #fee2e2; color: #991b1b; }
+
     @media (max-width: 768px) {
       .part-row, .totals, .form-grid, .detail-grid, .detail-finances, .dashboard { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
       .brand { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .part-row { grid-template-columns: 1fr 1fr 30px; }
+      .part-row .part-sku-select { grid-column: 1 / -1; }
     }
   </style>
 </head>
@@ -168,7 +187,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v4.1 • Склад</span>
+          <span class="brand-badge">v5.0 • Склад</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -269,9 +288,12 @@
           <div class="form-group"><label>Транспорт (₽)</label><input type="number" id="transportCost" step="0.01" value="0"></div>
         </div>
         <div class="parts-section">
-          <h3>Запчасти из заказа</h3>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+            <h3>Запчасти из заказа</h3>
+            <button type="button" class="btn btn-outline btn-sm" onclick="openPartsSelector()">📦 Выбрать со склада</button>
+          </div>
           <div id="partsList"></div>
-          <button type="button" class="btn btn-outline" onclick="addPartRow()" style="margin-top:8px; font-size:0.8rem">+ Добавить запчасть</button>
+          <button type="button" class="btn btn-outline" onclick="addPartRow()" style="margin-top:8px; font-size:0.8rem">+ Добавить вручную</button>
         </div>
         <div class="totals">
           <div class="total-box"><div class="label">Запчасти</div><div class="val" id="sumParts">0 ₽</div></div>
@@ -287,6 +309,20 @@
           <button type="submit" class="btn btn-primary">💾 Сохранить</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Parts Selector Modal -->
+  <div id="partsSelectorModal" class="modal" onclick="if(event.target===this) closePartsSelector()">
+    <div class="modal-box large">
+      <div class="modal-header"><h2>Выбор запчасти со склада</h2><button class="close" onclick="closePartsSelector()">&times;</button></div>
+      <div class="parts-selector-search">
+        <input type="text" id="partsSearchInput" placeholder="🔍 Поиск по названию или артикулу..." oninput="renderPartsSelector()">
+      </div>
+      <div id="partsSelectorList" class="parts-list"></div>
+      <div class="form-actions" style="margin-top:16px">
+        <button type="button" class="btn btn-outline" onclick="closePartsSelector()">Закрыть</button>
+      </div>
     </div>
   </div>
 
@@ -356,9 +392,9 @@
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
     const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
     
-    const DB_KEY = 'repair_db_v10';
-    const SETTINGS_KEY = 'repair_settings_v7';
-    const INVENTORY_KEY = 'repair_inventory_v1';
+    const DB_KEY = 'repair_db_v11';
+    const SETTINGS_KEY = 'repair_settings_v8';
+    const INVENTORY_KEY = 'repair_inventory_v2';
     const SECRET_CODE = 'AVITO2026';
     const COST_NEW_ORDER = 30;
     const REWARD_COMPLETED = 10;
@@ -553,13 +589,93 @@
     }
     function closeModal() { if(modal) modal.classList.remove('active'); if(form) form.reset(); }
 
+    // Parts Selector Functions
+    function openPartsSelector() {
+      const modal = $('partsSelectorModal');
+      if (!modal) return;
+      $('partsSearchInput').value = '';
+      renderPartsSelector();
+      modal.classList.add('active');
+    }
+    function closePartsSelector() { $('partsSelectorModal').classList.remove('active'); }
+
+    function renderPartsSelector() {
+      const list = $('partsSelectorList');
+      const search = $('partsSearchInput').value.toLowerCase();
+      if (!list) return;
+
+      const filtered = inventory.filter(item => {
+        const nameMatch = item.name.toLowerCase().includes(search);
+        const skuMatch = (item.sku || '').toLowerCase().includes(search);
+        return nameMatch || skuMatch;
+      });
+
+      if (!filtered.length) {
+        list.innerHTML = '<div class="empty">Запчасти не найдены</div>';
+        return;
+      }
+
+      list.innerHTML = filtered.map(item => {
+        const available = item.inStock - item.reserved;
+        const inStock = available > 0;
+        const stockBadge = inStock 
+          ? `<span class="part-item-stock in">✓ ${available} шт.</span>`
+          : `<span class="part-item-stock out">✗ Нет</span>`;
+        
+        const imgHtml = item.photo 
+          ? `<img src="${item.photo}" alt="${item.name}">`
+          : `<div class="inv-no-photo" style="width:40px;height:40px;font-size:1rem">📦</div>`;
+
+        return `
+          <div class="part-item" onclick="selectPartFromInventory('${item.id}')">
+            ${imgHtml}
+            <div class="part-item-info">
+              <div class="part-item-name">${item.name} ${stockBadge}</div>
+              <div class="part-item-meta">${item.category || 'Без категории'} ${item.sku ? '• ' + item.sku : ''}</div>
+            </div>
+            <div class="part-item-price">${fmt(item.price)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function selectPartFromInventory(itemId) {
+      const item = inventory.find(x => x.id === itemId);
+      if (!item) return;
+
+      const available = item.inStock - item.reserved;
+      const status = available > 0 ? 'in_stock' : 'search';
+      
+      addPartRow({
+        name: item.name,
+        sku: item.sku,
+        cost: item.cost,
+        price: item.price,
+        status: status
+      });
+
+      closePartsSelector();
+      calcTotals();
+    }
+
     function addPartRow(d={}) {
-      const row = document.createElement('div'); row.className='part-row';
+      const row = document.createElement('div'); 
+      row.className = 'part-row';
+      
+      const statusOptions = Object.entries(PART_STATUS).map(([k,v]) => 
+        `<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`
+      ).join('');
+
       row.innerHTML = `
-        <input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required>
-        <select class="p-status">${Object.entries(PART_STATUS).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`).join('')}</select>
+        <div class="part-sku-select">
+          <input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required>
+          <input type="text" placeholder="Артикул" value="${d.sku||''}" class="p-sku" style="margin-top:4px">
+        </div>
+        <select class="p-status">${statusOptions}</select>
         <input type="number" step="0.01" placeholder="₽" value="${d.cost||''}" class="p-cost" oninput="calcTotals()">
-        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>`;
+        <input type="number" step="0.01" placeholder="Цена" value="${d.price||''}" class="p-price">
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>
+      `;
       $('partsList').appendChild(row);
     }
 
@@ -601,7 +717,11 @@
 
       const id = $('editId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
       const parts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
-        name: r.querySelector('.p-name').value, status: r.querySelector('.p-status').value, cost: parseFloat(r.querySelector('.p-cost').value)||0
+        name: r.querySelector('.p-name').value,
+        sku: r.querySelector('.p-sku').value,
+        status: r.querySelector('.p-status').value, 
+        cost: parseFloat(r.querySelector('.p-cost').value)||0,
+        price: parseFloat(r.querySelector('.p-price').value)||0
       })).filter(p=>p.name);
       
       const order = { 
@@ -675,7 +795,7 @@
           dPartsTable.style.display = 'table';
           o.parts.forEach(p => { 
             pSum += parseFloat(p.cost)||0; 
-            tbody.innerHTML += `<tr><td>${p.name}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`; 
+            tbody.innerHTML += `<tr><td>${p.name}${p.sku ? ` <small style="color:var(--muted)">(${p.sku})</small>` : ''}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`; 
           });
         } else { 
           dNoParts.style.display = 'block'; 
