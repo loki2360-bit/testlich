@@ -61,8 +61,8 @@
     .control-group input, .control-group select { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 9px; font-size: 0.85rem; background: #fafafa; }
     .control-group input:focus, .control-group select:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
 
-    .table-wrap { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 1150px; }
+    .table-wrap { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; margin-bottom: 16px; }
+    table { width: 100%; border-collapse: collapse; }
     th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.82rem; vertical-align: middle; }
     th { background: #f8fafc; font-weight: 600; color: var(--muted); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.06em; }
     tr:hover td { background: #fafbfc; }
@@ -134,18 +134,13 @@
     .fin-card strong { font-size: 1.05rem; font-weight: 700; }
     .fin-card.profit strong { color: var(--success); }
 
-    /* Inventory Styles */
-    .inventory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-    .inventory-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; position: relative; }
-    .inventory-card img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 12px; background: #f1f5f9; }
-    .inventory-card h4 { font-size: 0.95rem; margin-bottom: 8px; }
-    .inventory-card .price { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin: 8px 0; }
-    .inventory-card .stock-info { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
-    .stock-badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
-    .stock-badge.in-stock { background: #dcfce7; color: #166534; }
-    .stock-badge.low-stock { background: #fef3c7; color: #92400e; }
-    .stock-badge.out-stock { background: #fee2e2; color: #991b1b; }
-    .inventory-card .actions { margin-top: 12px; display: flex; gap: 6px; }
+    /* Inventory Table Styles */
+    .inv-thumb { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); }
+    .inv-no-photo { width: 50px; height: 50px; background: #f1f5f9; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 1.2rem; }
+    .stock-indicator { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .stock-indicator.ok { background: #dcfce7; color: #166534; }
+    .stock-indicator.low { background: #fef3c7; color: #92400e; }
+    .stock-indicator.none { background: #fee2e2; color: #991b1b; }
 
     .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; }
     .file-input-wrapper input[type=file] { position: absolute; left: -9999px; }
@@ -156,7 +151,6 @@
       .part-row, .totals, .form-grid, .detail-grid, .detail-finances, .dashboard { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
       .brand { flex-direction: column; align-items: flex-start; gap: 8px; }
-      .inventory-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -174,7 +168,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v4.0 • Склад</span>
+          <span class="brand-badge">v4.1 • Склад</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -237,12 +231,22 @@
       </div>
 
       <div class="controls">
-        <div class="control-group"><label>Поиск запчастей</label><input type="text" id="invSearch" placeholder="Название..." oninput="renderInventory()"></div>
+        <div class="control-group"><label>Поиск запчастей</label><input type="text" id="invSearch" placeholder="Название, артикул..." oninput="renderInventory()"></div>
+        <div class="control-group"><label>Категория</label><select id="invCategoryFilter" onchange="renderInventory()"><option value="">Все</option><option>Дисплеи</option><option>Аккумуляторы</option><option>Кнопки/Разъемы</option><option>Платы</option><option>Корпуса</option><option>Другое</option></select></div>
         <div class="control-group"><label>Статус</label><select id="invFilter" onchange="renderInventory()"><option value="">Все</option><option value="in-stock">В наличии</option><option value="low-stock">Мало</option><option value="out-stock">Нет</option></select></div>
       </div>
 
-      <div id="inventoryList" class="inventory-grid"></div>
-      <div id="invEmpty" class="empty hidden">Запчастей нет. Нажмите «+ Добавить запчасть»</div>
+      <div class="table-wrap">
+        <table id="inventoryTable">
+          <thead>
+            <tr>
+              <th>Фото</th><th>Название</th><th>Артикул</th><th>Категория</th><th>Цена</th><th>В наличии</th><th>В резерве</th><th>Нужно</th><th>Заказано</th><th>Действия</th>
+            </tr>
+          </thead>
+          <tbody id="invTbody"></tbody>
+        </table>
+        <div id="invEmpty" class="empty hidden">Запчастей нет. Нажмите «+ Добавить запчасть»</div>
+      </div>
     </div>
   </div>
 
@@ -630,24 +634,34 @@
     function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
     function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); saveData(); applyFilters(); updateUI(); } }
 
-    // Detail View
+    // Detail View - FIXED
     function openDetail(id) {
       currentDetailId = id;
-      const o = orders.find(x=>x.id===id); if(!o) return;
+      const o = orders.find(x=>x.id===id); 
+      if(!o) return;
+      
       const detailModal = $('detailModal');
       if (!detailModal) return;
       
       $('detailTitle').textContent = `Заявка #${o.id.slice(-6).toUpperCase()}`;
-      $('dDate').textContent = toDate(o.date); $('dEst').textContent = o.est ? toDate(o.est) : 'Не указана';
-      $('dStatus').textContent = o.status; $('dStatus').className = `status-badge status-${STATUS_CLASSES[o.status]||''}`;
-      $('dClient').textContent = o.client; $('dMaster').textContent = settings.master;
-      $('dType').textContent = o.type; $('dReason').textContent = o.reason || 'Не указано';
+      $('dDate').textContent = toDate(o.date); 
+      $('dEst').textContent = o.est ? toDate(o.est) : 'Не указана';
+      $('dStatus').textContent = o.status; 
+      $('dStatus').className = `status-badge status-${STATUS_CLASSES[o.status]||''}`;
+      $('dClient').textContent = o.client; 
+      $('dType').textContent = o.type; 
+      $('dReason').textContent = o.reason || 'Не указано';
       $('dWarranty').innerHTML = o.warrantyUntil ? `${o.warrantyDays} дн. (до ${toDate(o.warrantyUntil)})` : 'Не указана';
       
       const dAvito = $('dAvito');
       if (dAvito) {
-        if (o.avitoLink) { dAvito.href = o.avitoLink; dAvito.textContent = 'Открыть объявление ↗'; }
-        else { dAvito.textContent = '—'; dAvito.removeAttribute('href'); }
+        if (o.avitoLink) { 
+          dAvito.href = o.avitoLink; 
+          dAvito.textContent = 'Открыть объявление ↗'; 
+        } else { 
+          dAvito.textContent = '—'; 
+          dAvito.removeAttribute('href'); 
+        }
       }
 
       const tbody = $('dPartsBody'); 
@@ -657,14 +671,26 @@
         tbody.innerHTML = '';
         let pSum = 0;
         if (o.parts.length) {
-          dNoParts.style.display = 'none'; dPartsTable.style.display = 'table';
-          o.parts.forEach(p => { pSum += parseFloat(p.cost)||0; tbody.innerHTML += `<tr><td>${p.name}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`; });
-        } else { dNoParts.style.display = 'block'; dPartsTable.style.display = 'none'; }
+          dNoParts.style.display = 'none'; 
+          dPartsTable.style.display = 'table';
+          o.parts.forEach(p => { 
+            pSum += parseFloat(p.cost)||0; 
+            tbody.innerHTML += `<tr><td>${p.name}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`; 
+          });
+        } else { 
+          dNoParts.style.display = 'block'; 
+          dPartsTable.style.display = 'none'; 
+        }
       }
 
-      const tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0, exp = pSum+tr;
-      $('dPartsSum').textContent = fmt(pSum); $('dTrans').textContent = fmt(tr);
-      $('dExp').textContent = fmt(exp); $('dCost').textContent = fmt(cost);
+      const tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0;
+      const pSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
+      const exp = pSum+tr;
+      
+      $('dPartsSum').textContent = fmt(pSum); 
+      $('dTrans').textContent = fmt(tr);
+      $('dExp').textContent = fmt(exp); 
+      $('dCost').textContent = fmt(cost);
       $('dProfit').textContent = fmt(cost-exp);
       detailModal.classList.add('active');
     }
@@ -698,55 +724,56 @@
       }; r.readAsText(f); input.value='';
     }
 
-    // Inventory Functions
+    // Inventory Functions - TABLE VIEW
     function renderInventory() {
-      const list = $('inventoryList');
+      const tbody = $('invTbody');
       const empty = $('invEmpty');
       const search = $('invSearch')?.value.toLowerCase() || '';
+      const categoryFilter = $('invCategoryFilter')?.value || '';
       const filter = $('invFilter')?.value || '';
       
-      if (!list || !empty) return;
+      if (!tbody || !empty) return;
       
       let items = inventory.filter(item => {
         const matchSearch = !search || item.name.toLowerCase().includes(search) || (item.sku||'').toLowerCase().includes(search);
+        const matchCategory = !categoryFilter || item.category === categoryFilter;
         const available = item.inStock - item.reserved;
         let matchFilter = true;
         if (filter === 'in-stock') matchFilter = available > 5;
         else if (filter === 'low-stock') matchFilter = available > 0 && available <= 5;
         else if (filter === 'out-stock') matchFilter = available <= 0;
-        return matchSearch && matchFilter;
+        return matchSearch && matchCategory && matchFilter;
       });
 
-      if (!items.length) { empty.classList.remove('hidden'); list.innerHTML = ''; return; }
+      if (!items.length) { empty.classList.remove('hidden'); tbody.innerHTML = ''; return; }
       empty.classList.add('hidden');
       
-      list.innerHTML = items.map(item => {
+      tbody.innerHTML = items.map(item => {
         const available = item.inStock - item.reserved;
-        let stockClass = 'in-stock', stockText = `${available} шт.`;
-        if (available <= 0) { stockClass = 'out-stock'; stockText = 'Нет'; }
-        else if (available <= 5) { stockClass = 'low-stock'; stockText = `${available} шт. (мало)`; }
+        let stockClass = 'ok', stockText = `${available} шт.`;
+        if (available <= 0) { stockClass = 'none'; stockText = 'Нет'; }
+        else if (available <= 5) { stockClass = 'low'; stockText = `${available} шт.`; }
         
-        const imgHtml = item.photo ? `<img src="${item.photo}" alt="${item.name}">` : '<div style="width:100%;height:160px;background:#f1f5f9;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#94a3b8">Нет фото</div>';
+        const imgHtml = item.photo 
+          ? `<img src="${item.photo}" class="inv-thumb" alt="${item.name}">`
+          : `<div class="inv-no-photo">📦</div>`;
         
         return `
-          <div class="inventory-card">
-            ${imgHtml}
-            <h4>${item.name}</h4>
-            <div style="color:var(--muted);font-size:0.8rem;margin-bottom:8px">${item.category||'Без категории'} ${item.sku ? `• ${item.sku}` : ''}</div>
-            <div class="price">${fmt(item.price)}</div>
-            <div style="font-size:0.8rem;color:var(--muted)">Закупка: ${fmt(item.cost)}</div>
-            <div class="stock-info">
-              <span class="stock-badge ${stockClass}">${stockText}</span>
-              ${item.reserved > 0 ? `<span class="stock-badge" style="background:#dbeafe;color:#1e40af">В резерве: ${item.reserved}</span>` : ''}
-              ${item.toOrder > 0 ? `<span class="stock-badge" style="background:#fef3c7;color:#92400e">Нужно: ${item.toOrder}</span>` : ''}
-              ${item.ordered > 0 ? `<span class="stock-badge" style="background:#fce7f3;color:#9d174d">Заказано: ${item.ordered}</span>` : ''}
-            </div>
-            ${item.description ? `<div style="font-size:0.8rem;margin-top:8px;color:var(--muted)">${item.description}</div>` : ''}
-            <div class="actions">
+          <tr>
+            <td>${imgHtml}</td>
+            <td><strong>${item.name}</strong>${item.description ? `<br><small style="color:var(--muted)">${item.description.substring(0,50)}${item.description.length>50?'...':''}</small>` : ''}</td>
+            <td>${item.sku || '—'}</td>
+            <td>${item.category || '—'}</td>
+            <td class="money"><strong>${fmt(item.price)}</strong><br><small style="color:var(--muted)">${fmt(item.cost)}</small></td>
+            <td><span class="stock-indicator ${stockClass}">${stockText}</span></td>
+            <td>${item.reserved > 0 ? item.reserved : '—'}</td>
+            <td>${item.toOrder > 0 ? item.toOrder : '—'}</td>
+            <td>${item.ordered > 0 ? item.ordered : '—'}</td>
+            <td class="actions">
               <button class="btn btn-outline btn-sm" onclick="editInventory('${item.id}')">✏️</button>
               <button class="btn btn-danger btn-sm" onclick="deleteInventory('${item.id}')">🗑️</button>
-            </div>
-          </div>
+            </td>
+          </tr>
         `;
       }).join('');
     }
@@ -785,7 +812,7 @@
       const preview = $('photoPreview');
       if (!preview) return;
       if (currentPhotoBase64) {
-        preview.innerHTML = `<img src="${currentPhotoBase64}" style="max-width:200px;max-height:150px;border-radius:8px">`;
+        preview.innerHTML = `<img src="${currentPhotoBase64}" style="max-width:150px;max-height:100px;border-radius:8px;border:1px solid var(--border)">`;
       } else {
         preview.innerHTML = '';
       }
