@@ -187,14 +187,20 @@
     .template-link:hover { color: var(--primary-hover); }
 
     /* Support Chat Styles */
-    #chatMessages { flex:1; overflow-y:auto; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:10px; font-size:0.85rem; min-height:300px; }
-    .chat-msg { margin:8px 0; display:flex; flex-direction:column; }
-    .chat-msg.user { align-items:flex-end; }
-    .chat-msg.support { align-items:flex-start; }
-    .chat-bubble { max-width:85%; padding:10px 14px; border-radius:14px; line-height:1.4; word-wrap:break-word; }
-    .chat-msg.user .chat-bubble { background:var(--primary); color:#fff; border-bottom-right-radius:4px; }
-    .chat-msg.support .chat-bubble { background:#e2e8f0; color:var(--text); border-bottom-left-radius:4px; }
-    .chat-time { font-size:0.65rem; color:var(--muted); margin-top:4px; }
+    #chatMessages { flex:1; overflow-y:auto; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:10px; font-size:0.85rem; min-height:300px; display:flex; flex-direction:column; gap:8px; }
+    
+    .chat-msg-row { display:flex; flex-direction:column; max-width:85%; }
+    .chat-msg-row.user { align-self:flex-end; align-items:flex-end; }
+    .chat-msg-row.support { align-self:flex-start; align-items:flex-start; }
+    
+    .chat-name { font-size:0.7rem; font-weight:700; margin-bottom:2px; color:var(--muted); }
+    .chat-msg-row.user .chat-name { color:var(--primary); }
+    
+    .chat-bubble { padding:10px 14px; border-radius:14px; line-height:1.4; word-wrap:break-word; position:relative; }
+    .chat-msg-row.user .chat-bubble { background:var(--primary); color:#fff; border-bottom-right-radius:4px; }
+    .chat-msg-row.support .chat-bubble { background:#e2e8f0; color:var(--text); border-bottom-left-radius:4px; }
+    
+    .chat-time { font-size:0.65rem; color:var(--muted); margin-top:4px; text-align:right; }
     .chat-system { text-align:center; color:var(--muted); font-size:0.75rem; padding:12px; background:#f1f5f9; border-radius:8px; margin:8px 0; }
     .chat-input-wrap { display:flex; gap:8px; }
     .chat-input-wrap input { flex:1; padding:10px 14px; border:1px solid var(--border); border-radius:10px; font-size:0.9rem; background:#fff; }
@@ -226,14 +232,14 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v6.1 • Чат поддержки</span>
+          <span class="brand-badge">v6.2 • Общий чат</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <div id="coinBadge" class="coin-badge">🪙 <span id="coinDisplay">0</span></div>
         <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
         <button class="btn btn-outline" onclick="openSettings()">⚙️ Профиль</button>
-        <button class="btn btn-outline" onclick="openSupportChat()">💬 Поддержка</button>
+        <button class="btn btn-outline" onclick="openSupportChat()">💬 Общий чат</button>
         <button class="btn btn-outline" onclick="exportData()">📥 Бэкап</button>
         <label class="btn btn-outline" style="cursor:pointer">📤<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
       </div>
@@ -470,7 +476,7 @@
     <div class="modal-box" style="max-width:520px; display:flex; flex-direction:column; height:85vh;">
       <div class="modal-header" style="margin-bottom:8px; padding-bottom:10px; border-bottom:1px solid var(--border);">
         <div style="display:flex; align-items:center; gap:10px;">
-          <h2 style="font-size:1.05rem; margin:0;">💬 Техподдержка</h2>
+          <h2 style="font-size:1.05rem; margin:0;">💬 Общий чат</h2>
           <span id="chatConnectionStatus" class="chat-status offline">● Офлайн</span>
         </div>
         <button class="close" onclick="closeSupportChat()" style="font-size:1.3rem;">&times;</button>
@@ -478,13 +484,17 @@
       
       <div id="chatMessages"></div>
       
+      <div style="margin-bottom:8px; display:flex; gap:8px; align-items:center;">
+        <input type="text" id="chatUsername" placeholder="Ваше имя..." style="width:140px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:0.85rem;">
+      </div>
+
       <div class="chat-input-wrap">
-        <input type="text" id="chatInput" placeholder="Опишите проблему..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+        <input type="text" id="chatInput" placeholder="Написать сообщение..." onkeypress="if(event.key==='Enter') sendChatMessage()">
         <button class="btn btn-primary" onclick="sendChatMessage()" style="padding:10px 16px;">➤</button>
       </div>
       
       <div style="font-size:0.68rem; color:var(--muted); margin-top:10px; text-align:center; line-height:1.4;">
-        💡 Чат работает через Supabase • Все данные шифруются • Ответим в рабочее время (Пн-Пт 9:00-18:00 МСК)
+        💡 Сообщения видны всем пользователям • Данные хранятся в облаке
       </div>
     </div>
   </div>
@@ -506,13 +516,12 @@
 
     // === SUPABASE CHAT CONFIG ===
     // ⚠️ ЗАМЕНИТЕ НА СВОИ ДАННЫЕ ИЗ СУПАБЕЙС
-    const SUPABASE_URL = 'https://wdbjpcpodkydaitotqqr.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYmpwY3BvZGt5ZGFpdG90cXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTM4NDksImV4cCI6MjA5MTEyOTg0OX0.REToOamR3fU6cZcaa8DsHd0OORMyYy5AkErHweLihz4';
+    const SUPABASE_URL = 'https://your-project-id.supabase.co';
+    const SUPABASE_ANON_KEY = 'your-anon-key-here';
     
     // ВАЖНО: Используем 'supabaseClient' вместо 'supabase', чтобы избежать конфликта с глобальной переменной библиотеки
     let supabaseClient = null;
     let chatSubscription = null;
-    let CHAT_SESSION = null;
     let hasSentContext = false;
 
     // Инициализация Supabase (если ключи заданы)
@@ -528,15 +537,6 @@
         console.error('❌ Ошибка инициализации Supabase:', e);
         return false;
       }
-    }
-
-    function getSessionId() {
-      let sid = localStorage.getItem('support_session_id');
-      if (!sid) {
-        sid = 'sess_' + Date.now().toString(36) + Math.random().toString(36).substr(2,6);
-        localStorage.setItem('support_session_id', sid);
-      }
-      return sid;
     }
 
     let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
@@ -555,7 +555,6 @@
     window.onload = async () => {
       // Инициализация супабейс
       const supabaseReady = initSupabase();
-      CHAT_SESSION = getSessionId();
       
       const selType = $('filterType'), selStatus = $('filterStatus'), typeSel = $('type'), statusSel = $('status');
       TYPES.forEach(t => { const o = document.createElement('option'); o.value=t; o.textContent=t; selType.appendChild(o); typeSel.appendChild(o.cloneNode(true)); });
@@ -591,7 +590,7 @@
       }
     };
 
-    // === ЧАТ ПОДДЕРЖКИ ===
+    // === ЧАТ ПОДДЕРЖКИ (ОБЩИЙ) ===
     
     async function checkChatConnection() {
       const statusEl = $('chatConnectionStatus');
@@ -615,6 +614,10 @@
       const modal = $('supportChatModal');
       if (!modal) return;
       modal.classList.add('active');
+      
+      // Восстанавливаем имя пользователя
+      const savedName = localStorage.getItem('chat_username');
+      if (savedName) $('chatUsername').value = savedName;
       
       // Обновляем статус соединения
       checkChatConnection();
@@ -643,10 +646,10 @@
       
       container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">🔄 Загрузка...</div>';
       
+      // ИЗМЕНЕНИЕ: Убрали фильтр .eq('session_id', ...) — теперь грузим ВСЕ сообщения
       const { data, error } = await supabaseClient
         .from('support_messages')
         .select('*')
-        .eq('session_id', CHAT_SESSION)
         .order('created_at', { ascending: true })
         .limit(100);
         
@@ -655,34 +658,7 @@
         return;
       }
       
-      // Авто-отправка контекста при первом обращении
-      if (!hasSentContext && (!data || data.length === 0)) {
-        await sendSystemContext();
-        hasSentContext = true;
-      }
-      
       renderChatMessages(data || []);
-    }
-
-    async function sendSystemContext() {
-      const context = `
-[🔧 Контекст системы]
-• Мастер: ${settings.master || 'Не указан'}
-• Версия приложения: ${$('brand-badge')?.textContent || 'v6.1'}
-• Заявок в базе: ${orders.length}
-• Запчастей на складе: ${inventory.length}
-• Браузер: ${navigator.userAgent?.substring(0,80) || 'N/A'}
-• Время: ${new Date().toLocaleString('ru-RU')}
-• ОС: ${navigator.platform}
-      `.trim();
-      
-      await supabaseClient.from('support_messages').insert({
-        session_id: CHAT_SESSION,
-        user_name: settings.master || 'Мастер',
-        message: context,
-        is_user: true,
-        user_meta: { type: 'system_context', auto: true }
-      });
     }
 
     function renderChatMessages(messages) {
@@ -690,22 +666,22 @@
       if (!container) return;
       
       if (!messages || !messages.length) {
-        container.innerHTML = '<div class="chat-system">👋 Здравствуйте! Напишите нам — мы ответим в рабочее время (Пн-Пт 9:00-18:00 МСК)</div>';
+        container.innerHTML = '<div class="chat-system">👋 Чат пуст. Будьте первым!</div>';
         return;
       }
       
       container.innerHTML = messages.map(msg => {
         // Системные сообщения
-        if (msg.user_meta?.type === 'system_context') {
-          return `<div class="chat-system">📋 Отправлен контекст системы</div>`;
-        }
+        if (msg.user_meta?.type === 'system_context') return '';
         
         const isUser = msg.is_user;
         const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
         const safeMsg = msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        const authorName = msg.user_name || 'Аноним';
         
         return `
-          <div class="chat-msg ${isUser ? 'user' : 'support'}">
+          <div class="chat-msg-row ${isUser ? 'user' : 'support'}">
+            <div class="chat-name">${authorName}</div>
             <div class="chat-bubble">${safeMsg}</div>
             <span class="chat-time">${time}</span>
           </div>
@@ -718,17 +694,15 @@
     function subscribeToNewMessages() {
       if (!supabaseClient || chatSubscription) return;
       
+      // ИЗМЕНЕНИЕ: Убрали фильтр .filter(`session_id=eq...`) — слушаем ВСЕ новые сообщения в таблице
       chatSubscription = supabaseClient
-        .channel(`chat:${CHAT_SESSION}`)
+        .channel('public:all_messages')
         .on('postgres_changes', {
           event: 'INSERT',
           schema: 'public',
-          table: 'support_messages',
-          filter: `session_id=eq.${CHAT_SESSION}`
+          table: 'support_messages'
         }, payload => {
           const msg = payload.new;
-          
-          // Пропускаем системные сообщения в реальном времени
           if (msg.user_meta?.type === 'system_context') return;
           
           const container = $('chatMessages');
@@ -737,27 +711,17 @@
           const isUser = msg.is_user;
           const time = new Date(msg.created_at).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
           const safeMsg = msg.message.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+          const authorName = msg.user_name || 'Аноним';
           
           const msgHtml = `
-            <div class="chat-msg ${isUser ? 'user' : 'support'}">
+            <div class="chat-msg-row ${isUser ? 'user' : 'support'}">
+              <div class="chat-name">${authorName}</div>
               <div class="chat-bubble">${safeMsg}</div>
               <span class="chat-time">${time}</span>
             </div>
           `;
           container.insertAdjacentHTML('beforeend', msgHtml);
           container.scrollTop = container.scrollHeight;
-          
-          // Обновляем статус если пришло сообщение от поддержки
-          if (!isUser) {
-            const statusEl = $('chatConnectionStatus');
-            if (statusEl) {
-              statusEl.textContent = '● Печатает...';
-              setTimeout(() => {
-                statusEl.textContent = '● Онлайн';
-                statusEl.className = 'chat-status online';
-              }, 2000);
-            }
-          }
         })
         .subscribe(status => {
           const statusEl = $('chatConnectionStatus');
@@ -775,8 +739,15 @@
 
     async function sendChatMessage() {
       const input = $('chatInput');
+      const nameInput = $('chatUsername');
       const text = input?.value?.trim();
+      const name = nameInput?.value?.trim();
+      
       if (!text) return;
+      if (!name) { alert('Пожалуйста, введите ваше имя'); nameInput?.focus(); return; }
+
+      // Сохраняем имя
+      localStorage.setItem('chat_username', name);
       
       if (!supabaseClient) {
         alert('❌ Чат не настроен. Пожалуйста, замените SUPABASE_URL и SUPABASE_ANON_KEY в коде.');
@@ -791,10 +762,9 @@
       
       try {
         const { error } = await supabaseClient.from('support_messages').insert({
-          session_id: CHAT_SESSION,
-          user_name: settings.master || 'Мастер',
+          user_name: name, // Используем введенное имя
           user_meta: {
-            appVersion: $('brand-badge')?.textContent || 'v6.1',
+            appVersion: $('brand-badge')?.textContent || 'v6.2',
             userAgent: navigator.userAgent.substring(0, 100),
             ordersCount: orders.length,
             inventoryCount: inventory.length
@@ -806,7 +776,6 @@
         if (error) throw error;
         
         input.value = '';
-        // Сообщение появится через realtime-подписку
       } catch(err) {
         alert('❌ Не удалось отправить: ' + err.message);
       } finally {
