@@ -49,8 +49,6 @@
     .stat-card h3 { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
     .stat-card .val { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
     .coin-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; box-shadow: 0 2px 6px rgba(245,158,11,0.3); cursor: default; }
-    .coin-badge { animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
 
     #secretWrap { display: none; text-align: center; margin: 16px auto; max-width: 260px; animation: fadeIn 0.3s ease; }
     @keyframes fadeIn { from { opacity:0; transform:translateY(-5px); } to { opacity:1; transform:translateY(0); } }
@@ -247,10 +245,8 @@
     .feature-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
     .feature-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
     .feature-card p { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
-    .landing-free-badge { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid var(--avito-blue); border-radius: 12px; margin-bottom: 24px; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 170, 255, 0.4); } 50% { box-shadow: 0 0 0 10px rgba(0, 170, 255, 0); } }
-    .free-label { font-size: 1.2rem; animation: sparkle 1.5s ease-in-out infinite; }
-    @keyframes sparkle { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.8; } }
+    .landing-free-badge { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid var(--avito-blue); border-radius: 12px; margin-bottom: 24px; }
+    .free-label { font-size: 1.2rem; }
     .free-text { font-size: 0.85rem; font-weight: 700; color: #0369a1; text-align: center; }
     .landing-cta { text-align: center; margin-bottom: 20px; }
     .btn-start { display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%); color: white; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35); width: 100%; max-width: 400px; justify-content: center; }
@@ -464,7 +460,7 @@
     </div>
   </div>
 
-  <!-- Settings Modal (Updated) -->
+  <!-- Settings Modal -->
   <div id="settingsModal" class="modal" onclick="if(event.target===this) closeSettings()">
     <div class="modal-box" style="max-width:420px;">
       <div class="modal-header"><h2>⚙️ Профиль мастера</h2><button class="close" onclick="closeSettings()">&times;</button></div>
@@ -596,7 +592,7 @@
       settings.master = $('masterName')?.value || settings.master || 'Мастер';
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
       updateCoinUI();
-      updateProfileModal(); // Обновляем инфо в профиле
+      updateProfileModal();
     }
     function showCoinAnimation(amount, reason) {
       const el = document.createElement('div'); el.className = 'coin-popup';
@@ -646,7 +642,7 @@
     function buyCosmetic(id, value) {
       const item = COSMETICS.find(i => i.id === id);
       if (!item || !spendCoins(item.cost)) return;
-      applyCosmetic(item.type, value);
+      applyCosmetic(id, value); // ИСПРАВЛЕНО: передаем id вместо item.type
       alert('✅ Настройка сохранена!'); renderCosmetics();
     }
 
@@ -876,7 +872,6 @@
       const c=$('chatMessages'); 
       if(!supabaseClient){c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';return} 
       c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>'; 
-      // ИСПРАВЛЕНО: Используем правильные имена переменных data и error
       const { data, error } = await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); 
       if(error){c.innerHTML='❌ '+error.message;return} 
       renderChatMsgs(data||[]); 
