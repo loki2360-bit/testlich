@@ -860,7 +860,7 @@
       if (!supabaseClient || !currentManager) return;
       
       try {
-        const { data: cloudOrders, error } = await supabaseClient
+        const {  cloudOrders, error } = await supabaseClient
           .from(ORDERS_TABLE)
           .select('*')
           .order('created_at', { ascending: false });
@@ -975,7 +975,7 @@
         updated_at: new Date().toISOString()
       };
       
-      const { data: existing } = await supabaseClient
+      const {  existing } = await supabaseClient
         .from(ORDERS_TABLE)
         .select('id')
         .eq('id', order.id)
@@ -1589,4 +1589,138 @@
       } 
       
       c.innerHTML = msgs.map(m => {
-        if(m.user_meta?.type
+        if(m.user_meta?.type === 'system_context') return '';
+        const isSupportMsg = m.is_user === false || m.user_meta?.is_support === true;
+        const rowClass = isSupportMsg ? 'support' : 'user';
+        const displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (m.user_name || 'Аноним');
+        return `<div class="chat-msg-row ${rowClass}">
+          <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
+          <div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
+          <span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span>
+        </div>`;
+      }).join(''); 
+      
+      c.scrollTop = c.scrollHeight; 
+    }
+    
+    function subscribeToNewMessages() { 
+      if(!supabaseClient||chatSubscription)return; 
+      chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{
+        if(p.new.user_meta?.type==='system_context')return;
+        const c=$('chatMessages'),
+              t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
+              isSupportMsg = p.new.is_user === false || p.new.user_meta?.is_support === true,
+              displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (p.new.user_name || 'Аноним'),
+              rowClass = isSupportMsg ? 'support' : 'user',
+              m=`<div class="chat-msg-row ${rowClass}">
+                <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
+                <div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
+                <span class="chat-time">${t}</span>
+              </div>`;
+        c.insertAdjacentHTML('beforeend',m);
+        c.scrollTop=c.scrollHeight
+      }).subscribe(); 
+    }
+    
+    async function sendChatMessage() { 
+      const i = $('chatInput'), n = $('chatUsername'), t = i?.value?.trim(), name = n?.value?.trim(); 
+      if(!t || !name) { if(!n?.value) n?.focus(); return } 
+      
+      let isSupport = false;
+      let displayName = name;
+      
+      if (name === SUPPORT_SECRET) {
+        isSupport = true;
+        displayName = 'ТЕХПОДДЕРЖКА';
+        if (n) {
+          n.value = displayName;
+          n.classList.add('support-mode');
+          n.disabled = true;
+          n.title = 'Режим техподдержки активен';
+        }
+      } else {
+        if (n) {
+          n.classList.remove('support-mode');
+          n.disabled = false;
+          n.title = '';
+        }
+      }
+      
+      localStorage.setItem('chat_username', displayName); 
+      
+      if(!supabaseClient) { 
+        alert('❌ Чат не настроен'); 
+        return 
+      } 
+      
+      const b = i.nextElementSibling; 
+      b.disabled = true; 
+      
+      try {
+        const { error } = await supabaseClient.from('support_messages').insert({
+          user_name: displayName,
+          message: t,
+          is_user: !isSupport,
+          user_meta: { 
+            appVersion: 'v7.0', 
+            ua: navigator.userAgent.substring(0, 50),
+            is_support: isSupport
+          }
+        });
+        if(error) throw error;
+        i.value = ''
+      } catch(err) { 
+        alert('❌ ' + err.message) 
+      } finally { 
+        b.disabled = false; 
+        i?.focus() 
+      } 
+    }
+
+    // === INIT ===
+    window.onload = async () => {
+      initManager();
+    };
+
+    // === LANDING LOGIC (FIXED) ===
+    (function(){
+      const KEY = 'avito_seller_landing_seen_v2';
+      const ov = $('landingOverlay');
+      const btn = $('startButton');
+      
+      if (ov) {
+        if (localStorage.getItem(KEY) === 'true') {
+          ov.style.display = 'none'; // Если уже заходили, скрываем сразу
+        } else {
+          // Если это первый раз, показываем
+          document.body.classList.add('landing-active');
+          
+          if (btn) {
+            btn.addEventListener('click', function(e) {
+              e.preventDefault();
+              e.stopPropagation(); // Важно: остановить всплытие
+              
+              // Анимация скрытия
+              ov.classList.add('hiding');
+              localStorage.setItem(KEY, 'true');
+              
+              // Принудительно убираем из DOM после анимации
+              setTimeout(() => {
+                ov.style.display = 'none';
+                document.body.classList.remove('landing-active');
+                // Дополнительно удаляем, чтобы не висело
+                ov.remove(); 
+              }, 350); 
+            });
+          }
+        }
+      }
+      // Хелпер для тестов
+      window.resetLanding = () => {
+        localStorage.removeItem(KEY);
+        alert('Лендинг сброшен. Обновите страницу.');
+      };
+    })();
+  </script>
+</body>
+</html>
