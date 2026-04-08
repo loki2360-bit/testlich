@@ -566,6 +566,46 @@
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
     const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
 
+    // === INVENTORY STOCK LOGIC ===
+    function syncInventoryStock(currentParts, oldParts) {
+      if (!currentParts) currentParts = [];
+      if (!oldParts) oldParts = [];
+
+      // Определяем запчасти, которые были удалены (возвращаем на склад)
+      oldParts.forEach(oldPart => {
+        const isStillUsed = currentParts.some(newPart => newPart.name.trim().toLowerCase() === oldPart.name.trim().toLowerCase());
+        if (!isStillUsed) {
+          addToStock(oldPart.name, 1);
+        }
+      });
+
+      // Определяем запчасти, которые были добавлены (списываем со склада)
+      currentParts.forEach(newPart => {
+        const wasUsedBefore = oldParts.some(oldPart => oldPart.name.trim().toLowerCase() === newPart.name.trim().toLowerCase());
+        if (!wasUsedBefore) {
+          removeFromStock(newPart.name, 1);
+        }
+      });
+    }
+
+    function removeFromStock(partName, amount) {
+      const item = inventory.find(i => i.name.trim().toLowerCase() === partName.trim().toLowerCase());
+      if (item) {
+        item.inStock = Math.max(0, item.inStock - amount);
+        localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+        if(currentTab === 'inventory') renderInventory();
+      }
+    }
+
+    function addToStock(partName, amount) {
+      const item = inventory.find(i => i.name.trim().toLowerCase() === partName.trim().toLowerCase());
+      if (item) {
+        item.inStock += amount;
+        localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+        if(currentTab === 'inventory') renderInventory();
+      }
+    }
+
     // === COIN & LEVEL SYSTEM ===
     function addCoins(amount, reason = '') {
       settings.coins += amount;
@@ -642,7 +682,7 @@
     function buyCosmetic(id, value) {
       const item = COSMETICS.find(i => i.id === id);
       if (!item || !spendCoins(item.cost)) return;
-      applyCosmetic(id, value); // ИСПРАВЛЕНО: передаем id вместо item.type
+      applyCosmetic(id, value);
       alert('✅ Настройка сохранена!'); renderCosmetics();
     }
 
@@ -755,10 +795,35 @@
       e.preventDefault();
       const isEdit = !!$('editId').value;
       let newStatus = $('status').value;
+      
+      // 1. Сбор данных о запчастях из формы
+      const newParts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
+        name: r.querySelector('.p-name').value, 
+        sku: r.querySelector('.p-sku').value, 
+        status: r.querySelector('.p-status').value, 
+        cost: parseFloat(r.querySelector('.p-cost').value)||0, 
+        price: parseFloat(r.querySelector('.p-price').value)||0
+      })).filter(p=>p.name);
+
+      // 2. Получаем старую версию заявки (для редактирования)
+      let oldOrder = null;
+      if (isEdit) oldOrder = orders.find(o => o.id === $('editId').value);
+
+      // 3. Синхронизация склада
+      // Если старая заявка была "Выдана", запчасти уже списаны, их трогать не надо (если не меняем статус)
+      // Если старая заявка была не "Выдана", запчасти были забронированы/списаны.
+      // Логика: всегда пересчитываем разницу между старым списком и новым
+      if (oldOrder && oldOrder.status !== 'Выдан') {
+         syncInventoryStock(newParts, oldOrder.parts);
+      } else if (!isEdit) {
+         // Новая заявка - списываем все запчасти
+         syncInventoryStock(newParts, []);
+      }
+
+      // 4. Логика коинов и статусов
       if (isEdit) {
-        const old = orders.find(o => o.id === $('editId').value);
-        if (old?.status === 'Выдан') newStatus = 'Выдан';
-        if (old && old.status !== 'Выдан' && newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Заявка выдана');
+        if (oldOrder?.status === 'Выдан') newStatus = 'Выдан';
+        if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Заявка выдана');
       } else addCoins(COIN_REWARDS.CREATE, '📋 Новая заявка');
 
       const fieldsFilled = [$('client').value, $('type').value, $('reason').value, $('repairCost').value].every(Boolean);
@@ -769,23 +834,43 @@
       if (warrantyDays > 0) { const d = new Date($('orderDate').value); d.setDate(d.getDate() + warrantyDays); warrantyUntil = d.toISOString().split('T')[0]; }
 
       const id = $('editId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
-      const parts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
-        name: r.querySelector('.p-name').value, sku: r.querySelector('.p-sku').value, status: r.querySelector('.p-status').value, cost: parseFloat(r.querySelector('.p-cost').value)||0, price: parseFloat(r.querySelector('.p-price').value)||0
-      })).filter(p=>p.name);
-      const order = { id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, warrantyDays, warrantyUntil, type:$('type').value, status:newStatus, avitoLink:$('avitoLink').value, reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, parts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() };
+      
+      const order = { 
+        id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, warrantyDays, warrantyUntil, 
+        type:$('type').value, status:newStatus, avitoLink:$('avitoLink').value, reason:$('reason').value, 
+        cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, 
+        parts: newParts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() 
+      };
+      
       const idx = orders.findIndex(o=>o.id===id);
       if(idx>-1) orders[idx]=order; else orders.push(order);
+      
       saveData(); closeModal(); applyFilters(); updateUI();
     }
+    
     function revertOrder() {
       const id = $('editId').value; if (!id) return;
-      if (!confirm(`Вернуть заявку из статуса «Выдан»?`)) return;
+      if (!confirm(`Вернуть заявку из статуса «Выдан»?\nЗапчасти вернутся на склад.`)) return;
       const order = orders.find(x => x.id === id);
-      if (order) { order.status = 'Готово'; saveData(); closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен.'); }
+      if (order) { 
+        order.status = 'Готово'; 
+        // Возвращаем запчасти
+        syncInventoryStock([], order.parts); 
+        saveData(); closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен. Запчасти на складе.'); 
+      }
     }
     function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(orders)); }
     function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
-    function delOrder(id) { if(confirm('Удалить заявку?')) { orders=orders.filter(x=>x.id!==id); saveData(); applyFilters(); updateUI(); } }
+    
+    function delOrder(id) { 
+      if(!confirm('Удалить заявку? Запчасти вернутся на склад.')) return; 
+      const order = orders.find(x => x.id === id);
+      if (order && order.status !== 'Выдан') {
+         syncInventoryStock([], order.parts);
+      }
+      orders=orders.filter(x=>x.id!==id); 
+      saveData(); applyFilters(); updateUI(); 
+    }
 
     function openDetail(id) {
       currentDetailId = id; const o = orders.find(x=>x.id===id); if(!o) return;
