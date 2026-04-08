@@ -314,7 +314,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v7.1 • Sync-Fixed</span>
+          <span class="brand-badge">v7.2 • Data-Safe</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -540,7 +540,7 @@
       </div>
       <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
       <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p></div>
-      <div class="landing-footer"><span class="version-badge">v7.1 • Sync-Fixed</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
+      <div class="landing-footer"><span class="version-badge">v7.2 • Data-Safe</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
     </div>
     <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
@@ -552,7 +552,7 @@
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
     const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
     
-    const DB_KEY = 'repair_db_v12'; // Увеличена версия для сброса старых данных
+    const DB_KEY = 'repair_db_v13';
     const SETTINGS_KEY = 'repair_settings_v8';
     const INVENTORY_KEY = 'repair_inventory_v2';
     const SECRET_CODE = 'AVITO2026';
@@ -591,9 +591,9 @@
     let ordersSyncEnabled = false;
     const ORDERS_TABLE = 'orders';
 
-    // === ГЛОБАЛЬНОЕ СОСТОЯНИЕ (MAP ДЛЯ ГАРАНТИИ УНИКАЛЬНОСТИ) ===
+    // === ГЛОБАЛЬНОЕ СОСТОЯНИЕ ===
     let ordersMap = new Map();
-    let orders = []; // Array view for rendering
+    let orders = [];
     let inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || '[]');
     let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":0,"totalEarned":0,"unlocks":{},"level":1,"levelName":"Новичок 🌱"}');
     let currentDetailId = null;
@@ -669,9 +669,17 @@
     }
 
     // === ЯДРО СИНХРОНИЗАЦИИ ===
-    function updateOrdersState(newOrders) {
-      ordersMap.clear();
-      newOrders.forEach(o => ordersMap.set(o.id, o));
+    function updateOrdersState(newOrders, fromCloud = false) {
+      // Если из облака - полностью заменяем
+      // Если локально - мержим с существующими
+      if (fromCloud) {
+        ordersMap.clear();
+        newOrders.forEach(o => ordersMap.set(o.id, o));
+      } else {
+        // Локальное обновление - добавляем/обновляем
+        newOrders.forEach(o => ordersMap.set(o.id, o));
+      }
+      
       orders = Array.from(ordersMap.values());
       saveDataLocal();
       if (currentTab === 'orders') applyFilters();
@@ -679,11 +687,18 @@
     }
 
     async function syncOrdersFromCloud() {
-      if (!supabaseClient || !currentManager) return;
+      if (!supabaseClient || !currentManager) {
+        // Если нет облака - загружаем из localStorage
+        const local = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+        updateOrdersState(local, false);
+        return;
+      }
+      
       try {
         const {  data, error } = await supabaseClient.from(ORDERS_TABLE).select('*').order('updated_at', { ascending: false });
         if (error) throw error;
-        if (data) {
+        
+        if (data && data.length > 0) {
           const syncedOrders = data.map(co => ({
             id: co.id, manager_id: co.manager_id, client: co.client, date: co.date, est: co.est,
             warrantyDays: co.warranty_days, warrantyUntil: co.warranty_until, type: co.type,
@@ -691,12 +706,17 @@
             transport: co.transport, parts: co.parts || [],
             createdAt: new Date(co.created_at).getTime(), updatedAt: new Date(co.updated_at).getTime()
           }));
-          updateOrdersState(syncedOrders);
+          updateOrdersState(syncedOrders, true);
+        } else {
+          // Если в облаке пусто - берём локальные
+          const local = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+          updateOrdersState(local, false);
         }
       } catch (err) {
         console.warn('⚠️ Sync error:', err.message);
+        // При ошибке - используем localStorage
         const local = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
-        updateOrdersState(local);
+        updateOrdersState(local, false);
       }
     }
 
@@ -729,7 +749,7 @@
     }
 
     async function saveOrderToCloud(order) {
-      if (!supabaseClient || !ordersSyncEnabled || !currentManager) return;
+      if (!supabaseClient || !ordersSyncEnabled || !currentManager) return false;
       const cloudOrder = {
         id: order.id, manager_id: currentManager.id, client: order.client, date: order.date,
         est: order.est, warranty_days: order.warrantyDays, warranty_until: order.warrantyUntil,
@@ -738,7 +758,11 @@
         updated_at: new Date().toISOString()
       };
       const { error } = await supabaseClient.from(ORDERS_TABLE).upsert(cloudOrder, { onConflict: 'id' });
-      if (error) console.error('Cloud upsert error:', error);
+      if (error) {
+        console.error('Cloud upsert error:', error);
+        return false;
+      }
+      return true;
     }
 
     function saveDataLocal() {
@@ -750,14 +774,16 @@
     // === ЗАПУСК ПРИЛОЖЕНИЯ ===
     async function startApp() {
       updateManagerUI();
+      
+      // Сначала загружаем из localStorage для мгновенного отображения
+      const local = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
+      updateOrdersState(local, false);
+      
+      // Потом синхронизируем с облаком
       if (initSupabase()) {
         await syncOrdersFromCloud();
         setupOrdersRealtime();
         ordersSyncEnabled = true;
-      } else {
-        // Fallback to local if no cloud
-        const local = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
-        updateOrdersState(local);
       }
       
       renderInventory();
@@ -946,15 +972,28 @@
       const id=$('editId').value||Date.now().toString(36)+Math.random().toString(36).substr(2,5);
       const order={id,client:$('client').value,date:$('orderDate').value,est:$('estDate').value,warrantyDays:wd,warrantyUntil:wu,type:$('type').value,status:$('status').value,avitoLink:$('avitoLink').value,reason:$('reason').value,cost:parseFloat($('repairCost').value)||0,transport:parseFloat($('transportCost').value)||0,parts:newParts,createdAt:ordersMap.get(id)?.createdAt||Date.now(),updatedAt:Date.now()};
       
+      // СНАЧАЛА сохраняем локально
       ordersMap.set(id, order);
       orders = Array.from(ordersMap.values());
       saveDataLocal();
       
+      // Обновляем UI сразу
+      applyFilters();
+      updateUI();
+      
+      // Потом синхронизируем с облаком (не блокируя UI)
+      if(ordersSyncEnabled) {
+        const saved = await saveOrderToCloud(order);
+        if (!saved) {
+          console.warn('⚠️ Не удалось сохранить в облако, но локально сохранено');
+        }
+      }
+      
+      // Работа со складом
       if(oldOrder && oldOrder.status!=='Выдан') syncInventoryStock(newParts, oldOrder.parts);
       else if(!isEdit) syncInventoryStock(newParts, []);
       
-      if(ordersSyncEnabled) await saveOrderToCloud(order);
-      
+      // Начисление коинов
       if(isEdit){
         if(oldOrder?.status==='Выдан') $('status').value='Выдан';
         if(oldOrder && oldOrder.status!=='Выдан' && $('status').value==='Выдан') addCoins(COIN_REWARDS.COMPLETE,'✅ Заявка выдана');
@@ -963,7 +1002,7 @@
       }
       if([$('client').value,$('type').value,$('reason').value,$('repairCost').value].every(Boolean)&&!isEdit) addCoins(COIN_REWARDS.QUALITY_FIELDS,'📝 Полная заявка');
       
-      closeModal(); applyFilters(); updateUI();
+      closeModal();
     }
     function revertOrder() {
       const id=$('editId').value; if(!id)return; if(!confirm('Вернуть из «Выдан»?\nЗапчасти вернутся на склад.'))return;
@@ -998,7 +1037,7 @@
     function openSettings(){$('masterName').value=settings.master;updateProfileModal();$('settingsModal').classList.add('active');}
     function closeSettings(){$('settingsModal').classList.remove('active');}
     function exportData(){const d={orders:Array.from(ordersMap.values()),inventory,settings,date:new Date().toISOString()};const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)]));a.download=`backup_${new Date().toISOString().split('T')[0]}.json`;a.click();}
-    function importData(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.orders) updateOrdersState(d.orders);if(d.inventory){inventory=d.inventory;localStorage.setItem(INVENTORY_KEY,JSON.stringify(inventory));renderInventory();}if(d.settings){settings=d.settings;localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));}updateUI();alert('✅ Импорт успешен');}catch(err){alert('❌ '+err.message);}};r.readAsText(f);input.value='';}
+    function importData(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.orders) updateOrdersState(d.orders,true);if(d.inventory){inventory=d.inventory;localStorage.setItem(INVENTORY_KEY,JSON.stringify(inventory));renderInventory();}if(d.settings){settings=d.settings;localStorage.setItem(SETTINGS_KEY,JSON.stringify(settings));}updateUI();alert('✅ Импорт успешен');}catch(err){alert('❌ '+err.message);}};r.readAsText(f);input.value='';}
 
     function renderInventory() {
       const tb=$('invTbody'),empty=$('invEmpty'),s=$('invSearch')?.value.toLowerCase()||'',cat=$('invCategoryFilter')?.value||'',fil=$('invFilter')?.value||'';
@@ -1038,7 +1077,7 @@
     async function loadChatHistory(){const c=$('chatMessages');if(!supabaseClient){c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';return;}c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>';const{data,error}=await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100);if(error){c.innerHTML='❌ '+error.message;return;}renderChatMsgs(data||[]);}
     function renderChatMsgs(msgs){const c=$('chatMessages');if(!msgs.length){c.innerHTML='<div class="chat-system">👋 Чат пуст</div>';return;}c.innerHTML=msgs.map(m=>{if(m.user_meta?.type==='system_context')return '';const isSup=m.is_user===false||m.user_meta?.is_support===true;return `<div class="chat-msg-row ${isSup?'support':'user'}"><div class="chat-name">${isSup?'ТЕХПОДДЕРЖКА':(m.user_name||'Аноним')}</div><div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></div>`;}).join('');c.scrollTop=c.scrollHeight;}
     function subscribeToNewMessages(){if(!supabaseClient||chatSubscription)return;chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{if(p.new.user_meta?.type==='system_context')return;const c=$('chatMessages'),t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),isSup=p.new.is_user===false||p.new.user_meta?.is_support===true;c.insertAdjacentHTML('beforeend',`<div class="chat-msg-row ${isSup?'support':'user'}"><div class="chat-name">${isSup?'ТЕХПОДДЕРЖКА':(p.new.user_name||'Аноним')}</div><div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${t}</span></div>`);c.scrollTop=c.scrollHeight;}).subscribe();}
-    async function sendChatMessage(){const i=$('chatInput'),n=$('chatUsername'),t=i?.value?.trim(),name=n?.value?.trim();if(!t||!name){if(!n?.value)n?.focus();return;}let isSup=false,dn=name;if(name===SUPPORT_SECRET){isSup=true;dn='ТЕХПОДДЕРЖКА';if(n){n.value=dn;n.classList.add('support-mode');n.disabled=true;}}else{if(n){n.classList.remove('support-mode');n.disabled=false;}}localStorage.setItem('chat_username',dn);if(!supabaseClient){alert('❌ Чат не настроен');return;}const b=i.nextElementSibling;b.disabled=true;try{const{error}=await supabaseClient.from('support_messages').insert({user_name:dn,message:t,is_user:!isSup,user_meta:{appVersion:'v7.1',ua:navigator.userAgent.substring(0,50),is_support:isSup}});if(error)throw error;i.value='';}catch(err){alert('❌ '+err.message);}finally{b.disabled=false;i?.focus();}}
+    async function sendChatMessage(){const i=$('chatInput'),n=$('chatUsername'),t=i?.value?.trim(),name=n?.value?.trim();if(!t||!name){if(!n?.value)n?.focus();return;}let isSup=false,dn=name;if(name===SUPPORT_SECRET){isSup=true;dn='ТЕХПОДДЕРЖКА';if(n){n.value=dn;n.classList.add('support-mode');n.disabled=true;}}else{if(n){n.classList.remove('support-mode');n.disabled=false;}}localStorage.setItem('chat_username',dn);if(!supabaseClient){alert('❌ Чат не настроен');return;}const b=i.nextElementSibling;b.disabled=true;try{const{error}=await supabaseClient.from('support_messages').insert({user_name:dn,message:t,is_user:!isSup,user_meta:{appVersion:'v7.2',ua:navigator.userAgent.substring(0,50),is_support:isSup}});if(error)throw error;i.value='';}catch(err){alert('❌ '+err.message);}finally{b.disabled=false;i?.focus();}}
 
     window.onload = async () => { initManager(); };
 
