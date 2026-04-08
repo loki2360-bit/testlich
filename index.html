@@ -6,6 +6,8 @@
   <title>AVITO SELLER | Учёт ремонтов</title>
   <!-- Подключаем Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Подключаем библиотеку для сканирования штрихкодов -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     :root {
       --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --muted: #64748b;
@@ -287,6 +289,61 @@
       color: #fff;
     }
 
+    /* Scanner button and modal styles */
+    .scanner-btn {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: white;
+      border: none;
+      padding: 9px 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.2s;
+    }
+    .scanner-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    }
+    
+    #reader {
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .scan-result {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 8px;
+      display: none;
+    }
+    
+    .scan-result.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .scan-result.found {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+    
+    .scan-result.not-found {
+      background: #fef2f2;
+      border-color: #fca5a5;
+    }
+
     @media (max-width: 640px) {
       .landing-content { padding: 28px 20px; margin: 10px; }
       .landing-title { font-size: 1.6rem; }
@@ -368,7 +425,10 @@
         </div>
       </div>
       <div class="controls">
-        <div class="control-group"><label>Поиск запчастей</label><input type="text" id="invSearch" placeholder="Название, артикул..." oninput="renderInventory()"></div>
+        <div class="control-group" style="grid-column: 1 / -1; display: flex; gap: 8px; align-items: end;">
+          <div style="flex: 1;"><label>Поиск запчастей</label><input type="text" id="invSearch" placeholder="Название, артикул..." oninput="renderInventory()"></div>
+          <button class="scanner-btn" onclick="openScanner()">📷 Сканировать штрихкод</button>
+        </div>
         <div class="control-group"><label>Категория</label><select id="invCategoryFilter" onchange="renderInventory()"><option value="">Все</option><option>Дисплеи</option><option>Аккумуляторы</option><option>Кнопки/Разъемы</option><option>Платы</option><option>Корпуса</option><option>Другое</option></select></div>
         <div class="control-group"><label>Статус</label><select id="invFilter" onchange="renderInventory()"><option value="">Все</option><option value="in-stock">В наличии</option><option value="low-stock">Мало</option><option value="out-stock">Нет</option></select></div>
       </div>
@@ -378,6 +438,23 @@
           <tbody id="invTbody"></tbody>
         </table>
         <div id="invEmpty" class="empty hidden">Запчастей нет. Нажмите «+ Добавить запчасть» или «📊 Импорт из CSV»</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scanner Modal -->
+  <div id="scannerModal" class="modal" onclick="if(event.target===this) closeScanner()">
+    <div class="modal-box" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>📷 Сканирование штрихкода</h2>
+        <button class="close" onclick="closeScanner()">&times;</button>
+      </div>
+      <div id="reader"></div>
+      <div id="scanResult" class="scan-result">
+        <strong>Результат:</strong> <span id="scanResultText"></span>
+      </div>
+      <div class="form-actions" style="margin-top: 16px;">
+        <button class="btn btn-outline" onclick="closeScanner()">Закрыть</button>
       </div>
     </div>
   </div>
@@ -567,6 +644,7 @@
     
     let supabaseClient = null;
     let chatSubscription = null;
+    let html5QrCode = null;
 
     function initSupabase() {
       if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) return false;
@@ -585,6 +663,84 @@
     const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
     const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
+
+    // === SCANNER FUNCTIONS ===
+    function openScanner() {
+      const modal = $('scannerModal');
+      if (!modal) return;
+      modal.classList.add('active');
+      
+      // Инициализация сканера
+      html5QrCode = new Html5Qrcode("reader");
+      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+      
+      html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onScanSuccess,
+        onScanFailure
+      ).catch(err => {
+        console.error("Ошибка запуска сканера:", err);
+        alert('❌ Не удалось запустить камеру. Проверьте разрешения.');
+        closeScanner();
+      });
+    }
+
+    function closeScanner() {
+      const modal = $('scannerModal');
+      if (modal) modal.classList.remove('active');
+      
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          html5QrCode.clear();
+          html5QrCode = null;
+        }).catch(err => console.error("Ошибка остановки сканера:", err));
+      }
+      
+      $('scanResult').classList.remove('show', 'found', 'not-found');
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+      // Останавливаем сканирование после успешного считывания
+      html5QrCode.stop();
+      
+      // Ищем запчасть по артикулу или названию
+      const foundPart = inventory.find(item => 
+        (item.sku && item.sku.toLowerCase() === decodedText.toLowerCase()) ||
+        item.name.toLowerCase().includes(decodedText.toLowerCase())
+      );
+      
+      const resultDiv = $('scanResult');
+      const resultText = $('scanResultText');
+      
+      if (foundPart) {
+        resultDiv.className = 'scan-result show found';
+        resultText.innerHTML = `
+          <strong style="color: var(--success); display: block; margin-bottom: 8px;">✅ Найдено!</strong>
+          <div><strong>Название:</strong> ${foundPart.name}</div>
+          <div><strong>Артикул:</strong> ${foundPart.sku || '—'}</div>
+          <div><strong>В наличии:</strong> <span style="color: ${foundPart.inStock > 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: bold;">${foundPart.inStock} шт.</span></div>
+          <div><strong>Цена:</strong> ${fmt(foundPart.price)}</div>
+          <div style="margin-top: 8px;">
+            <button class="btn btn-primary btn-sm" onclick="closeScanner(); openInventoryModal(inventory.find(x => x.id === '${foundPart.id}'))">✏️ Редактировать</button>
+          </div>
+        `;
+      } else {
+        resultDiv.className = 'scan-result show not-found';
+        resultText.innerHTML = `
+          <strong style="color: var(--danger); display: block; margin-bottom: 8px;">❌ Не найдено</strong>
+          <div>Штрихкод: <code>${decodedText}</code></div>
+          <div style="margin-top: 8px;">
+            <button class="btn btn-primary btn-sm" onclick="closeScanner(); openInventoryModal()">+ Добавить новую запчасть</button>
+          </div>
+        `;
+      }
+    }
+
+    function onScanFailure(error) {
+      // Игнорируем ошибки сканирования (это нормально при отсутствии кода в кадре)
+      console.warn(`Код не распознан: ${error}`);
+    }
 
     // === INVENTORY STOCK LOGIC ===
     function syncInventoryStock(currentParts, oldParts) {
@@ -983,7 +1139,6 @@
       const tbody = $('invTbody'), empty = $('invEmpty'), search = $('invSearch')?.value.toLowerCase()||'', cat = $('invCategoryFilter')?.value||'', fil = $('invFilter')?.value||'';
       if (!tbody || !empty) return;
       
-      // Получаем карту использования запчастей
       const usageMap = getPartUsageMap();
 
       let items = inventory.filter(i => {
@@ -1000,7 +1155,6 @@
         if(av<=0){sc='none'; st='Нет';} else if(av<=5){sc='low'; st=`${av} шт.`;}
         const img = i.photo ? `<img src="${i.photo}" class="inv-thumb">` : `<div class="inv-no-photo">📦</div>`;
         
-        // Генерируем HTML для заявок, где используется деталь
         const usage = usageMap[i.name.trim().toLowerCase()] || [];
         const usageHtml = usage.length > 0 
           ? usage.map(u => `<span class="order-link" onclick="event.stopPropagation(); openDetail('${u.fullId}')" title="Статус: ${u.status}">#${u.shortId}</span>`).join('') 
