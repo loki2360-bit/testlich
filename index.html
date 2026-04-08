@@ -821,12 +821,27 @@
       renderTable(); 
       renderInventory();
       
-      const selType=$('filterType'),selStatus=$('filterStatus'),typeSel=$('type'),statusSel=$('status');
-      if (selType && typeSel && !selType.options.length) {
-        TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;selType.appendChild(o);typeSel.appendChild(o.cloneNode(true))});
+      // ✅ ИСПРАВЛЕНИЕ 1: Правильно заполняем выпадающие списки
+      const selType = $('filterType'), selStatus = $('filterStatus'), typeSel = $('type'), statusSel = $('status');
+      
+      // Заполняем тип техники в модалке, если пусто
+      if (typeSel && !typeSel.options.length) {
+        TYPES.forEach(t => {
+          const o = document.createElement('option');
+          o.value = t; o.textContent = t;
+          typeSel.appendChild(o);
+          if (selType) selType.appendChild(o.cloneNode(true));
+        });
       }
-      if (selStatus && statusSel && !selStatus.options.length) {
-        STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;selStatus.appendChild(o);statusSel.appendChild(o.cloneNode(true))});
+      
+      // Заполняем статусы в модалке, если пусто
+      if (statusSel && !statusSel.options.length) {
+        STATUSES.forEach(s => {
+          const o = document.createElement('option');
+          o.value = s; o.textContent = s;
+          statusSel.appendChild(o);
+          if (selStatus) selStatus.appendChild(o.cloneNode(true));
+        });
       }
       
       if($('masterName')) $('masterName').value=settings.master||'Мастер';
@@ -845,7 +860,7 @@
       if (!supabaseClient || !currentManager) return;
       
       try {
-        const {  cloudOrders, error } = await supabaseClient
+        const { data: cloudOrders, error } = await supabaseClient
           .from(ORDERS_TABLE)
           .select('*')
           .order('created_at', { ascending: false });
@@ -885,12 +900,20 @@
         
       } catch (err) {
         console.warn('⚠️ Не удалось загрузить заказы из облака:', err.message);
+        
+        // 👇 Показать пользователю уведомление об ошибке
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:12px 20px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;color:#991b1b;z-index:1000;font-size:0.85rem;';
+        toast.textContent = '⚠️ Не удалось синхронизировать с облаком. Работаем в локальном режиме.';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 5000);
       }
     }
 
     function setupOrdersRealtime() {
       if (!supabaseClient || ordersSubscription) return;
       
+      // ✅ ИСПРАВЛЕНИЕ 2: Убрали блокировку обновлений от того же менеджера с другого устройства
       ordersSubscription = supabaseClient
         .channel('orders_changes')
         .on('postgres_changes', {
@@ -898,11 +921,7 @@
           schema: 'public',
           table: ORDERS_TABLE
         }, async (payload) => {
-          if (payload.new?.manager_id === currentManager?.id && 
-              payload.eventType !== 'DELETE') {
-            return;
-          }
-          
+          // Всегда синхронизируем изменения — дедупликацию делает syncOrdersFromCloud по timestamp
           await new Promise(r => setTimeout(r, 300));
           await syncOrdersFromCloud();
           
@@ -976,6 +995,7 @@
       localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
     }
 
+    // === ОСТАЛЬНОЙ КОД БЕЗ ИЗМЕНЕНИЙ ===
     // === SCANNER FUNCTIONS ===
     function openScanner() {
       const modal = $('scannerModal');
@@ -1569,109 +1589,4 @@
       } 
       
       c.innerHTML = msgs.map(m => {
-        if(m.user_meta?.type === 'system_context') return '';
-        const isSupportMsg = m.is_user === false || m.user_meta?.is_support === true;
-        const rowClass = isSupportMsg ? 'support' : 'user';
-        const displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (m.user_name || 'Аноним');
-        return `<div class="chat-msg-row ${rowClass}">
-          <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
-          <div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
-          <span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span>
-        </div>`;
-      }).join(''); 
-      
-      c.scrollTop = c.scrollHeight; 
-    }
-    
-    function subscribeToNewMessages() { 
-      if(!supabaseClient||chatSubscription)return; 
-      chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{
-        if(p.new.user_meta?.type==='system_context')return;
-        const c=$('chatMessages'),
-              t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
-              isSupportMsg = p.new.is_user === false || p.new.user_meta?.is_support === true,
-              displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (p.new.user_name || 'Аноним'),
-              rowClass = isSupportMsg ? 'support' : 'user',
-              m=`<div class="chat-msg-row ${rowClass}">
-                <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
-                <div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
-                <span class="chat-time">${t}</span>
-              </div>`;
-        c.insertAdjacentHTML('beforeend',m);
-        c.scrollTop=c.scrollHeight
-      }).subscribe(); 
-    }
-    
-    async function sendChatMessage() { 
-      const i = $('chatInput'), n = $('chatUsername'), t = i?.value?.trim(), name = n?.value?.trim(); 
-      if(!t || !name) { if(!n?.value) n?.focus(); return } 
-      
-      let isSupport = false;
-      let displayName = name;
-      
-      if (name === SUPPORT_SECRET) {
-        isSupport = true;
-        displayName = 'ТЕХПОДДЕРЖКА';
-        if (n) {
-          n.value = displayName;
-          n.classList.add('support-mode');
-          n.disabled = true;
-          n.title = 'Режим техподдержки активен';
-        }
-      } else {
-        if (n) {
-          n.classList.remove('support-mode');
-          n.disabled = false;
-          n.title = '';
-        }
-      }
-      
-      localStorage.setItem('chat_username', displayName); 
-      
-      if(!supabaseClient) { 
-        alert('❌ Чат не настроен'); 
-        return 
-      } 
-      
-      const b = i.nextElementSibling; 
-      b.disabled = true; 
-      
-      try {
-        const { error } = await supabaseClient.from('support_messages').insert({
-          user_name: displayName,
-          message: t,
-          is_user: !isSupport,
-          user_meta: { 
-            appVersion: 'v7.0', 
-            ua: navigator.userAgent.substring(0, 50),
-            is_support: isSupport
-          }
-        });
-        if(error) throw error;
-        i.value = ''
-      } catch(err) { 
-        alert('❌ ' + err.message) 
-      } finally { 
-        b.disabled = false; 
-        i?.focus() 
-      } 
-    }
-
-    // === INIT ===
-    window.onload = async () => {
-      initManager();
-    };
-
-    // === LANDING LOGIC ===
-    (function(){
-      const KEY='avito_seller_landing_seen_v2';
-      const ov=$('landingOverlay'), btn=$('startButton');
-      if(localStorage.getItem(KEY)!=='true' && ov){
-        document.body.classList.add('landing-active');
-        btn?.addEventListener('click',e=>{e.preventDefault(); ov.classList.add('hiding'); localStorage.setItem(KEY,'true'); setTimeout(()=>{ov.style.display='none';document.body.classList.remove('landing-active')},300)});
-      } else if(ov) ov.style.display='none';
-      window.resetLanding=()=>{localStorage.removeItem(KEY);console.log('🔄 Сброшено')};
-    })();
-  </script>
-</body>
-</html>
+        if(m.user_meta?.type
