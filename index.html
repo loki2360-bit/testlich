@@ -33,7 +33,7 @@
     .nav-tab:hover { color: var(--text); }
     .nav-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-    .btn { padding: 8px 14px; border: none; border-radius: 9px; cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: 0.15s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; }
+    .btn { padding: 8px 14px; border: none; border-radius: 9px; cursor: pointer; font-weight: 600; font-size: 0.8rem; transition: 0.15s; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; position: relative; }
     .btn:hover { transform: translateY(-1px); }
     .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%); color: #fff; box-shadow: 0 2px 6px rgba(37,99,235,0.25); }
     .btn-success { background: var(--success); color: white; }
@@ -42,6 +42,37 @@
     .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
     a.link { color: var(--avito-blue); text-decoration: none; font-weight: 500; }
     a.link:hover { text-decoration: underline; }
+
+    /* === CHAT NOTIFICATION BADGE === */
+    .btn .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--danger);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      min-width: 18px;
+      height: 18px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+      animation: pulse 2s infinite;
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+      z-index: 10;
+    }
+    .btn .notification-badge.dot {
+      min-width: 10px;
+      padding: 0;
+      width: 10px;
+      height: 10px;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.85; }
+    }
 
     .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 18px; }
     .stat-card { background: var(--card); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow); border-left: 4px solid var(--primary); position: relative; overflow: hidden; }
@@ -201,6 +232,36 @@
     .chat-status.online { color:var(--success); }
     .chat-status.offline { color:var(--danger); }
 
+    /* === CHAT: Support vs User Styles === */
+    .chat-msg-row.support .chat-name { 
+      color: var(--avito-blue); 
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+    .chat-msg-row.support .chat-bubble { 
+      background: linear-gradient(135deg, #e0f2fe, #bae6fd); 
+      color: #0369a1; 
+      border-bottom-left-radius: 4px;
+      border: 1px solid #7dd3fc;
+      font-weight: 500;
+    }
+    .chat-msg-row.user .chat-name { 
+      color: var(--muted); 
+    }
+    .chat-input-wrap input.support-mode {
+      border-color: var(--avito-blue);
+      background: #f0f9ff;
+      box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.15);
+    }
+    .chat-hint {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
     /* === COIN POPUP & SHOP STYLES === */
     .coin-popup {
       position: fixed; top: 18%; left: 50%; transform: translateX(-50%) translateY(10px);
@@ -344,36 +405,6 @@
       border-color: #fca5a5;
     }
 
-    /* === CHAT: Support vs User Styles === */
-    .chat-msg-row.support .chat-name { 
-      color: var(--avito-blue); 
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-    }
-    .chat-msg-row.support .chat-bubble { 
-      background: linear-gradient(135deg, #e0f2fe, #bae6fd); 
-      color: #0369a1; 
-      border-bottom-left-radius: 4px;
-      border: 1px solid #7dd3fc;
-      font-weight: 500;
-    }
-    .chat-msg-row.user .chat-name { 
-      color: var(--muted); 
-    }
-    .chat-input-wrap input.support-mode {
-      border-color: var(--avito-blue);
-      background: #f0f9ff;
-      box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.15);
-    }
-    .chat-hint {
-      font-size: 0.65rem;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 4px;
-      font-style: italic;
-    }
-
     @media (max-width: 640px) {
       .landing-content { padding: 28px 20px; margin: 10px; }
       .landing-title { font-size: 1.6rem; }
@@ -411,7 +442,7 @@
         <button class="btn btn-outline" onclick="openAchievements()">🛒 Магазин</button>
         <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
         <button class="btn btn-outline" onclick="openSettings()">⚙️ Профиль</button>
-        <button class="btn btn-outline" onclick="openSupportChat()">💬 Чат поддержки</button>
+        <button class="btn btn-outline" id="chatBtn" onclick="openSupportChat()">💬 Чат поддержки</button>
         <button class="btn btn-outline" onclick="exportData()">📥 Бэкап</button>
         <label class="btn btn-outline" style="cursor:pointer">📤<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
       </div>
@@ -641,6 +672,11 @@
     <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
 
+  <!-- Звуковой файл для уведомлений (base64 короткий пинг) -->
+  <audio id="notificationSound" preload="auto">
+    <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
+  </audio>
+
   <script>
     // === КОНФИГУРАЦИЯ ===
     const TYPES = ['Микроволновки','Колонки','Музыкальные центры','Наушники','Телефоны','Ноутбуки','Планшеты','Стиральные машины','Роутеры','ПК','Мониторы','Пылесосы'];
@@ -677,23 +713,89 @@
     let chatSubscription = null;
     let html5QrCode = null;
 
-    function initSupabase() {
-      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) return false;
-      try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); return true; } catch(e) { return false; }
+    // === NOTIFICATION SYSTEM ===
+    let notificationCount = 0;
+    let isChatOpen = false;
+    let notificationPermission = 'default';
+
+    function initNotifications() {
+      if ('Notification' in window) {
+        notificationPermission = Notification.permission;
+        if (notificationPermission === 'default') {
+          // Не запрашиваем сразу, ждём первого сообщения
+        }
+      }
+      updateChatBadge();
     }
 
-    let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
-    let inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || '[]');
-    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":0,"totalEarned":0,"unlocks":{},"level":1,"levelName":"Новичок 🌱"}');
-    let currentDetailId = null;
-    let currentTab = 'orders';
-    let currentPhotoBase64 = null;
-    let pendingCsvData = [];
+    function requestNotificationPermission() {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(permission => {
+          notificationPermission = permission;
+          if (permission === 'granted') {
+            console.log('✅ Уведомления разрешены');
+          }
+        });
+      }
+    }
 
-    const $ = id => { const el = document.getElementById(id); if(!el) console.warn('Element not found:', id); return el; };
-    const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
-    const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
-    const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
+    function showBrowserNotification(title, body, icon = '🔔') {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body, icon: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${icon}</text></svg>` });
+      }
+    }
+
+    function playNotificationSound() {
+      const sound = $('notificationSound');
+      if (sound) {
+        sound.currentTime = 0;
+        sound.play().catch(() => {}); // Игнорируем ошибки автовоспроизведения
+      }
+    }
+
+    function updateChatBadge(count = null) {
+      const btn = $('chatBtn');
+      if (!btn) return;
+      
+      // Удаляем старый бейдж
+      const oldBadge = btn.querySelector('.notification-badge');
+      if (oldBadge) oldBadge.remove();
+      
+      // Если счётчик 0 или чат открыт — не показываем
+      const displayCount = count !== null ? count : notificationCount;
+      if (displayCount <= 0 || isChatOpen) return;
+      
+      // Создаём новый бейдж
+      const badge = document.createElement('span');
+      badge.className = `notification-badge ${displayCount > 9 ? '' : 'dot'}`;
+      badge.textContent = displayCount > 9 ? '9+' : displayCount;
+      btn.appendChild(badge);
+    }
+
+    function clearChatNotifications() {
+      notificationCount = 0;
+      updateChatBadge();
+    }
+
+    function addChatNotification(fromSupport = false) {
+      // Не уведомляем, если чат открыт
+      if (isChatOpen) return;
+      
+      notificationCount++;
+      updateChatBadge();
+      
+      // Звук
+      playNotificationSound();
+      
+      // Браузерное уведомление (с запросом разрешения при первом разе)
+      if (notificationPermission !== 'granted' && notificationPermission !== 'denied') {
+        requestNotificationPermission();
+      }
+      if (notificationPermission === 'granted') {
+        const sender = fromSupport ? '🔧 Техподдержка' : '👤 Новый чат';
+        showBrowserNotification('💬 Новое сообщение', `${sender}: ...`, '💬');
+      }
+    }
 
     // === SCANNER FUNCTIONS ===
     function openScanner() {
@@ -1226,6 +1328,8 @@
     async function checkChatConnection() { const el=$('chatConnectionStatus'); if(!el||!supabaseClient)return; try{const{error}=await supabaseClient.from('support_messages').select('id').limit(1);if(error)throw error;el.textContent='● Онлайн';el.className='chat-status online'}catch{el.textContent='● Офлайн';el.className='chat-status offline'} }
     
     function openSupportChat() { 
+      isChatOpen = true;
+      clearChatNotifications();
       $('supportChatModal').classList.add('active'); 
       const s = localStorage.getItem('chat_username'); 
       if(s) {
@@ -1241,7 +1345,7 @@
         const hint = document.createElement('div');
         hint.id = 'chatHint';
         hint.className = 'chat-hint';
-        hint.innerHTML = '';
+        hint.innerHTML = '💡 Введите <strong>9379992</strong> для входа как техподдержка';
         $('chatUsername').insertAdjacentElement('afterend', hint);
       }
       checkChatConnection(); 
@@ -1251,6 +1355,7 @@
     }
     
     function closeSupportChat() { 
+      isChatOpen = false;
       $('supportChatModal').classList.remove('active'); 
       if(chatSubscription){
         supabaseClient?.removeChannel(chatSubscription);
@@ -1304,9 +1409,13 @@
       if(!supabaseClient||chatSubscription)return; 
       chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{
         if(p.new.user_meta?.type==='system_context')return;
+        
+        // 🔔 Уведомление о новом сообщении
+        const isSupportMsg = p.new.is_user === false || p.new.user_meta?.is_support === true;
+        addChatNotification(isSupportMsg);
+        
         const c=$('chatMessages'),
               t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
-              isSupportMsg = p.new.is_user === false || p.new.user_meta?.is_support === true,
               displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (p.new.user_name || 'Аноним'),
               rowClass = isSupportMsg ? 'support' : 'user',
               m=`<div class="chat-msg-row ${rowClass}">
@@ -1380,6 +1489,8 @@
     // === INIT ===
     window.onload = async () => {
       initSupabase();
+      initNotifications(); // 🔔 Инициализация системы уведомлений
+      
       const selType=$('filterType'),selStatus=$('filterStatus'),typeSel=$('type'),statusSel=$('status');
       TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;selType.appendChild(o);typeSel.appendChild(o.cloneNode(true))});
       STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;selStatus.appendChild(o);statusSel.appendChild(o.cloneNode(true))});
