@@ -45,34 +45,16 @@
 
     /* === CHAT NOTIFICATION BADGE === */
     .btn .notification-badge {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      background: var(--danger);
-      color: white;
-      font-size: 0.65rem;
-      font-weight: 700;
-      min-width: 18px;
-      height: 18px;
-      border-radius: 9px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 5px;
-      animation: pulse 2s infinite;
-      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
-      z-index: 10;
+      position: absolute; top: -4px; right: -4px;
+      background: var(--danger); color: white;
+      font-size: 0.65rem; font-weight: 700;
+      min-width: 18px; height: 18px;
+      border-radius: 9px; display: flex; align-items: center; justify-content: center;
+      padding: 0 5px; animation: pulse 2s infinite;
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4); z-index: 10;
     }
-    .btn .notification-badge.dot {
-      min-width: 10px;
-      padding: 0;
-      width: 10px;
-      height: 10px;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.15); opacity: 0.85; }
-    }
+    .btn .notification-badge.dot { min-width: 10px; padding: 0; width: 10px; height: 10px; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.85; } }
 
     .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-bottom: 18px; }
     .stat-card { background: var(--card); padding: 16px; border-radius: var(--radius); box-shadow: var(--shadow); border-left: 4px solid var(--primary); position: relative; overflow: hidden; }
@@ -233,68 +215,28 @@
     .chat-status.offline { color:var(--danger); }
 
     /* === CHAT: Support vs User Styles === */
-    .chat-msg-row.support .chat-name { 
-      color: var(--avito-blue); 
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-    }
-    .chat-msg-row.support .chat-bubble { 
-      background: linear-gradient(135deg, #e0f2fe, #bae6fd); 
-      color: #0369a1; 
-      border-bottom-left-radius: 4px;
-      border: 1px solid #7dd3fc;
-      font-weight: 500;
-    }
-    .chat-msg-row.user .chat-name { 
-      color: var(--muted); 
-    }
-    .chat-input-wrap input.support-mode {
-      border-color: var(--avito-blue);
-      background: #f0f9ff;
-      box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.15);
-    }
-    .chat-hint {
-      font-size: 0.65rem;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 4px;
-      font-style: italic;
-    }
+    .chat-msg-row.support .chat-name { color: var(--avito-blue); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; }
+    .chat-msg-row.support .chat-bubble { background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0369a1; border-bottom-left-radius: 4px; border: 1px solid #7dd3fc; font-weight: 500; }
+    .chat-msg-row.user .chat-name { color: var(--muted); }
+    .chat-input-wrap input.support-mode { border-color: var(--avito-blue); background: #f0f9ff; box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.15); }
+    .chat-hint { font-size: 0.65rem; color: var(--muted); text-align: center; margin-top: 4px; font-style: italic; }
 
     /* === COIN POPUP & SHOP STYLES === */
-    .coin-popup {
-      position: fixed; top: 18%; left: 50%; transform: translateX(-50%) translateY(10px);
-      background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 10px 18px;
-      border-radius: 12px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 8px 20px rgba(245,158,11,0.4);
-      opacity: 0; pointer-events: none; z-index: 9999; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
+    .coin-popup { position: fixed; top: 18%; left: 50%; transform: translateX(-50%) translateY(10px); background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 8px 20px rgba(245,158,11,0.4); opacity: 0; pointer-events: none; z-index: 9999; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .coin-popup.show { opacity: 1; transform: translateX(-50%) translateY(-20px); }
     .shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
     .shop-item { padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
     .shop-item h4 { margin: 0 0 4px; font-size: 0.9rem; }
     .shop-item p { margin: 0 0 8px; font-size: 0.75rem; color: var(--muted); }
 
-    /* Profile Status Display */
-    .profile-info-display {
-      background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 16px;
-      font-size: 0.85rem; color: var(--text);
-    }
+    .profile-info-display { background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 0.85rem; color: var(--text); }
     .profile-info-display strong { display: block; margin-bottom: 4px; font-size: 1rem; }
     .profile-info-display span { color: var(--muted); }
 
     /* === LANDING PAGE STYLES === */
-    .landing-overlay {
-      position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-      display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 9999;
-      overflow: hidden; animation: landingFadeIn 0.4s ease-out;
-    }
+    .landing-overlay { position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 9999; overflow: hidden; animation: landingFadeIn 0.4s ease-out; }
     @keyframes landingFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-    .landing-content {
-      background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 40px 32px;
-      max-width: 720px; width: 100%; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
-      position: relative; z-index: 10; animation: contentSlideUp 0.5s ease-out 0.1s both;
-    }
+    .landing-content { background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 40px 32px; max-width: 720px; width: 100%; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1); position: relative; z-index: 10; animation: contentSlideUp 0.5s ease-out 0.1s both; }
     @keyframes contentSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .landing-header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
     .landing-logo { margin: 0 auto 16px; width: 72px; height: 72px; filter: drop-shadow(0 8px 24px rgba(0, 170, 255, 0.4)); animation: logoFloat 3s ease-in-out infinite; }
@@ -331,79 +273,17 @@
     .landing-overlay.hiding .landing-content { animation: contentSlideDown 0.3s ease-in forwards; }
     @keyframes contentSlideDown { to { opacity: 0; transform: translateY(10px); } }
 
-    /* Order usage badge style */
-    .order-link {
-      display: inline-block;
-      padding: 2px 6px;
-      background: #e0f2fe;
-      color: #0284c7;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      margin: 2px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: 0.2s;
-    }
-    .order-link:hover {
-      background: var(--primary);
-      color: #fff;
-    }
+    .order-link { display: inline-block; padding: 2px 6px; background: #e0f2fe; color: #0284c7; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin: 2px; cursor: pointer; text-decoration: none; transition: 0.2s; }
+    .order-link:hover { background: var(--primary); color: #fff; }
 
-    /* Scanner button and modal styles */
-    .scanner-btn {
-      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-      color: white;
-      border: none;
-      padding: 9px 12px;
-      border-radius: 9px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: 0.2s;
-    }
-    .scanner-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-    }
-    
-    #reader {
-      width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    
-    .scan-result {
-      margin-top: 12px;
-      padding: 12px;
-      background: #f0fdf4;
-      border: 1px solid #86efac;
-      border-radius: 8px;
-      display: none;
-    }
-    
-    .scan-result.show {
-      display: block;
-      animation: slideIn 0.3s ease;
-    }
-    
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .scan-result.found {
-      background: #f0fdf4;
-      border-color: #86efac;
-    }
-    
-    .scan-result.not-found {
-      background: #fef2f2;
-      border-color: #fca5a5;
-    }
+    .scanner-btn { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border: none; padding: 9px 12px; border-radius: 9px; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+    .scanner-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+    #reader { width: 100%; border-radius: 8px; overflow: hidden; }
+    .scan-result { margin-top: 12px; padding: 12px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; display: none; }
+    .scan-result.show { display: block; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .scan-result.found { background: #f0fdf4; border-color: #86efac; }
+    .scan-result.not-found { background: #fef2f2; border-color: #fca5a5; }
 
     @media (max-width: 640px) {
       .landing-content { padding: 28px 20px; margin: 10px; }
@@ -506,17 +386,10 @@
   <!-- Scanner Modal -->
   <div id="scannerModal" class="modal" onclick="if(event.target===this) closeScanner()">
     <div class="modal-box" style="max-width: 500px;">
-      <div class="modal-header">
-        <h2>📷 Сканирование штрихкода</h2>
-        <button class="close" onclick="closeScanner()">&times;</button>
-      </div>
+      <div class="modal-header"><h2>📷 Сканирование штрихкода</h2><button class="close" onclick="closeScanner()">&times;</button></div>
       <div id="reader"></div>
-      <div id="scanResult" class="scan-result">
-        <strong>Результат:</strong> <span id="scanResultText"></span>
-      </div>
-      <div class="form-actions" style="margin-top: 16px;">
-        <button class="btn btn-outline" onclick="closeScanner()">Закрыть</button>
-      </div>
+      <div id="scanResult" class="scan-result"><strong>Результат:</strong> <span id="scanResultText"></span></div>
+      <div class="form-actions" style="margin-top: 16px;"><button class="btn btn-outline" onclick="closeScanner()">Закрыть</button></div>
     </div>
   </div>
 
@@ -621,11 +494,7 @@
   <div id="settingsModal" class="modal" onclick="if(event.target===this) closeSettings()">
     <div class="modal-box" style="max-width:420px;">
       <div class="modal-header"><h2>⚙️ Профиль мастера</h2><button class="close" onclick="closeSettings()">&times;</button></div>
-      <div class="profile-info-display">
-        <strong id="profileMasterName">Мастер</strong>
-        <span>🏆 Уровень: <span id="profileLevel">Новичок</span></span><br>
-        <span>📝 Статус: <span id="profileStatus">Не установлен</span></span>
-      </div>
+      <div class="profile-info-display"><strong id="profileMasterName">Мастер</strong><span>🏆 Уровень: <span id="profileLevel">Новичок</span></span><br><span>📝 Статус: <span id="profileStatus">Не установлен</span></span></div>
       <div class="form-group" style="margin-top:18px"><label>Отображаемое имя</label><input type="text" id="masterName" placeholder="Иванов И.И."></div>
       <div class="form-actions" style="justify-content:center"><button class="btn btn-primary" onclick="persistSettings()">💾 Сохранить</button></div>
     </div>
@@ -666,16 +535,18 @@
         <div class="feature-card"><div class="feature-icon">☁️</div><h3>Бэкап в облако</h3><p>Экспорт/импорт данных — ваши данные всегда под защитой</p></div>
       </div>
       <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
-      <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p></div>
+      <div class="landing-cta">
+        <!-- ✅ Исправлено: прямой onclick гарантированно скроет оверлей -->
+        <button class="btn-start" onclick="hideLanding()"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button>
+        <p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p>
+      </div>
       <div class="landing-footer"><span class="version-badge">v6.2 • Beta</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
     </div>
     <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
 
-  <!-- Звуковой файл для уведомлений (base64 короткий пинг) -->
-  <audio id="notificationSound" preload="auto">
-    <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav">
-  </audio>
+  <!-- Звуковой файл для уведомлений -->
+  <audio id="notificationSound" preload="auto"><source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=" type="audio/wav"></audio>
 
   <script>
     // === КОНФИГУРАЦИЯ ===
@@ -691,12 +562,9 @@
     const SUPPORT_SECRET = '9379992';
 
     const LEVELS = [
-      { level: 1, name: 'Новичок 🌱', threshold: 0 },
-      { level: 2, name: 'Ученик 📖', threshold: 60 },
-      { level: 3, name: 'Практик 🛠️', threshold: 150 },
-      { level: 4, name: 'Мастер 🔧', threshold: 300 },
-      { level: 5, name: 'Эксперт 🎓', threshold: 500 },
-      { level: 6, name: 'Гуру 👑', threshold: 1000 },
+      { level: 1, name: 'Новичок 🌱', threshold: 0 }, { level: 2, name: 'Ученик 📖', threshold: 60 },
+      { level: 3, name: 'Практик 🛠️', threshold: 150 }, { level: 4, name: 'Мастер 🔧', threshold: 300 },
+      { level: 5, name: 'Эксперт 🎓', threshold: 500 }, { level: 6, name: 'Гуру 👑', threshold: 1000 },
       { level: 7, name: 'Легенда ⭐', threshold: 2000 }
     ];
 
@@ -712,810 +580,291 @@
     let supabaseClient = null;
     let chatSubscription = null;
     let html5QrCode = null;
-
-    // === NOTIFICATION SYSTEM ===
     let notificationCount = 0;
     let isChatOpen = false;
     let notificationPermission = 'default';
 
+    // === NOTIFICATION SYSTEM ===
     function initNotifications() {
-      if ('Notification' in window) {
-        notificationPermission = Notification.permission;
-        if (notificationPermission === 'default') {
-          // Не запрашиваем сразу, ждём первого сообщения
-        }
-      }
+      if ('Notification' in window) notificationPermission = Notification.permission;
       updateChatBadge();
     }
-
     function requestNotificationPermission() {
       if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission().then(permission => {
-          notificationPermission = permission;
-          if (permission === 'granted') {
-            console.log('✅ Уведомления разрешены');
-          }
-        });
+        Notification.requestPermission().then(p => notificationPermission = p);
       }
     }
-
-    function showBrowserNotification(title, body, icon = '🔔') {
+    function showBrowserNotification(title, body) {
       if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification(title, { body, icon: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${icon}</text></svg>` });
+        new Notification(title, { body, icon: '💬' });
       }
     }
-
     function playNotificationSound() {
-      const sound = $('notificationSound');
-      if (sound) {
-        sound.currentTime = 0;
-        sound.play().catch(() => {}); // Игнорируем ошибки автовоспроизведения
-      }
+      const s = $('notificationSound'); if(s) { s.currentTime=0; s.play().catch(()=>{}); }
     }
-
     function updateChatBadge(count = null) {
-      const btn = $('chatBtn');
-      if (!btn) return;
-      
-      // Удаляем старый бейдж
-      const oldBadge = btn.querySelector('.notification-badge');
-      if (oldBadge) oldBadge.remove();
-      
-      // Если счётчик 0 или чат открыт — не показываем
+      const btn = $('chatBtn'); if(!btn) return;
+      const oldBadge = btn.querySelector('.notification-badge'); if(oldBadge) oldBadge.remove();
       const displayCount = count !== null ? count : notificationCount;
       if (displayCount <= 0 || isChatOpen) return;
-      
-      // Создаём новый бейдж
       const badge = document.createElement('span');
       badge.className = `notification-badge ${displayCount > 9 ? '' : 'dot'}`;
       badge.textContent = displayCount > 9 ? '9+' : displayCount;
       btn.appendChild(badge);
     }
-
-    function clearChatNotifications() {
-      notificationCount = 0;
-      updateChatBadge();
-    }
-
+    function clearChatNotifications() { notificationCount = 0; updateChatBadge(); }
     function addChatNotification(fromSupport = false) {
-      // Не уведомляем, если чат открыт
       if (isChatOpen) return;
-      
-      notificationCount++;
-      updateChatBadge();
-      
-      // Звук
+      notificationCount++; updateChatBadge();
       playNotificationSound();
-      
-      // Браузерное уведомление (с запросом разрешения при первом разе)
-      if (notificationPermission !== 'granted' && notificationPermission !== 'denied') {
-        requestNotificationPermission();
-      }
-      if (notificationPermission === 'granted') {
-        const sender = fromSupport ? '🔧 Техподдержка' : '👤 Новый чат';
-        showBrowserNotification('💬 Новое сообщение', `${sender}: ...`, '💬');
-      }
+      if (notificationPermission !== 'granted' && notificationPermission !== 'denied') requestNotificationPermission();
+      if (notificationPermission === 'granted') showBrowserNotification('💬 Новое сообщение', `${fromSupport ? '🔧 Техподдержка' : '👤 Пользователь'}`);
     }
 
     // === SCANNER FUNCTIONS ===
     function openScanner() {
-      const modal = $('scannerModal');
-      if (!modal) return;
-      modal.classList.add('active');
-      
-      // Инициализация сканера
+      $('scannerModal').classList.add('active');
       html5QrCode = new Html5Qrcode("reader");
-      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-      
-      html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        onScanSuccess,
-        onScanFailure
-      ).catch(err => {
-        console.error("Ошибка запуска сканера:", err);
-        alert('❌ Не удалось запустить камеру. Проверьте разрешения.');
-        closeScanner();
+      html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess, () => {}).catch(() => {
+        alert('❌ Не удалось запустить камеру.'); closeScanner();
       });
     }
-
     function closeScanner() {
-      const modal = $('scannerModal');
-      if (modal) modal.classList.remove('active');
-      
-      if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-          html5QrCode.clear();
-          html5QrCode = null;
-        }).catch(err => console.error("Ошибка остановки сканера:", err));
-      }
-      
-      $('scanResult').classList.remove('show', 'found', 'not-found');
+      $('scannerModal').classList.remove('active');
+      if(html5QrCode) { html5QrCode.stop().then(()=>{html5QrCode=null}); }
+      $('scanResult').classList.remove('show','found','not-found');
     }
-
-    function onScanSuccess(decodedText, decodedResult) {
-      // Останавливаем сканирование после успешного считывания
+    function onScanSuccess(txt) {
       html5QrCode.stop();
-      
-      // Ищем запчасть по артикулу или названию
-      const foundPart = inventory.find(item => 
-        (item.sku && item.sku.toLowerCase() === decodedText.toLowerCase()) ||
-        item.name.toLowerCase().includes(decodedText.toLowerCase())
-      );
-      
-      const resultDiv = $('scanResult');
-      const resultText = $('scanResultText');
-      
-      if (foundPart) {
-        resultDiv.className = 'scan-result show found';
-        resultText.innerHTML = `
-          <strong style="color: var(--success); display: block; margin-bottom: 8px;">✅ Найдено!</strong>
-          <div><strong>Название:</strong> ${foundPart.name}</div>
-          <div><strong>Артикул:</strong> ${foundPart.sku || '—'}</div>
-          <div><strong>В наличии:</strong> <span style="color: ${foundPart.inStock > 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: bold;">${foundPart.inStock} шт.</span></div>
-          <div><strong>Цена:</strong> ${fmt(foundPart.price)}</div>
-          <div style="margin-top: 8px;">
-            <button class="btn btn-primary btn-sm" onclick="closeScanner(); openInventoryModal(inventory.find(x => x.id === '${foundPart.id}'))">✏️ Редактировать</button>
-          </div>
-        `;
+      const found = inventory.find(i => i.sku?.toLowerCase()===txt.toLowerCase() || i.name.toLowerCase().includes(txt.toLowerCase()));
+      const res=$('scanResult'), resTxt=$('scanResultText'); res.classList.add('show');
+      if(found) {
+        res.classList.add('found');
+        resTxt.innerHTML=`<strong style="color:var(--success)">✅ Найдено!</strong><br><strong>${found.name}</strong><br>Артикул: ${found.sku||'—'} | В наличии: ${found.inStock} шт.<br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="closeScanner(); openInventoryModal(inventory.find(x=>x.id==='${found.id}'))">✏️</button>`;
       } else {
-        resultDiv.className = 'scan-result show not-found';
-        resultText.innerHTML = `
-          <strong style="color: var(--danger); display: block; margin-bottom: 8px;">❌ Не найдено</strong>
-          <div>Штрихкод: <code>${decodedText}</code></div>
-          <div style="margin-top: 8px;">
-            <button class="btn btn-primary btn-sm" onclick="closeScanner(); openInventoryModal()">+ Добавить новую запчасть</button>
-          </div>
-        `;
+        res.classList.add('not-found');
+        resTxt.innerHTML=`<strong style="color:var(--danger)">❌ Не найдено</strong><br>Код: <code>${txt}</code><br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="closeScanner(); openInventoryModal()">+ Добавить</button>`;
       }
-    }
-
-    function onScanFailure(error) {
-      // Игнорируем ошибки сканирования (это нормально при отсутствии кода в кадре)
-      console.warn(`Код не распознан: ${error}`);
     }
 
     // === INVENTORY STOCK LOGIC ===
-    function syncInventoryStock(currentParts, oldParts) {
-      if (!currentParts) currentParts = [];
-      if (!oldParts) oldParts = [];
-
-      const oldPartsMap = new Map();
-      oldParts.forEach(part => {
-        const key = part.name.trim().toLowerCase();
-        const count = oldPartsMap.get(key) || 0;
-        oldPartsMap.set(key, count + 1);
-      });
-
-      const newPartsMap = new Map();
-      currentParts.forEach(part => {
-        const key = part.name.trim().toLowerCase();
-        const count = newPartsMap.get(key) || 0;
-        newPartsMap.set(key, count + 1);
-      });
-
-      oldPartsMap.forEach((oldCount, partNameLower) => {
-        const newCount = newPartsMap.get(partNameLower) || 0;
-        if (newCount < oldCount) {
-          const diff = oldCount - newCount;
-          addToStockByLowerName(partNameLower, diff);
-        }
-      });
-
-      newPartsMap.forEach((newCount, partNameLower) => {
-        const oldCount = oldPartsMap.get(partNameLower) || 0;
-        if (newCount > oldCount) {
-          const diff = newCount - oldCount;
-          removeFromStockByLowerName(partNameLower, diff);
-        }
-      });
+    function syncInventoryStock(newParts, oldParts) {
+      if(!newParts) newParts=[]; if(!oldParts) oldParts=[];
+      const oldMap={}, newMap={};
+      oldParts.forEach(p => oldMap[p.name.trim().toLowerCase()]=(oldMap[p.name.trim().toLowerCase()]||0)+1);
+      newParts.forEach(p => newMap[p.name.trim().toLowerCase()]=(newMap[p.name.trim().toLowerCase()]||0)+1);
+      for(const k in oldMap) if((newMap[k]||0)<oldMap[k]) addToStock(k, oldMap[k]-newMap[k]);
+      for(const k in newMap) if(newMap[k]>(oldMap[k]||0)) removeFromStock(k, newMap[k]-oldMap[k]);
     }
+    function addToStock(key, n) { const i=inventory.find(x=>x.name.trim().toLowerCase()===key); if(i&&i.inStock>=0) { i.inStock+=n; saveInv(); } }
+    function removeFromStock(key, n) { const i=inventory.find(x=>x.name.trim().toLowerCase()===key); if(i&&i.inStock>=n) { i.inStock-=n; saveInv(); } }
+    function saveInv() { localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); if(currentTab==='inventory') renderInventory(); }
 
-    function removeFromStockByLowerName(partNameLower, amount) {
-      const item = inventory.find(i => i.name.trim().toLowerCase() === partNameLower);
-      if (item) {
-        if (item.inStock >= amount) {
-          item.inStock -= amount;
-          localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
-          if (currentTab === 'inventory') renderInventory();
-        }
-      }
-    }
-
-    function addToStockByLowerName(partNameLower, amount) {
-      const item = inventory.find(i => i.name.trim().toLowerCase() === partNameLower);
-      if (item) {
-        item.inStock += amount;
-        localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
-        if (currentTab === 'inventory') renderInventory();
-      }
-    }
-
-    // === PART USAGE ON ORDERS LOGIC ===
     function getPartUsageMap() {
-      const map = {};
-      orders.forEach(o => {
-        o.parts.forEach(p => {
-          const key = p.name.trim().toLowerCase();
-          if (!map[key]) map[key] = [];
-          
-          const exists = map[key].find(x => x.fullId === o.id);
-          if (!exists) {
-            map[key].push({
-              shortId: o.id.slice(-6).toUpperCase(),
-              fullId: o.id,
-              status: o.status
-            });
-          }
-        });
-      });
-      return map;
+      const map={}; orders.forEach(o=>o.parts.forEach(p=>{ if(!map[p.name.trim().toLowerCase()]) map[p.name.trim().toLowerCase()]=[]; if(!map[p.name.trim().toLowerCase()].find(x=>x.fullId===o.id)) map[p.name.trim().toLowerCase()].push({shortId:o.id.slice(-6).toUpperCase(), fullId:o.id, status:o.status}); })); return map;
     }
 
     // === COIN & LEVEL SYSTEM ===
-    function addCoins(amount, reason = '') {
-      settings.coins += amount;
-      settings.totalEarned += amount;
-      checkLevel();
-      persistSettings();
-      showCoinAnimation(amount, reason);
-      updateCoinUI();
+    function addCoins(amt, reason='') { settings.coins+=amt; settings.totalEarned+=amt; checkLevel(); persistSettings(); showCoinAnim(amt,reason); updateCoinUI(); }
+    function spendCoins(amt) { if(settings.coins>=amt){settings.coins-=amt; persistSettings(); updateCoinUI(); return true;} alert('❌ Мало коинов!'); return false; }
+    function checkLevel() { let l=LEVELS[0]; for(let x of LEVELS) if(settings.totalEarned>=x.threshold) l=x; if(l.level>settings.level){settings.level=l.level; settings.levelName=l.name; showCoinAnim(0,`🎉 ${l.name}`);} else {settings.level=l.level; settings.levelName=l.name;} }
+    function persistSettings() { settings.master=$('masterName')?.value||settings.master; localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); updateCoinUI(); updateProfileModal(); }
+    function showCoinAnim(a,r){const d=document.createElement('div'); d.className='coin-popup'; d.innerHTML=a>0?`+${a} 🪙 <span style="display:block;font-size:0.7rem;color:#64748b">${r}</span>`:`🎉 ${r}`; document.body.appendChild(d); setTimeout(()=>d.classList.add('show'),10); setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),300)},2000);}
+    function updateCoinUI(){const b=$('coinBadge'),d=$('coinDisplay'); if(b&&d){d.textContent=settings.coins; b.title=`Уровень: ${settings.levelName}`;}}
+    function updateProfileModal(){if($('profileMasterName'))$('profileMasterName').textContent=settings.master; if($('profileLevel'))$('profileLevel').textContent=settings.levelName; if($('profileStatus'))$('profileStatus').textContent=settings.unlocks?.status||'—';}
+    function applyCosmetic(t,v){settings.unlocks=settings.unlocks||{}; settings.unlocks[t]=v; persistSettings(); updateUI();}
+    function generateCertificate(){if(!spendCoins(150))return; alert(`📜 ПОЧЁТНАЯ ГРАМОТА\n\n👤 ${settings.master}\n🏆 ${settings.levelName}\n✅ Заявок закрыто: ${orders.filter(o=>o.status==='Выдан').length}`);}
+    function openAchievements(){$('cosmeticsModal')?.classList.add('active'); renderCosmetics();}
+    function closeCosmetics(){$('cosmeticsModal')?.classList.remove('active');}
+    function renderCosmetics(){
+      $('shopList').innerHTML=COSMETICS.map(i=>`<div class="shop-item"><h4>${i.name}</h4><p>${i.desc}</p>${i.type==='text'?`<input id="input_${i.id}" value="${settings.unlocks?.status||''}" style="width:100%;margin-bottom:6px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem"><button class="btn btn-primary btn-sm" onclick="buyCosmetic('${i.id}',$('input_${i.id}').value)">Установить</button>`:`<button class="btn btn-outline btn-sm" onclick="generateCertificate()">Получить</button>`}</div>`).join('');
     }
-    function spendCoins(amount) {
-      if (settings.coins >= amount) { settings.coins -= amount; persistSettings(); updateCoinUI(); return true; }
-      alert('❌ Недостаточно коинов!');
-      return false;
-    }
-    function checkLevel() {
-      let newLevel = LEVELS[0];
-      for (let l of LEVELS) if (settings.totalEarned >= l.threshold) newLevel = l;
-      if (newLevel.level > settings.level) {
-        settings.level = newLevel.level; settings.levelName = newLevel.name;
-        showCoinAnimation(0, `🎉 Уровень повышен: ${newLevel.name}!`);
-      } else { settings.level = newLevel.level; settings.levelName = newLevel.name; }
-    }
-    function persistSettings() {
-      settings.master = $('masterName')?.value || settings.master || 'Мастер';
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-      updateCoinUI();
-      updateProfileModal();
-    }
-    function showCoinAnimation(amount, reason) {
-      const el = document.createElement('div'); el.className = 'coin-popup';
-      el.innerHTML = amount > 0 ? `+${amount} 🪙 <span style="display:block;font-size:0.7rem;color:#64748b">${reason}</span>` : `🎉 ${reason}`;
-      document.body.appendChild(el);
-      setTimeout(() => el.classList.add('show'), 10);
-      setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 2000);
-    }
-    function updateCoinUI() {
-      const badge = $('coinBadge'), display = $('coinDisplay');
-      if (!badge || !display) return;
-      display.textContent = settings.coins;
-      badge.title = `Уровень: ${settings.levelName}${settings.unlocks?.status ? ' • ' + settings.unlocks.status : ''}`;
-    }
-    function updateProfileModal() {
-      if($('profileMasterName')) $('profileMasterName').textContent = settings.master || 'Мастер';
-      if($('profileLevel')) $('profileLevel').textContent = settings.levelName || 'Новичок';
-      if($('profileStatus')) $('profileStatus').textContent = settings.unlocks?.status || 'Не установлен';
-    }
-    function applyCosmetic(type, value) {
-      if (!settings.unlocks) settings.unlocks = {};
-      settings.unlocks[type] = value;
-      persistSettings();
-      updateUI();
-    }
-    function generateCertificate() {
-      if (!spendCoins(150)) return;
-      const completed = orders.filter(o=>o.status==='Выдан').length;
-      const stats = `📜 ПОЧЁТНАЯ ГРАМОТА\n\n👤 Мастер: ${settings.master}\n🏆 Уровень: ${settings.levelName}\n📋 Заявок закрыто: ${completed}\n🪙 Всего заработано: ${settings.totalEarned} коинов\n\n✅ Вы настоящий профи! Сохраните эту грамоту в сердце.`;
-      alert(stats);
-    }
-    function openAchievements() { $('cosmeticsModal')?.classList.add('active'); renderCosmetics(); }
-    function closeCosmetics() { $('cosmeticsModal')?.classList.remove('active'); }
-    function renderCosmetics() {
-      const list = $('shopList'); if (!list) return;
-      list.innerHTML = COSMETICS.map(item => {
-        let content = '';
-        if (item.type === 'text') {
-          const current = settings.unlocks?.status || '';
-          content = `<input type="text" id="input_status_shop" placeholder="Например: Делаю качественно..." value="${current}" style="width:100%;margin-bottom:6px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem"><button class="btn btn-primary btn-sm" onclick="buyCosmetic('status', $('input_status_shop').value)">Установить (${item.cost} 🪙)</button>`;
-        } else if (item.type === 'cert') {
-          content = `<button class="btn btn-outline btn-sm" style="width:100%" onclick="generateCertificate()">🖨️ Получить (${item.cost} 🪙)</button>`;
-        }
-        return `<div class="shop-item"><h4>${item.name}</h4><p>${item.desc}</p><div class="shop-actions">${content}</div></div>`;
-      }).join('');
-    }
-    function buyCosmetic(id, value) {
-      const item = COSMETICS.find(i => i.id === id);
-      if (!item || !spendCoins(item.cost)) return;
-      applyCosmetic(id, value);
-      alert('✅ Настройка сохранена!'); renderCosmetics();
-    }
+    function buyCosmetic(id,v){const i=COSMETICS.find(x=>x.id===id); if(!i||!spendCoins(i.cost))return; applyCosmetic(id,v); alert('✅ Сохранено'); renderCosmetics();}
 
     // === MAIN FUNCTIONS ===
+    const $ = id => document.getElementById(id);
+    const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
+    const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
+    const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
+
+    // ✅ ИСПРАВЛЕННАЯ ФУНКЦИЯ СКРЫТИЯ ЛЕНДИНГА
+    function hideLanding() {
+      const ov = $('landingOverlay');
+      if (!ov) return;
+      ov.classList.add('hiding');
+      localStorage.setItem('avito_seller_landing_seen_v2', 'true');
+      setTimeout(() => {
+        ov.style.display = 'none';
+        document.body.classList.remove('landing-active');
+      }, 300);
+    }
+
+    // ✅ Проверка при загрузке, чтобы не показывать лендинг повторно
+    document.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('avito_seller_landing_seen_v2') === 'true') {
+        const ov = $('landingOverlay');
+        if(ov) ov.style.display = 'none';
+      }
+    });
+
     function switchTab(tab) {
       currentTab = tab;
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
       event.target.classList.add('active');
-      $('ordersSection').classList.toggle('hidden', tab !== 'orders');
-      $('inventorySection').classList.toggle('hidden', tab !== 'inventory');
-      if (tab === 'inventory') renderInventory();
+      $('ordersSection').classList.toggle('hidden', tab!=='orders');
+      $('inventorySection').classList.toggle('hidden', tab!=='inventory');
+      if(tab==='inventory') renderInventory();
     }
     function updateUI() {
-      $('coinDisplay').textContent = settings.coins;
-      $('coinBadge').title = `Уровень: ${settings.levelName}`;
-      $('secretWrap').style.display = 'none';
-      let ready = 0, active = 0;
-      orders.forEach(o => {
-        const partsSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
-        const exp = partsSum + (parseFloat(o.transport)||0);
-        const profit = (parseFloat(o.cost)||0) - exp;
-        if (o.status === 'Выдан') ready += profit; else active += profit;
-      });
-      $('statReady').textContent = fmt(ready); $('statActive').textContent = fmt(active); $('statCount').textContent = orders.length;
+      updateCoinUI(); $('secretWrap').style.display='none';
+      let ready=0, active=0;
+      orders.forEach(o=>{ const exp=o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0)+(parseFloat(o.transport)||0); const pr=(parseFloat(o.cost)||0)-exp; if(o.status==='Выдан') ready+=pr; else active+=pr; });
+      $('statReady').textContent=fmt(ready); $('statActive').textContent=fmt(active); $('statCount').textContent=orders.length;
     }
-    function getWarrantyBadge(order) {
-      if (!order.warrantyUntil) return '<span style="color:var(--muted)">—</span>';
-      const today = new Date(); today.setHours(0,0,0,0); const end = new Date(order.warrantyUntil);
-      const diff = Math.ceil((end - today) / 86400000);
-      if (diff < 0) return `<span class="w-badge expired" title="Истекла ${toDate(order.warrantyUntil)}">Истекла</span>`;
-      if (diff <= 7) return `<span class="w-badge warning" title="До ${toDate(order.warrantyUntil)}">${diff} дн.</span>`;
-      return `<span class="w-badge active" title="До ${toDate(order.warrantyUntil)}">${diff} дн.</span>`;
+    function getWarrantyBadge(o) {
+      if(!o.warrantyUntil) return '<span style="color:var(--muted)">—</span>';
+      const d=Math.ceil((new Date(o.warrantyUntil)-new Date())/86400000);
+      return d<0?`<span class="w-badge expired">Истекла</span>`:d<=7?`<span class="w-badge warning">${d} дн.</span>`:`<span class="w-badge active">${d} дн.</span>`;
     }
-    function renderTable(data = orders) {
-      const tb = $('tbody'), empty = $('emptyState'); tb.innerHTML = '';
-      if (!data.length) { empty.classList.remove('hidden'); return; }
-      empty.classList.add('hidden');
-      data.sort((a,b)=>b.createdAt-a.createdAt).forEach(o => {
-        const partsSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
-        const exp = partsSum + (parseFloat(o.transport)||0);
-        const profit = (parseFloat(o.cost)||0) - exp;
-        const avitoLink = o.avitoLink ? `<a href="${o.avitoLink}" target="_blank" rel="noopener noreferrer" class="link" title="Открыть">🔗</a>` : '';
-        const cleanPhone = getCleanPhone(o.client);
-        const contacts = `<a href="tel:${cleanPhone}" class="action-link" title="Позвонить">📞</a><a href="https://wa.me/${cleanPhone}?text=Здравствуйте!" target="_blank" class="action-link" title="WhatsApp">💬</a>`;
-        const statusSelect = `<select class="inline-status" onchange="handleInlineStatus('${o.id}', this.value)">${STATUSES.map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>`;
-        tb.innerHTML += `<tr><td>${o.id.slice(-6).toUpperCase()}</td><td>${toDate(o.date)}</td><td>${o.client}</td><td>${contacts}</td><td>${avitoLink}</td><td>${o.type}</td><td>${statusSelect}</td><td>${getWarrantyBadge(o)}</td><td class="money">${fmt(exp)}</td><td class="money" style="font-weight:600">${fmt(o.cost)}</td><td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td><td class="actions"><button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button><button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button></td></tr>`;
+    function renderTable(data=orders) {
+      const tb=$('tbody'), e=$('emptyState'); tb.innerHTML='';
+      if(!data.length){e.classList.remove('hidden');return;} e.classList.add('hidden');
+      data.sort((a,b)=>b.createdAt-a.createdAt).forEach(o=>{
+        const ps=o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0), tr=parseFloat(o.transport)||0, co=parseFloat(o.cost)||0, pr=co-ps-tr;
+        const al=o.avitoLink?`<a href="${o.avitoLink}" target="_blank" class="link">🔗</a>`:'';
+        const cp=getCleanPhone(o.client), ct=`<a href="tel:${cp}" class="action-link">📞</a><a href="https://wa.me/${cp}" target="_blank" class="action-link">💬</a>`;
+        const ss=`<select class="inline-status" onchange="handleInlineStatus('${o.id}',this.value)">${STATUSES.map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>`;
+        tb.innerHTML+=`<tr><td>${o.id.slice(-6).toUpperCase()}</td><td>${toDate(o.date)}</td><td>${o.client}</td><td>${ct}</td><td>${al}</td><td>${o.type}</td><td>${ss}</td><td>${getWarrantyBadge(o)}</td><td class="money">${fmt(ps+tr)}</td><td class="money" style="font-weight:600">${fmt(co)}</td><td class="money ${pr>=0?'pos':'neg'}">${fmt(pr)}</td><td class="actions"><button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button><button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button></td></tr>`;
       });
     }
-    function handleInlineStatus(id, newStatus) {
-      const order = orders.find(x => x.id === id); if (!order) return;
-      order.status = newStatus;
-      if (newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Быстрый статус');
-      saveData(); updateUI(); applyFilters();
+    function handleInlineStatus(id, ns){const o=orders.find(x=>x.id===id); if(!o)return; o.status=ns; if(ns==='Выдан')addCoins(COIN_REWARDS.COMPLETE,'✅ Быстрый статус'); saveData(); updateUI(); applyFilters();}
+    function applyFilters(){
+      const q=$('search').value.toLowerCase(), t=$('filterType').value, s=$('filterStatus').value, d1=$('dateFrom').value, d2=$('dateTo').value;
+      renderTable(orders.filter(o=>(!q||o.client.toLowerCase().includes(q)||o.type.toLowerCase().includes(q))&&(!t||o.type===t)&&(!s||o.status===s)&&(!d1||o.date>=d1)&&(!d2||o.date<=d2)));
     }
-    function applyFilters() {
-      const q = $('search').value.toLowerCase(), t = $('filterType').value, s = $('filterStatus').value;
-      const d1 = $('dateFrom').value, d2 = $('dateTo').value;
-      renderTable(orders.filter(o => (!q || o.client.toLowerCase().includes(q) || o.type.toLowerCase().includes(q)) && (!t || o.type===t) && (!s || o.status===s) && (!d1 || o.date>=d1) && (!d2 || o.date<=d2)));
-    }
-    function resetFilters() { $('search').value=''; $('filterType').value=''; $('filterStatus').value=''; $('dateFrom').value=''; $('dateTo').value=''; renderTable(); }
+    function resetFilters(){$('search').value='';$('filterType').value='';$('filterStatus').value='';$('dateFrom').value='';$('dateTo').value='';renderTable();}
 
-    const modal = $('modal'), form = $('orderForm');
-    function openModal(o=null) {
-      modal.classList.add('active');
-      $('modalTitle').textContent = o ? 'Редактирование заявки' : 'Новая заявка';
-      $('editId').value = o?.id || ''; $('client').value = o?.client || '';
-      $('orderDate').value = o?.date || new Date().toISOString().split('T')[0];
-      $('estDate').value = o?.est || ''; $('warrantyDays').value = o?.warrantyDays || 0;
-      $('type').value = o?.type || ''; $('status').value = o?.status || 'Принят';
-      $('avitoLink').value = o?.avitoLink || ''; $('reason').value = o?.reason || '';
-      $('repairCost').value = o?.cost || ''; $('transportCost').value = o?.transport || 0;
-      $('partsList').innerHTML = '';
-      if (o?.parts?.length) o.parts.forEach(p=>addPartRow(p)); else addPartRow();
-      calcTotals();
-      $('status').disabled = o?.status === 'Выдан';
-      $('revertSection').style.display = o?.status === 'Выдан' ? 'block' : 'none';
-      form.onsubmit = handleSubmit;
+    const modal=$('modal'), form=$('orderForm');
+    function openModal(o=null){
+      modal.classList.add('active'); $('modalTitle').textContent=o?'Редактирование':'Новая заявка';
+      $('editId').value=o?.id||''; $('client').value=o?.client||''; $('orderDate').value=o?.date||new Date().toISOString().split('T')[0];
+      $('estDate').value=o?.est||''; $('warrantyDays').value=o?.warrantyDays||0; $('type').value=o?.type||'';
+      $('status').value=o?.status||'Принят'; $('avitoLink').value=o?.avitoLink||''; $('reason').value=o?.reason||'';
+      $('repairCost').value=o?.cost||''; $('transportCost').value=o?.transport||0;
+      $('partsList').innerHTML=''; if(o?.parts?.length) o.parts.forEach(p=>addPartRow(p)); else addPartRow(); calcTotals();
+      $('status').disabled=o?.status==='Выдан'; $('revertSection').style.display=o?.status==='Выдан'?'block':'none'; form.onsubmit=handleSubmit;
     }
-    function closeModal() { modal.classList.remove('active'); form.reset(); }
-    function openPartsSelector() { $('partsSelectorModal').classList.add('active'); $('partsSearchInput').value = ''; renderPartsSelector(); }
-    function closePartsSelector() { $('partsSelectorModal').classList.remove('active'); }
-    function renderPartsSelector() {
-      const list = $('partsSelectorList'), search = $('partsSearchInput').value.toLowerCase();
-      if (!list) return;
-      const filtered = inventory.filter(i => i.name.toLowerCase().includes(search) || (i.sku||'').toLowerCase().includes(search));
-      if (!filtered.length) { list.innerHTML = '<div class="empty">Запчасти не найдены</div>'; return; }
-      list.innerHTML = filtered.map(item => {
-        const available = item.inStock - item.reserved;
-        const stockBadge = available > 0 ? `<span class="part-item-stock in">✓ ${available} шт.</span>` : `<span class="part-item-stock out">✗ Нет</span>`;
-        const imgHtml = item.photo ? `<img src="${item.photo}" alt="${item.name}">` : `<div class="inv-no-photo" style="width:40px;height:40px;font-size:1rem">📦</div>`;
-        return `<div class="part-item" onclick="selectPartFromInventory('${item.id}')">${imgHtml}<div class="part-item-info"><div class="part-item-name">${item.name} ${stockBadge}</div><div class="part-item-meta">${item.category || 'Без категории'} ${item.sku ? '• ' + item.sku : ''}</div></div><div class="part-item-price">${fmt(item.price)}</div></div>`;
-      }).join('');
+    function closeModal(){modal.classList.remove('active');form.reset();}
+    function openPartsSelector(){$('partsSelectorModal').classList.add('active');$('partsSearchInput').value='';renderPartsSelector();}
+    function closePartsSelector(){$('partsSelectorModal').classList.remove('active');}
+    function renderPartsSelector(){
+      const l=$('partsSelectorList'), s=$('partsSearchInput').value.toLowerCase(); if(!l)return;
+      const f=inventory.filter(i=>i.name.toLowerCase().includes(s)||(i.sku||'').toLowerCase().includes(s));
+      if(!f.length){l.innerHTML='<div class="empty">Не найдено</div>';return;}
+      l.innerHTML=f.map(i=>{const av=i.inStock-i.reserved, bg=av>0?'part-item-stock in':'part-item-stock out'; return`<div class="part-item" onclick="selectPartFromInventory('${i.id}')">${i.photo?`<img src="${i.photo}">`:'📦'}<div class="part-item-info"><div class="part-item-name">${i.name}</div><div class="part-item-meta">${i.category||'—'}</div></div><span class="${bg}">${av>0?'✓ '+av+' шт.':'✗ Нет'}</span><div class="part-item-price">${fmt(i.price)}</div></div>`}).join('');
     }
-    function selectPartFromInventory(itemId) {
-      const item = inventory.find(x => x.id === itemId); if (!item) return;
-      addPartRow({ name: item.name, sku: item.sku, cost: item.cost, price: item.price, status: (item.inStock-item.reserved)>0?'in_stock':'search' });
-      closePartsSelector(); calcTotals();
+    function selectPartFromInventory(id){const i=inventory.find(x=>x.id===id); if(!i)return; addPartRow({name:i.name,sku:i.sku,cost:i.cost,price:i.price,status:i.inStock-i.reserved>0?'in_stock':'search'});closePartsSelector();calcTotals();}
+    function addPartRow(d={}){
+      const r=document.createElement('div'); r.className='part-row';
+      r.innerHTML=`<div><input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required style="width:100%;margin-bottom:4px"><input type="text" placeholder="Артикул" value="${d.sku||''}" class="p-sku" style="width:100%"></div><select class="p-status" style="width:100%">${Object.entries(PART_STATUS).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`).join('')}</select><input type="number" step="0.01" placeholder="Закупка" value="${d.cost||''}" class="p-cost" oninput="calcTotals()" style="width:100%"><input type="number" step="0.01" placeholder="Продажа" value="${d.price||''}" class="p-price" style="width:100%"><button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>`;
+      $('partsList').appendChild(r);
     }
-    function addPartRow(d={}) {
-      const row = document.createElement('div'); row.className = 'part-row';
-      row.innerHTML = `<div class="part-sku-select"><input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required style="width:100%;margin-bottom:4px"><input type="text" placeholder="Артикул" value="${d.sku||''}" class="p-sku" style="width:100%"></div><select class="p-status" style="width:100%">${Object.entries(PART_STATUS).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`).join('')}</select><input type="number" step="0.01" placeholder="Закупка" value="${d.cost||''}" class="p-cost" oninput="calcTotals()" style="width:100%"><input type="number" step="0.01" placeholder="Продажа" value="${d.price||''}" class="p-price" style="width:100%"><button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>`;
-      $('partsList').appendChild(row);
+    function calcTotals(){const ps=Array.from(document.querySelectorAll('.p-cost')).reduce((s,i)=>s+(parseFloat(i.value)||0),0); const tr=parseFloat($('transportCost').value)||0, co=parseFloat($('repairCost').value)||0; $('sumParts').textContent=fmt(ps); $('sumExp').textContent=fmt(ps+tr); $('sumProfit').textContent=fmt(co-ps-tr); $('sumProfit').style.color=(co-ps-tr)>=0?'var(--success)':'var(--danger)';}
+    function handleSubmit(e){
+      e.preventDefault(); const isEdit=!!$('editId').value; const newStatus=$('status').value;
+      const np=Array.from(document.querySelectorAll('.part-row')).map(r=>({name:r.querySelector('.p-name').value.trim(),sku:r.querySelector('.p-sku').value.trim(),status:r.querySelector('.p-status').value,cost:parseFloat(r.querySelector('.p-cost').value)||0,price:parseFloat(r.querySelector('.p-price').value)||0})).filter(p=>p.name);
+      if(!$('client').value||!$('type').value||!$('repairCost').value){alert('❌ Заполните телефон, тип техники и стоимость');return;}
+      let old=isEdit?orders.find(o=>o.id===$('editId').value):null;
+      const wd=parseInt($('warrantyDays').value)||0; let wu=null; if(wd>0){const d=new Date($('orderDate').value);d.setDate(d.getDate()+wd);wu=d.toISOString().split('T')[0];}
+      const id=$('editId').value||Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+      const o={id,client:$('client').value,date:$('orderDate').value,est:$('estDate').value,warrantyDays:wd,warrantyUntil:wu,type:$('type').value,status:newStatus,avitoLink:$('avitoLink').value,reason:$('reason').value,cost:parseFloat($('repairCost').value)||0,transport:parseFloat($('transportCost').value)||0,parts:np,createdAt:orders.find(x=>x.id===id)?.createdAt||Date.now()};
+      const idx=orders.findIndex(x=>x.id===id); if(idx>-1) orders[idx]=o; else orders.push(o); saveData();
+      if(old&&old.status!=='Выдан') syncInventoryStock(np,old.parts); else if(!isEdit) syncInventoryStock(np,[]);
+      if(isEdit&&old?.status!=='Выдан'&&newStatus==='Выдан') addCoins(COIN_REWARDS.COMPLETE,'✅ Выдана'); else if(!isEdit){addCoins(COIN_REWARDS.CREATE,'📋 Создана'); if([$('client').value,$('type').value,$('reason').value,$('repairCost').value].every(Boolean)) addCoins(COIN_REWARDS.QUALITY_FIELDS,'📝 Полная');}
+      closeModal(); applyFilters(); updateUI();
     }
-    function calcTotals() {
-      const pSum = Array.from(document.querySelectorAll('.p-cost')).reduce((s,i)=>s+(parseFloat(i.value)||0),0);
-      const tr = parseFloat($('transportCost').value)||0, cost = parseFloat($('repairCost').value)||0;
-      $('sumParts').textContent = fmt(pSum); $('sumExp').textContent = fmt(pSum+tr);
-      $('sumProfit').textContent = fmt(cost-pSum-tr); $('sumProfit').style.color = (cost-pSum-tr)>=0 ? 'var(--success)' : 'var(--danger)';
-    }
-    function handleSubmit(e) {
-      e.preventDefault();
-      const isEdit = !!$('editId').value;
-      let newStatus = $('status').value;
-      
-      const newParts = Array.from(document.querySelectorAll('.part-row')).map(r => ({
-        name: r.querySelector('.p-name').value.trim(), 
-        sku: r.querySelector('.p-sku').value.trim(), 
-        status: r.querySelector('.p-status').value, 
-        cost: parseFloat(r.querySelector('.p-cost').value) || 0, 
-        price: parseFloat(r.querySelector('.p-price').value) || 0
-      })).filter(p => p.name);
+    function revertOrder(){const id=$('editId').value; if(!id||!confirm('Вернуть статус?'))return; const o=orders.find(x=>x.id===id); if(o){o.status='Готово'; syncInventoryStock([],o.parts); saveData(); closeModal(); applyFilters(); updateUI(); alert('✅ Возвращено');}}
+    function saveData(){localStorage.setItem(DB_KEY, JSON.stringify(orders));}
+    function editOrder(id){const o=orders.find(x=>x.id===id); if(o) openModal(o);}
+    function delOrder(id){if(!confirm('Удалить заявку?'))return; const o=orders.find(x=>x.id===id); if(o&&o.status!=='Выдан') syncInventoryStock([],o.parts); orders=orders.filter(x=>x.id!==id); saveData(); applyFilters(); updateUI();}
 
-      if (!$('client').value || !$('type').value || !$('repairCost').value) {
-        alert('❌ Заполните обязательные поля: телефон клиента, тип техники, стоимость работ');
-        return;
-      }
-
-      let oldOrder = null;
-      if (isEdit) oldOrder = orders.find(o => o.id === $('editId').value);
-
-      const warrantyDays = parseInt($('warrantyDays').value) || 0;
-      let warrantyUntil = null;
-      if (warrantyDays > 0) { 
-        const d = new Date($('orderDate').value); 
-        d.setDate(d.getDate() + warrantyDays); 
-        warrantyUntil = d.toISOString().split('T')[0]; 
-      }
-
-      const id = $('editId').value || Date.now().toString(36) + Math.random().toString(36).substr(2,5);
-      
-      const order = { 
-        id, 
-        client: $('client').value, 
-        date: $('orderDate').value, 
-        est: $('estDate').value, 
-        warrantyDays, 
-        warrantyUntil, 
-        type: $('type').value, 
-        status: newStatus, 
-        avitoLink: $('avitoLink').value, 
-        reason: $('reason').value, 
-        cost: parseFloat($('repairCost').value) || 0, 
-        transport: parseFloat($('transportCost').value) || 0, 
-        parts: newParts, 
-        createdAt: orders.find(o => o.id === id)?.createdAt || Date.now() 
-      };
-      
-      const idx = orders.findIndex(o => o.id === id);
-      if (idx > -1) orders[idx] = order; 
-      else orders.push(order);
-      
-      saveData();
-      
-      if (oldOrder && oldOrder.status !== 'Выдан') {
-        syncInventoryStock(newParts, oldOrder.parts);
-      } else if (!isEdit) {
-        syncInventoryStock(newParts, []);
-      }
-      
-      if (isEdit) {
-        if (oldOrder?.status === 'Выдан') newStatus = 'Выдан';
-        if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') {
-          addCoins(COIN_REWARDS.COMPLETE, '✅ Заявка выдана');
-        }
-      } else {
-        addCoins(COIN_REWARDS.CREATE, '📋 Новая заявка');
-      }
-
-      const fieldsFilled = [$('client').value, $('type').value, $('reason').value, $('repairCost').value].every(Boolean);
-      if (fieldsFilled && !isEdit) addCoins(COIN_REWARDS.QUALITY_FIELDS, '📝 Полная заявка');
-      
-      closeModal(); 
-      applyFilters(); 
-      updateUI();
-    }
-    
-    function revertOrder() {
-      const id = $('editId').value; if (!id) return;
-      if (!confirm(`Вернуть заявку из статуса «Выдан»?\nЗапчасти вернутся на склад.`)) return;
-      const order = orders.find(x => x.id === id);
-      if (order) { 
-        order.status = 'Готово'; 
-        syncInventoryStock([], order.parts); 
-        saveData(); closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен. Запчасти на складе.'); 
-      }
-    }
-    function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(orders)); }
-    function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
-    
-    function delOrder(id) { 
-      if(!confirm('Удалить заявку? Запчасти вернутся на склад.')) return; 
-      const order = orders.find(x => x.id === id);
-      if (order && order.status !== 'Выдан') {
-         syncInventoryStock([], order.parts);
-      }
-      orders=orders.filter(x=>x.id!==id); 
-      saveData(); applyFilters(); updateUI(); 
-    }
-
-    function openDetail(id) {
-      currentDetailId = id; const o = orders.find(x=>x.id===id); if(!o) return;
-      $('detailTitle').textContent = `Заявка #${o.id.slice(-6).toUpperCase()}`;
-      $('dDate').textContent = toDate(o.date); $('dEst').textContent = o.est ? toDate(o.est) : 'Не указана';
-      $('dStatus').textContent = o.status; $('dStatus').className = `status-badge status-${STATUS_CLASSES[o.status]||''}`;
-      $('dClient').textContent = o.client; $('dType').textContent = o.type; $('dReason').textContent = o.reason || 'Не указано';
-      $('dWarranty').innerHTML = o.warrantyUntil ? `${o.warrantyDays} дн. (до ${toDate(o.warrantyUntil)})` : 'Не указана';
-      const dAvito = $('dAvito');
-      if (o.avitoLink) { dAvito.href = o.avitoLink; dAvito.textContent = 'Открыть ↗'; } else { dAvito.textContent = '—'; dAvito.removeAttribute('href'); }
-      const tbody = $('dPartsBody'); tbody.innerHTML = '';
-      if (o.parts.length) {
-        $('dNoParts').style.display = 'none'; $('dPartsTable').style.display = 'table';
-        o.parts.forEach(p => tbody.innerHTML += `<tr><td>${p.name}${p.sku?` <small>(${p.sku})</small>`:''}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`);
-      } else { $('dNoParts').style.display = 'block'; $('dPartsTable').style.display = 'none'; }
-      const pSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0), tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0;
-      $('dPartsSum').textContent = fmt(pSum); $('dTrans').textContent = fmt(tr); $('dExp').textContent = fmt(pSum+tr); $('dCost').textContent = fmt(cost); $('dProfit').textContent = fmt(cost-pSum-tr);
+    function openDetail(id){
+      const o=orders.find(x=>x.id===id); if(!o)return;
+      $('detailTitle').textContent=`Заявка #${o.id.slice(-6).toUpperCase()}`; $('dDate').textContent=toDate(o.date); $('dEst').textContent=o.est?toDate(o.est):'—';
+      $('dStatus').textContent=o.status; $('dStatus').className=`status-badge status-${STATUS_CLASSES[o.status]||''}`; $('dClient').textContent=o.client; $('dType').textContent=o.type; $('dReason').textContent=o.reason||'—';
+      $('dWarranty').innerHTML=o.warrantyUntil?`${o.warrantyDays} дн. (до ${toDate(o.warrantyUntil)})`:'—';
+      const da=$('dAvito'); if(o.avitoLink){da.href=o.avitoLink; da.textContent='Открыть ↗';} else {da.textContent='—'; da.removeAttribute('href');}
+      const tb=$('dPartsBody'); tb.innerHTML=''; if(o.parts.length){$('dNoParts').style.display='none';$('dPartsTable').style.display='table';o.parts.forEach(p=>tb.innerHTML+=`<tr><td>${p.name}${p.sku?` <small>(${p.sku})</small>`:''}</td><td>${PART_STATUS[p.status]||'-'}</td><td>${fmt(p.cost)}</td></tr>`);}else{$('dNoParts').style.display='block';$('dPartsTable').style.display='none';}
+      const ps=o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0), tr=parseFloat(o.transport)||0, co=parseFloat(o.cost)||0;
+      $('dPartsSum').textContent=fmt(ps);$('dTrans').textContent=fmt(tr);$('dExp').textContent=fmt(ps+tr);$('dCost').textContent=fmt(co);$('dProfit').textContent=fmt(co-ps-tr);
       $('detailModal').classList.add('active');
     }
-    function closeDetailModal() { $('detailModal').classList.remove('active'); currentDetailId = null; }
-    function editFromDetail() { if(currentDetailId) { closeDetailModal(); setTimeout(()=>editOrder(currentDetailId), 100); } }
+    function closeDetailModal(){$('detailModal').classList.remove('active');}
+    function editFromDetail(){const id=$('detailTitle').textContent.replace('Заявка #','').trim(); closeDetailModal(); setTimeout(()=>{const o=orders.find(x=>x.id.slice(-6).toUpperCase()===id); if(o) openModal(o);},100);}
 
-    function openSettings() { 
-      $('masterName').value = settings.master; 
-      updateProfileModal();
-      $('settingsModal').classList.add('active'); 
-    }
-    function closeSettings() { $('settingsModal').classList.remove('active'); }
-    function exportData() { const d = { orders, inventory, settings, date: new Date().toISOString() }; const a = document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)])); a.download=`seller_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); }
-    function importData(input) { const f = input.files[0]; if(!f) return; const r = new FileReader(); r.onload = e => { try { const d=JSON.parse(e.target.result); if(d.orders) orders=d.orders; if(d.inventory) inventory=d.inventory; if(d.settings) settings=d.settings; localStorage.setItem(DB_KEY, JSON.stringify(orders)); localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); applyFilters(); renderInventory(); updateUI(); alert('✅ Импорт успешен'); } catch(err) { alert('❌ Ошибка: ' + err.message); } }; r.readAsText(f); input.value=''; }
+    function openSettings(){$('masterName').value=settings.master; updateProfileModal(); $('settingsModal').classList.add('active');}
+    function closeSettings(){$('settingsModal').classList.remove('active');}
+    function exportData(){const d={orders,inventory,settings,date:new Date().toISOString()}; const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)])); a.download=`backup_${new Date().toISOString().split('T')[0]}.json`; a.click();}
+    function importData(input){const f=input.files[0]; if(!f)return; const r=new FileReader(); r.onload=e=>{try{const d=JSON.parse(e.target.result); if(d.orders) orders=d.orders; if(d.inventory) inventory=d.inventory; if(d.settings) settings=d.settings; localStorage.setItem(DB_KEY, JSON.stringify(orders)); localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); applyFilters(); renderInventory(); updateUI(); alert('✅ Успех');}catch(err){alert('❌ '+err.message);}}; r.readAsText(f); input.value='';}
 
-    function renderInventory() {
-      const tbody = $('invTbody'), empty = $('invEmpty'), search = $('invSearch')?.value.toLowerCase()||'', cat = $('invCategoryFilter')?.value||'', fil = $('invFilter')?.value||'';
-      if (!tbody || !empty) return;
-      
-      const usageMap = getPartUsageMap();
-
-      let items = inventory.filter(i => {
-        const mS = !search || i.name.toLowerCase().includes(search) || (i.sku||'').toLowerCase().includes(search);
-        const mC = !cat || i.category === cat;
-        const av = i.inStock - i.reserved;
-        let mF = true; if(fil==='in-stock') mF=av>5; else if(fil==='low-stock') mF=av>0&&av<=5; else if(fil==='out-stock') mF=av<=0;
-        return mS && mC && mF;
-      });
-      if (!items.length) { empty.classList.remove('hidden'); tbody.innerHTML = ''; return; }
-      empty.classList.add('hidden');
-      tbody.innerHTML = items.map(i => {
-        const av = i.inStock - i.reserved; let sc='ok', st=`${av} шт.`;
-        if(av<=0){sc='none'; st='Нет';} else if(av<=5){sc='low'; st=`${av} шт.`;}
-        const img = i.photo ? `<img src="${i.photo}" class="inv-thumb">` : `<div class="inv-no-photo">📦</div>`;
-        
-        const usage = usageMap[i.name.trim().toLowerCase()] || [];
-        const usageHtml = usage.length > 0 
-          ? usage.map(u => `<span class="order-link" onclick="event.stopPropagation(); openDetail('${u.fullId}')" title="Статус: ${u.status}">#${u.shortId}</span>`).join('') 
-          : '<span style="color:var(--muted); font-size:0.7rem">—</span>';
-
-        return `<tr><td>${img}</td><td><strong>${i.name}</strong>${i.description?`<br><small style="color:var(--muted)">${i.description.substring(0,50)}${i.description.length>50?'...':''}</small>`:''}</td><td>${i.sku||'—'}</td><td>${i.category||'—'}</td><td class="money"><strong>${fmt(i.price)}</strong><br><small style="color:var(--muted)">${fmt(i.cost)}</small></td><td><span class="stock-indicator ${sc}">${st}</span></td><td>${usageHtml}</td><td><button class="btn btn-outline btn-sm" onclick="editInventory('${i.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteInventory('${i.id}')">🗑️</button></td></tr>`;
+    function renderInventory(){
+      const tb=$('invTbody'), e=$('invEmpty'), s=$('invSearch')?.value.toLowerCase()||'', c=$('invCategoryFilter')?.value||'', f=$('invFilter')?.value||''; if(!tb||!e)return;
+      const um=getPartUsageMap();
+      let items=inventory.filter(i=>{const ms=!s||i.name.toLowerCase().includes(s)||(i.sku||'').toLowerCase().includes(s); const mc=!c||i.category===c; const av=i.inStock-i.reserved; let mf=true; if(f==='in-stock')mf=av>5;else if(f==='low-stock')mf=av>0&&av<=5;else if(f==='out-stock')mf=av<=0; return ms&&mc&&mf;});
+      if(!items.length){e.classList.remove('hidden');tb.innerHTML='';return;} e.classList.add('hidden');
+      tb.innerHTML=items.map(i=>{
+        const av=i.inStock-i.reserved; let sc='ok', st=`${av} шт.`; if(av<=0){sc='none';st='Нет';}else if(av<=5){sc='low';}
+        const img=i.photo?`<img src="${i.photo}" class="inv-thumb">`:`<div class="inv-no-photo">📦</div>`;
+        const usage=um[i.name.trim().toLowerCase()]||[]; const uh=usage.length>0?usage.map(u=>`<span class="order-link" onclick="event.stopPropagation();openDetail('${u.fullId}')">#${u.shortId}</span>`).join(''):'—';
+        return `<tr><td>${img}</td><td><strong>${i.name}</strong></td><td>${i.sku||'—'}</td><td>${i.category||'—'}</td><td class="money"><strong>${fmt(i.price)}</strong><br><small>${fmt(i.cost)}</small></td><td><span class="stock-indicator ${sc}">${st}</span></td><td>${uh}</td><td><button class="btn btn-outline btn-sm" onclick="editInventory('${i.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteInventory('${i.id}')">🗑️</button></td></tr>`;
       }).join('');
     }
-    function openInventoryModal(i=null) {
-      $('inventoryModal').classList.add('active'); $('invModalTitle').textContent = i?'Редактировать запчасть':'Добавить запчасть';
-      $('invEditId').value = i?.id||''; $('invName').value = i?.name||''; $('invCategory').value = i?.category||'Другое'; $('invSku').value = i?.sku||'';
-      $('invCost').value = i?.cost||''; $('invPrice').value = i?.price||''; $('invInStock').value = i?.inStock||0; $('invReserved').value = i?.reserved||0;
-      $('invToOrder').value = i?.toOrder||0; $('invOrdered').value = i?.ordered||0; $('invDescription').value = i?.description||'';
-      currentPhotoBase64 = i?.photo||null; updatePhotoPreview(); $('inventoryForm').onsubmit = handleInventorySubmit;
-    }
-    function closeInventoryModal() { $('inventoryModal').classList.remove('active'); }
-    function handlePhotoUpload(input) { if(input.files[0]) { const r = new FileReader(); r.onload=e=>{currentPhotoBase64=e.target.result; updatePhotoPreview();}; r.readAsDataURL(input.files[0]); } }
-    function updatePhotoPreview() { $('photoPreview').innerHTML = currentPhotoBase64 ? `<img src="${currentPhotoBase64}" style="max-width:150px;max-height:100px;border-radius:8px;border:1px solid var(--border)">` : ''; }
-    function handleInventorySubmit(e) {
-      e.preventDefault(); const id = $('invEditId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5); const isNew = !$('invEditId').value;
-      const item = { id, name:$('invName').value, category:$('invCategory').value, sku:$('invSku').value, cost:parseFloat($('invCost').value)||0, price:parseFloat($('invPrice').value)||0, inStock:parseInt($('invInStock').value)||0, reserved:parseInt($('invReserved').value)||0, toOrder:parseInt($('invToOrder').value)||0, ordered:parseInt($('invOrdered').value)||0, description:$('invDescription').value, photo:currentPhotoBase64, updatedAt:Date.now() };
-      const idx = inventory.findIndex(x=>x.id===id); if(idx>-1) inventory[idx]=item; else { inventory.push(item); if(isNew) addCoins(COIN_REWARDS.ADD_PART, '📦 Новая запчасть'); }
-      localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); closeInventoryModal(); renderInventory();
-    }
-    function editInventory(id) { const i=inventory.find(x=>x.id===id); if(i) openInventoryModal(i); }
-    function deleteInventory(id) { if(confirm('Удалить запчасть?')) { inventory=inventory.filter(x=>x.id!==id); localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); renderInventory(); } }
-    function openCsvImport() { pendingCsvData=[]; $('csvImportStep1').classList.remove('hidden'); $('csvImportStep2').classList.add('hidden'); $('csvFileInput').value=''; $('csvImportModal').classList.add('active'); }
-    function closeCsvImport() { $('csvImportModal').classList.remove('active'); pendingCsvData=[]; }
-    function cancelCsvImport() { closeCsvImport(); }
-    function setupCsvDragDrop() { const z=$('csvDropZone'); z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')}); z.addEventListener('dragleave',()=>z.classList.remove('dragover')); z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f&&(f.name.endsWith('.csv')||f.name.endsWith('.txt')))processCsvFile(f)}); }
-    function handleCsvFile(input) { if(input.files[0]) processCsvFile(input.files[0]); }
-    function processCsvFile(file) { const r=new FileReader(); r.onload=e=>{try{pendingCsvData=parseCsv(e.target.result);if(!pendingCsvData.length){alert('❌ Пусто');return}showCsvPreview()}catch(err){alert('❌ '+err.message)}}; r.readAsText(file,'UTF-8'); }
-    function parseCsv(text) { const dl=text.split('\n')[0].includes(';')?';':','; return text.split('\n').slice(1).filter(l=>l.trim()).map(l=>{const v=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===dl&&!q){v.push(c.trim());c=''}else c+=ch;}v.push(c.trim());return v[0]?{name:v[0]||'',sku:v[1]||'',category:v[2]||'Другое',cost:parseFloat(v[3])||0,price:parseFloat(v[4])||0,inStock:parseInt(v[5])||0,reserved:parseInt(v[6])||0,toOrder:parseInt(v[7])||0,ordered:parseInt(v[8])||0,description:v[9]||'',photo:null,updatedAt:Date.now()}:null}).filter(Boolean); }
-    function showCsvPreview() { $('csvImportStep1').classList.add('hidden'); $('csvImportStep2').classList.remove('hidden'); $('csvStats').innerHTML=`<div class="import-stat"><div class="label">Записей</div><div class="val">${pendingCsvData.length}</div></div>`; let h='<table><thead><tr>Название;Артикул;Категория;Закупка;Продажа;Наличие</tr></thead><tbody>'; pendingCsvData.slice(0,10).forEach(i=>h+=`<tr><td>${i.name}</td><td>${i.sku||'—'}</td><td>${i.category}</td><td>${fmt(i.cost)}</td><td>${fmt(i.price)}</td><td>${i.inStock}</td></tr>`); $('csvPreview').innerHTML=h+'</tbody></table>'; }
-    function confirmCsvImport() { if(!pendingCsvData.length)return; let a=0,u=0; pendingCsvData.forEach(n=>{const i=inventory.findIndex(x=>x.sku&&x.sku===n.sku||x.name===n.name);if(i>-1){inventory[i]={...inventory[i],...n};u++}else{n.id=Date.now().toString(36)+Math.random().toString(36).substr(2,5);inventory.push(n);a++}}); localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory)); closeCsvImport(); renderInventory(); alert(`✅ Добавлено: ${a}, Обновлено: ${u}`); }
-    function downloadTemplate() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeffНазвание;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание\nДисплей;DISP-01;Дисплеи;1500;3000;5;0;2;0;Пример'])); a.download='template.csv'; a.click(); }
+    function openInventoryModal(i=null){$('inventoryModal').classList.add('active');$('invModalTitle').textContent=i?'Редактировать':'Добавить';$('invEditId').value=i?.id||'';$('invName').value=i?.name||'';$('invCategory').value=i?.category||'Другое';$('invSku').value=i?.sku||'';$('invCost').value=i?.cost||'';$('invPrice').value=i?.price||'';$('invInStock').value=i?.inStock||0;$('invReserved').value=i?.reserved||0;$('invToOrder').value=i?.toOrder||0;$('invOrdered').value=i?.ordered||0;$('invDescription').value=i?.description||'';currentPhotoBase64=i?.photo||null;updatePhotoPreview();$('inventoryForm').onsubmit=handleInventorySubmit;}
+    function closeInventoryModal(){$('inventoryModal').classList.remove('active');}
+    function handlePhotoUpload(input){if(input.files[0]){const r=new FileReader();r.onload=e=>{currentPhotoBase64=e.target.result;updatePhotoPreview();};r.readAsDataURL(input.files[0]);}}
+    function updatePhotoPreview(){$('photoPreview').innerHTML=currentPhotoBase64?`<img src="${currentPhotoBase64}" style="max-width:150px;max-height:100px;border-radius:8px;border:1px solid var(--border)">`:'';}
+    function handleInventorySubmit(e){e.preventDefault();const id=$('invEditId').value||Date.now().toString(36)+Math.random().toString(36).substr(2,5);const isNew=!$('invEditId').value;const item={id,name:$('invName').value,category:$('invCategory').value,sku:$('invSku').value,cost:parseFloat($('invCost').value)||0,price:parseFloat($('invPrice').value)||0,inStock:parseInt($('invInStock').value)||0,reserved:parseInt($('invReserved').value)||0,toOrder:parseInt($('invToOrder').value)||0,ordered:parseInt($('invOrdered').value)||0,description:$('invDescription').value,photo:currentPhotoBase64,updatedAt:Date.now()};const idx=inventory.findIndex(x=>x.id===id);if(idx>-1)inventory[idx]=item;else{inventory.push(item);if(isNew)addCoins(COIN_REWARDS.ADD_PART,'📦 Новая');}localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));closeInventoryModal();renderInventory();}
+    function editInventory(id){const i=inventory.find(x=>x.id===id);if(i)openInventoryModal(i);}
+    function deleteInventory(id){if(confirm('Удалить?')){inventory=inventory.filter(x=>x.id!==id);localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));renderInventory();}}
+    function openCsvImport(){pendingCsvData=[];$('csvImportStep1').classList.remove('hidden');$('csvImportStep2').classList.add('hidden');$('csvFileInput').value='';$('csvImportModal').classList.add('active');}
+    function closeCsvImport(){$('csvImportModal').classList.remove('active');pendingCsvData=[];}
+    function cancelCsvImport(){closeCsvImport();}
+    function setupCsvDragDrop(){const z=$('csvDropZone');z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')});z.addEventListener('dragleave',()=>z.classList.remove('dragover'));z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f&&(f.name.endsWith('.csv')||f.name.endsWith('.txt')))processCsvFile(f)});}
+    function handleCsvFile(input){if(input.files[0])processCsvFile(input.files[0]);}
+    function processCsvFile(file){const r=new FileReader();r.onload=e=>{try{pendingCsvData=parseCsv(e.target.result);if(!pendingCsvData.length){alert('❌ Пусто');return}showCsvPreview()}catch(err){alert('❌ '+err.message)}};r.readAsText(file,'UTF-8');}
+    function parseCsv(text){const dl=text.split('\n')[0].includes(';')?';':',';return text.split('\n').slice(1).filter(l=>l.trim()).map(l=>{const v=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===dl&&!q){v.push(c.trim());c=''}else c+=ch;}v.push(c.trim());return v[0]?{name:v[0]||'',sku:v[1]||'',category:v[2]||'Другое',cost:parseFloat(v[3])||0,price:parseFloat(v[4])||0,inStock:parseInt(v[5])||0,reserved:parseInt(v[6])||0,toOrder:parseInt(v[7])||0,ordered:parseInt(v[8])||0,description:v[9]||'',photo:null,updatedAt:Date.now()}:null}).filter(Boolean);}
+    function showCsvPreview(){$('csvImportStep1').classList.add('hidden');$('csvImportStep2').classList.remove('hidden');$('csvStats').innerHTML=`<div class="import-stat"><div class="label">Записей</div><div class="val">${pendingCsvData.length}</div></div>`;let h='<table><thead><tr>Название;Артикул;Закупка;Продажа;Наличие</tr></thead><tbody>';pendingCsvData.slice(0,10).forEach(i=>h+=`<tr><td>${i.name}</td><td>${i.sku||'—'}</td><td>${fmt(i.cost)}</td><td>${fmt(i.price)}</td><td>${i.inStock}</td></tr>`);$('csvPreview').innerHTML=h+'</tbody></table>';}
+    function confirmCsvImport(){if(!pendingCsvData.length)return;let a=0,u=0;pendingCsvData.forEach(n=>{const i=inventory.findIndex(x=>x.sku&&x.sku===n.sku||x.name===n.name);if(i>-1){inventory[i]={...inventory[i],...n};u++}else{n.id=Date.now().toString(36)+Math.random().toString(36).substr(2,5);inventory.push(n);a++}});localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));closeCsvImport();renderInventory();alert(`✅ Добавлено: ${a}, Обновлено: ${u}`);}
+    function downloadTemplate(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeffНазвание;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание\nДисплей;DISP-01;Дисплеи;1500;3000;5;0;2;0;Пример']));a.download='template.csv';a.click();}
 
-    async function checkChatConnection() { const el=$('chatConnectionStatus'); if(!el||!supabaseClient)return; try{const{error}=await supabaseClient.from('support_messages').select('id').limit(1);if(error)throw error;el.textContent='● Онлайн';el.className='chat-status online'}catch{el.textContent='● Офлайн';el.className='chat-status offline'} }
-    
-    function openSupportChat() { 
-      isChatOpen = true;
-      clearChatNotifications();
-      $('supportChatModal').classList.add('active'); 
-      const s = localStorage.getItem('chat_username'); 
-      if(s) {
-        $('chatUsername').value = s;
-        // Если сохранённое имя — это техподдержка, активируем режим
-        if (s === 'ТЕХПОДДЕРЖКА') {
-          $('chatUsername').classList.add('support-mode');
-          $('chatUsername').disabled = true;
-        }
-      }
-      // Добавляем подсказку динамически, если её нет
-      if (!$('chatHint')) {
-        const hint = document.createElement('div');
-        hint.id = 'chatHint';
-        hint.className = 'chat-hint';
-        hint.innerHTML = '💡 Введите <strong>9379992</strong> для входа как техподдержка';
-        $('chatUsername').insertAdjacentElement('afterend', hint);
-      }
-      checkChatConnection(); 
-      loadChatHistory(); 
-      subscribeToNewMessages(); 
-      $('chatInput')?.focus(); 
-    }
-    
-    function closeSupportChat() { 
-      isChatOpen = false;
-      $('supportChatModal').classList.remove('active'); 
-      if(chatSubscription){
-        supabaseClient?.removeChannel(chatSubscription);
-        chatSubscription=null;
-      } 
-    }
-    
-    async function loadChatHistory() { 
-      const c=$('chatMessages'); 
-      if(!supabaseClient){
-        c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';
-        return
-      } 
-      c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>'; 
-      const { data, error } = await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); 
-      if(error){
-        c.innerHTML='❌ '+error.message;
-        return
-      } 
-      renderChatMsgs(data||[]); 
-    }
-    
-    function renderChatMsgs(msgs) { 
-      const c = $('chatMessages'); 
-      if(!msgs.length) { 
-        c.innerHTML = '<div class="chat-system">👋 Чат пуст</div>'; 
-        return 
-      } 
-      
-      c.innerHTML = msgs.map(m => {
-        if(m.user_meta?.type === 'system_context') return '';
-        
-        // 🔍 Определяем, кто отправил сообщение
-        const isSupportMsg = m.is_user === false || m.user_meta?.is_support === true;
-        const rowClass = isSupportMsg ? 'support' : 'user';
-        
-        // Для поддержки всегда показываем фиксированное имя
-        const displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (m.user_name || 'Аноним');
-        
-        return `<div class="chat-msg-row ${rowClass}">
-          <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
-          <div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
-          <span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span>
-        </div>`;
-      }).join(''); 
-      
-      c.scrollTop = c.scrollHeight; 
-    }
-    
-    function subscribeToNewMessages() { 
-      if(!supabaseClient||chatSubscription)return; 
-      chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{
-        if(p.new.user_meta?.type==='system_context')return;
-        
-        // 🔔 Уведомление о новом сообщении
-        const isSupportMsg = p.new.is_user === false || p.new.user_meta?.is_support === true;
-        addChatNotification(isSupportMsg);
-        
-        const c=$('chatMessages'),
-              t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
-              displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (p.new.user_name || 'Аноним'),
-              rowClass = isSupportMsg ? 'support' : 'user',
-              m=`<div class="chat-msg-row ${rowClass}">
-                <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
-                <div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
-                <span class="chat-time">${t}</span>
-              </div>`;
-        c.insertAdjacentHTML('beforeend',m);
-        c.scrollTop=c.scrollHeight
-      }).subscribe(); 
-    }
-    
-    async function sendChatMessage() { 
-      const i = $('chatInput'), n = $('chatUsername'), t = i?.value?.trim(), name = n?.value?.trim(); 
-      if(!t || !name) { if(!n?.value) n?.focus(); return } 
-      
-      // 🔐 Проверка секретного кода для техподдержки
-      let isSupport = false;
-      let displayName = name;
-      
-      if (name === SUPPORT_SECRET) {
-        isSupport = true;
-        displayName = 'ТЕХПОДДЕРЖКА';
-        // Визуально подсветим, что включён режим поддержки
-        if (n) {
-          n.value = displayName;
-          n.classList.add('support-mode');
-          n.disabled = true;
-          n.title = 'Режим техподдержки активен';
-        }
-      } else {
-        // Если ввели не секретный код — обычный пользователь
-        if (n) {
-          n.classList.remove('support-mode');
-          n.disabled = false;
-          n.title = '';
-        }
-      }
-      
-      localStorage.setItem('chat_username', displayName); 
-      
-      if(!supabaseClient) { 
-        alert('❌ Чат не настроен'); 
-        return 
-      } 
-      
-      const b = i.nextElementSibling; 
-      b.disabled = true; 
-      
-      try {
-        const { error } = await supabaseClient.from('support_messages').insert({
-          user_name: displayName,
-          message: t,
-          is_user: !isSupport,  // false = поддержка, true = пользователь
-          user_meta: { 
-            appVersion: 'v6.2', 
-            ua: navigator.userAgent.substring(0, 50),
-            is_support: isSupport  // флаг для надёжной идентификации
-          }
-        });
-        if(error) throw error;
-        i.value = ''
-      } catch(err) { 
-        alert('❌ ' + err.message) 
-      } finally { 
-        b.disabled = false; 
-        i?.focus() 
-      } 
-    }
+    // === CHAT FUNCTIONS ===
+    async function checkChatConnection(){const el=$('chatConnectionStatus');if(!el||!supabaseClient)return;try{const{error}=await supabaseClient.from('support_messages').select('id').limit(1);if(error)throw error;el.textContent='● Онлайн';el.className='chat-status online'}catch{el.textContent='● Офлайн';el.className='chat-status offline'}}
+    function openSupportChat(){isChatOpen=true;clearChatNotifications();$('supportChatModal').classList.add('active');const s=localStorage.getItem('chat_username');if(s){$('chatUsername').value=s;if(s==='ТЕХПОДДЕРЖКА'){$('chatUsername').classList.add('support-mode');$('chatUsername').disabled=true;}}if(!$('chatHint')){const h=document.createElement('div');h.id='chatHint';h.className='chat-hint';h.innerHTML='💡 Введите <strong>9379992</strong> для входа как техподдержка';$('chatUsername').insertAdjacentElement('afterend', h);}checkChatConnection();loadChatHistory();subscribeToNewMessages();$('chatInput')?.focus();}
+    function closeSupportChat(){isChatOpen=false;$('supportChatModal').classList.remove('active');if(chatSubscription){supabaseClient?.removeChannel(chatSubscription);chatSubscription=null;}}
+    async function loadChatHistory(){const c=$('chatMessages');if(!supabaseClient){c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';return}c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>';const{data,error}=await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100);if(error){c.innerHTML='❌ '+error.message;return}renderChatMsgs(data||[]);}
+    function renderChatMsgs(msgs){const c=$('chatMessages');if(!msgs.length){c.innerHTML='<div class="chat-system">👋 Чат пуст</div>';return}c.innerHTML=msgs.map(m=>{if(m.user_meta?.type==='system_context')return '';const isSup=m.is_user===false||m.user_meta?.is_support===true;const nm=isSup?'ТЕХПОДДЕРЖКА':(m.user_name||'Аноним');const rc=isSup?'support':'user';return `<div class="chat-msg-row ${rc}"><div class="chat-name">${nm}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></div>`}).join('');c.scrollTop=c.scrollHeight;}
+    function subscribeToNewMessages(){if(!supabaseClient||chatSubscription)return;chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{if(p.new.user_meta?.type==='system_context')return;const isSup=p.new.is_user===false||p.new.user_meta?.is_support===true;addChatNotification(isSup);const c=$('chatMessages'),t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),nm=isSup?'ТЕХПОДДЕРЖКА':(p.new.user_name||'Аноним'),rc=isSup?'support':'user';c.insertAdjacentHTML('beforeend',`<div class="chat-msg-row ${rc}"><div class="chat-name">${nm}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${t}</span></div>`);c.scrollTop=c.scrollHeight}).subscribe();}
+    async function sendChatMessage(){const i=$('chatInput'),n=$('chatUsername'),t=i?.value?.trim(),name=n?.value?.trim();if(!t||!name){if(!n?.value)n?.focus();return}let isSup=false,dn=name;if(name===SUPPORT_SECRET){isSup=true;dn='ТЕХПОДДЕРЖКА';if(n){n.value=dn;n.classList.add('support-mode');n.disabled=true;}}else{if(n){n.classList.remove('support-mode');n.disabled=false;}}localStorage.setItem('chat_username',dn);if(!supabaseClient){alert('❌ Чат не настроен');return}const b=i.nextElementSibling;b.disabled=true;try{const{error}=await supabaseClient.from('support_messages').insert({user_name:dn,message:t,is_user:!isSup,user_meta:{appVersion:'v6.2',ua:navigator.userAgent.substring(0,50),is_support:isSup}});if(error)throw error;i.value=''}catch(err){alert('❌ '+err.message)}finally{b.disabled=false;i?.focus()}}
 
     // === INIT ===
     window.onload = async () => {
       initSupabase();
-      initNotifications(); // 🔔 Инициализация системы уведомлений
+      initNotifications();
+      if(SUPABASE_URL.includes('your-project')){} else { try{supabaseClient=window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)}catch{} }
       
       const selType=$('filterType'),selStatus=$('filterStatus'),typeSel=$('type'),statusSel=$('status');
       TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;selType.appendChild(o);typeSel.appendChild(o.cloneNode(true))});
       STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;selStatus.appendChild(o);statusSel.appendChild(o.cloneNode(true))});
-      if($('masterName')) $('masterName').value=settings.master||'Мастер';
-      
+      if($('masterName')) $('masterName').value=settings.master;
       updateUI(); renderTable(); renderInventory();
       $('repairCost').oninput=$('transportCost').oninput=calcTotals;
       $('secretInput')?.addEventListener('keyup',e=>{if(e.key==='Enter'&&e.target.value.trim()===SECRET_CODE){addCoins(COIN_REWARDS.SECRET,'🤫 Секрет');e.target.value=''}});
       $('inventoryForm').onsubmit=handleInventorySubmit; setupCsvDragDrop();
       if(supabaseClient) await checkChatConnection();
-
       const last=localStorage.getItem('last_login_date'), today=new Date().toISOString().split('T')[0];
-      if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Ежедневный вход');localStorage.setItem('last_login_date',today)}
+      if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Вход');localStorage.setItem('last_login_date',today)}
     };
-
-    // === LANDING LOGIC ===
-    (function(){
-      const KEY='avito_seller_landing_seen_v2';
-      const ov=$('landingOverlay'), btn=$('startButton');
-      if(localStorage.getItem(KEY)!=='true' && ov){
-        document.body.classList.add('landing-active');
-        btn?.addEventListener('click',e=>{e.preventDefault(); ov.classList.add('hiding'); localStorage.setItem(KEY,'true'); setTimeout(()=>{ov.style.display='none';document.body.classList.remove('landing-active')},300)});
-      } else if(ov) ov.style.display='none';
-      window.resetLanding=()=>{localStorage.removeItem(KEY);console.log('🔄 Сброшено')};
-    })();
+    window.resetLanding=()=>{localStorage.removeItem('avito_seller_landing_seen_v2');location.reload();};
   </script>
 </body>
 </html>
