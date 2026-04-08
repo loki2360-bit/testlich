@@ -276,8 +276,7 @@
     .other-manager-badge .badge-stat { font-weight: 600; white-space: nowrap; }
     .other-manager-badge .badge-sync { font-size: 0.7rem; color: var(--muted); margin-left: auto; }
 
-    /* === ORDER MANAGER BADGE === */
-    .manager-badge { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:6px; font-size:0.65rem; font-weight:800; margin-right:4px; }
+    .manager-badge { display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:22px; border-radius:6px; font-size:0.65rem; font-weight:800; margin-right:4px; padding: 0 4px; }
     .manager-badge.m1 { background:#dbeafe; color:#1e40af; }
     .manager-badge.m2 { background:#fce7f3; color:#9d174d; }
     .manager-badge.self { border:2px solid var(--success); }
@@ -312,7 +311,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v8.0 • Shared Orders</span>
+          <span class="brand-badge">v8.1 • Stable</span>
         </div>
       </div>
       
@@ -569,7 +568,7 @@
       </div>
       <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
       <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере + облаке для заявок</p></div>
-      <div class="landing-footer"><span class="version-badge">v8.0 • Multi-Manager Shared</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
+      <div class="landing-footer"><span class="version-badge">v8.1 • Multi-Manager Shared</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
     </div>
     <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
@@ -650,41 +649,32 @@
     }
 
     async function syncOrders() {
-      if (!supabaseClient) return;
+      if (!supabaseClient) return false;
       try {
         const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
         if (error) throw error;
-        orders = data || [];
+        orders = (data || []).map(o => {
+          if (typeof o.parts === 'string') o.parts = JSON.parse(o.parts);
+          if (!Array.isArray(o.parts)) o.parts = [];
+          return o;
+        });
         saveLocalCache();
-        renderTable();
-        updateUI();
-      } catch(e) { console.warn('Sync error:', e); }
+        return true;
+      } catch(e) { console.error('Sync error:', e); return false; }
     }
 
     async function pushOrderToCloud(order) {
       if (!supabaseClient) return;
       try {
-        const { error } = await supabaseClient.from('orders').upsert(order, { onConflict: 'id' });
+        const payload = { ...order, parts: JSON.stringify(order.parts || []) };
+        const { error } = await supabaseClient.from('orders').upsert(payload, { onConflict: 'id' });
         if (error) throw error;
-      } catch(e) { console.error('Push order error:', e); }
+      } catch(e) { console.error('Push error:', e); }
     }
 
     async function deleteOrderFromCloud(id) {
       if (!supabaseClient) return;
-      try {
-        await supabaseClient.from('orders').delete().eq('id', id);
-      } catch(e) { console.error('Delete order cloud error:', e); }
-    }
-
-    async function updateOtherManagerBadge() {
-      if (!supabaseClient) return;
-      const otherId = OTHER_MANAGER[myManagerId];
-      try {
-        const { data, error } = await supabaseClient.from('public_master_stats').select('*').eq('manager_id', otherId).single();
-        if (error) throw error;
-        otherManagerStats = data;
-        renderOtherManagerBadge();
-      } catch(e) { console.warn('Badge fetch error:', e); }
+      try { await supabaseClient.from('orders').delete().eq('id', id); } catch(e) { console.error('Delete error:', e); }
     }
 
     async function updateMyStatsInCloud() {
@@ -714,6 +704,17 @@
       } catch(e) { console.error('Stats sync error:', e.message); return false; }
     }
 
+    async function updateOtherManagerBadge() {
+      if (!supabaseClient) return;
+      const otherId = OTHER_MANAGER[myManagerId];
+      try {
+        const { data, error } = await supabaseClient.from('public_master_stats').select('*').eq('manager_id', otherId).single();
+        if (error) throw error;
+        otherManagerStats = data;
+        renderOtherManagerBadge();
+      } catch(e) { console.warn('Badge fetch error:', e); }
+    }
+
     function startAutoSync() {
       if (autoSyncInterval) clearInterval(autoSyncInterval);
       autoSyncInterval = setInterval(async () => {
@@ -725,8 +726,7 @@
 
     // === BADGE RENDER ===
     function renderOtherManagerBadge() {
-      const badge = $('otherManagerBadge');
-      if (!badge) return;
+      const badge = $('otherManagerBadge'); if (!badge) return;
       if (!otherManagerStats) { badge.style.display = 'none'; return; }
       badge.style.display = 'block';
       $('otherName').textContent = otherManagerStats.name || '—';
@@ -786,8 +786,10 @@
     // === MANAGER SWITCHING ===
     function changeManagerId(newId) {
       if (!['manager1','manager2'].includes(newId)) return; if (newId === myManagerId) return;
-      if (confirm(`Переключиться на ${newId === 'manager1' ? 'Менеджера 1' : 'Менеджера 2'}?\n\n⚠️ Локальные данные (склад, настройки) загрузятся для выбранного менеджера. Заявки общие.`)) {
-        localStorage.setItem(MANAGER_KEY, newId); location.reload();
+      if (confirm(`Переключиться на ${newId === 'manager1' ? 'Менеджера 1' : 'Менеджера 2'}?\n\n🔄 Локальные данные сбросятся, заявки подтянутся из облака.`)) {
+        localStorage.setItem(MANAGER_KEY, newId);
+        localStorage.removeItem(getLocalKey(DB_KEY)); 
+        location.reload();
       } else { $('managerIdSelect').value = myManagerId; }
     }
 
@@ -814,7 +816,7 @@
       const tb = $('tbody'), empty = $('emptyState'); tb.innerHTML = '';
       if (!data.length) { empty.classList.remove('hidden'); return; }
       empty.classList.add('hidden');
-      data.sort((a,b)=>b.created_at - a.created_at).forEach(o => {
+      data.sort((a,b)=>b.created_at.localeCompare(a.created_at)).forEach(o => {
         const partsSum = o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
         const exp = partsSum + (parseFloat(o.transport)||0);
         const profit = (parseFloat(o.cost)||0) - exp;
@@ -828,7 +830,7 @@
     }
     function handleInlineStatus(id, newStatus) {
       const order = orders.find(x => x.id === id); if (!order) return;
-      order.status = newStatus; order.updated_at = Date.now();
+      order.status = newStatus; order.updated_at = new Date().toISOString();
       if (newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Быстрый статус');
       pushOrderToCloud(order); updateMyStatsInCloud(); saveLocalCache(); updateUI(); applyFilters();
     }
@@ -880,7 +882,10 @@
       const warrantyDays = parseInt($('warrantyDays').value) || 0; let warrantyUntil = null;
       if (warrantyDays > 0) { const d = new Date($('orderDate').value); d.setDate(d.getDate() + warrantyDays); warrantyUntil = d.toISOString().split('T')[0]; }
       const id = $('editId').value || Date.now().toString(36) + Math.random().toString(36).substr(2,5);
-      const order = { id, manager_id: myManagerId, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, warrantyDays, warrantyUntil, type:$('type').value, status:$('status').value, avitoLink:$('avitoLink').value, reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, parts:newParts, created_at: orders.find(o => o.id === id)?.created_at || Date.now(), updated_at: Date.now() };
+      const now = new Date().toISOString();
+      const order = { 
+        id, manager_id: myManagerId, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, warrantyDays, warrantyUntil, type:$('type').value, status:$('status').value, avitoLink:$('avitoLink').value, reason:$('reason').value, cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, parts:newParts, created_at: oldOrder?.created_at || now, updated_at: now 
+      };
       const idx = orders.findIndex(o => o.id === id);
       if (idx > -1) orders[idx] = order; else orders.push(order);
       saveLocalCache(); pushOrderToCloud(order);
@@ -894,7 +899,7 @@
     }
     function revertOrder() {
       const id = $('editId').value; if (!id) return; if (!confirm(`Вернуть заявку из статуса «Выдан»?`)) return;
-      const order = orders.find(x => x.id === id); if (order) { order.status = 'Готово'; order.updated_at = Date.now(); syncInventoryStock([], order.parts); saveLocalCache(); pushOrderToCloud(order); updateMyStatsInCloud(); closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен. Запчасти на складе.'); }
+      const order = orders.find(x => x.id === id); if (order) { order.status = 'Готово'; order.updated_at = new Date().toISOString(); syncInventoryStock([], order.parts); saveLocalCache(); pushOrderToCloud(order); updateMyStatsInCloud(); closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен. Запчасти на складе.'); }
     }
     function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
     function delOrder(id) { if(!confirm('Удалить заявку?')) return; const order = orders.find(x => x.id === id); if (order && order.status !== 'Выдан') syncInventoryStock([], order.parts); orders=orders.filter(x=>x.id!==id); deleteOrderFromCloud(id); saveLocalCache(); updateMyStatsInCloud(); applyFilters(); updateUI(); }
@@ -974,20 +979,37 @@
     async function loadChatHistory() { const c=$('chatMessages'); if(!supabaseClient){c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';return} c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>'; const {data,error}=await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); if(error){c.innerHTML='❌ '+error.message;return} renderChatMsgs(data||[]); }
     function renderChatMsgs(msgs) { const c=$('chatMessages'); if(!msgs.length){c.innerHTML='<div class="chat-system">👋 Чат пуст</div>';return} c.innerHTML=msgs.map(m=>{if(m.user_meta?.type==='system_context')return;const isSup=m.is_user===false||m.user_meta?.is_support===true;const name=isSup?'ТЕХПОДДЕРЖКА':(m.user_name||'Аноним');const row=isSup?'support':'user';return`<div class="chat-msg-row ${row}"><div class="chat-name">${name}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></div>`}).join(''); c.scrollTop=c.scrollHeight; }
     function subscribeToNewMessages() { if(!supabaseClient||chatSubscription)return; chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{if(p.new.user_meta?.type==='system_context')return;const c=$('chatMessages'),t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),isSup=p.new.is_user===false||p.new.user_meta?.is_support===true;const name=isSup?'ТЕХПОДДЕРЖКА':(p.new.user_name||'Аноним');const row=isSup?'support':'user';const m=`<div class="chat-msg-row ${row}"><div class="chat-name">${name}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${t}</span></div>`;c.insertAdjacentHTML('beforeend',m);c.scrollTop=c.scrollHeight}).subscribe(); }
-    async function sendChatMessage() { const i=$('chatInput'),n=$('chatUsername'),t=i?.value?.trim(),name=n?.value?.trim(); if(!t||!name){if(!n?.value)n?.focus();return} let isSup=false,disp=name; if(name===SUPPORT_SECRET){isSup=true;disp='ТЕХПОДДЕРЖКА';if(n){n.value=disp;n.classList.add('support-mode');n.disabled=true;}} localStorage.setItem('chat_username',disp); if(!supabaseClient){alert('❌ Чат не настроен');return} const b=i.nextElementSibling;b.disabled=true; try{const{error}=await supabaseClient.from('support_messages').insert({user_name:disp,message:t,is_user:!isSup,user_meta:{appVersion:'v8.0',is_support:isSup}});if(error)throw error;i.value=''}catch(err){alert('❌ '+err.message)}finally{b.disabled=false;i?.focus()} }
+    async function sendChatMessage() { const i=$('chatInput'),n=$('chatUsername'),t=i?.value?.trim(),name=n?.value?.trim(); if(!t||!name){if(!n?.value)n?.focus();return} let isSup=false,disp=name; if(name===SUPPORT_SECRET){isSup=true;disp='ТЕХПОДДЕРЖКА';if(n){n.value=disp;n.classList.add('support-mode');n.disabled=true;}} localStorage.setItem('chat_username',disp); if(!supabaseClient){alert('❌ Чат не настроен');return} const b=i.nextElementSibling;b.disabled=true; try{const{error}=await supabaseClient.from('support_messages').insert({user_name:disp,message:t,is_user:!isSup,user_meta:{appVersion:'v8.1',is_support:isSup}});if(error)throw error;i.value=''}catch(err){alert('❌ '+err.message)}finally{b.disabled=false;i?.focus()} }
 
     // === INIT ===
     window.onload = async () => {
-      const supabaseOk = initSupabase(); loadLocalData();
-      if(supabaseOk) { await syncOrders(); await updateMyStatsInCloud(); await updateOtherManagerBadge(); startAutoSync(); }
+      const supabaseOk = initSupabase(); 
+      loadLocalData();
+      
+      const emptyEl = $('emptyState');
+      emptyEl.textContent = '⏳ Загрузка заявок из облака...';
+      emptyEl.classList.remove('hidden');
+      $('tbody').innerHTML = '';
+
+      if(supabaseOk) { 
+        await syncOrders(); 
+        await updateMyStatsInCloud(); 
+        await updateOtherManagerBadge(); 
+        startAutoSync(); 
+      } else {
+        emptyEl.textContent = '⚠️ Облако недоступно. Работа только в локальном режиме.';
+      }
+
       const selType=$('filterType'),selStatus=$('filterStatus'),typeSel=$('type'),statusSel=$('status');
       TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;selType.appendChild(o);typeSel.appendChild(o.cloneNode(true))});
       STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;selStatus.appendChild(o);statusSel.appendChild(o.cloneNode(true))});
+      
       if($('masterName')) $('masterName').value=settings.masterName||'Мастер';
       updateUI(); renderTable(); renderInventory(); renderOtherManagerBadge();
       $('repairCost').oninput=$('transportCost').oninput=calcTotals;
       $('secretInput')?.addEventListener('keyup',e=>{if(e.key==='Enter'&&e.target.value.trim()===SECRET_CODE){addCoins(COIN_REWARDS.SECRET,'🤫 Секрет');e.target.value=''}});
       setupCsvDragDrop(); if(supabaseClient) await checkChatConnection();
+      
       const last=localStorage.getItem('last_login_'+myManagerId), today=new Date().toISOString().split('T')[0];
       if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Ежедневный вход');localStorage.setItem('last_login_'+myManagerId,today)}
     };
