@@ -558,6 +558,7 @@
     let inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || '[]');
     let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":0,"totalEarned":0,"unlocks":{},"level":1,"levelName":"Новичок 🌱"}');
     let currentDetailId = null;
+    let currentTab = 'orders';
     let currentPhotoBase64 = null;
     let pendingCsvData = [];
 
@@ -571,38 +572,56 @@
       if (!currentParts) currentParts = [];
       if (!oldParts) oldParts = [];
 
-      // Определяем запчасти, которые были удалены (возвращаем на склад)
-      oldParts.forEach(oldPart => {
-        const isStillUsed = currentParts.some(newPart => newPart.name.trim().toLowerCase() === oldPart.name.trim().toLowerCase());
-        if (!isStillUsed) {
-          addToStock(oldPart.name, 1);
+      const oldPartsMap = new Map();
+      oldParts.forEach(part => {
+        const key = part.name.trim().toLowerCase();
+        const count = oldPartsMap.get(key) || 0;
+        oldPartsMap.set(key, count + 1);
+      });
+
+      const newPartsMap = new Map();
+      currentParts.forEach(part => {
+        const key = part.name.trim().toLowerCase();
+        const count = newPartsMap.get(key) || 0;
+        newPartsMap.set(key, count + 1);
+      });
+
+      // Находим что удалили (возвращаем на склад)
+      oldPartsMap.forEach((oldCount, partNameLower) => {
+        const newCount = newPartsMap.get(partNameLower) || 0;
+        if (newCount < oldCount) {
+          const diff = oldCount - newCount;
+          addToStockByLowerName(partNameLower, diff);
         }
       });
 
-      // Определяем запчасти, которые были добавлены (списываем со склада)
-      currentParts.forEach(newPart => {
-        const wasUsedBefore = oldParts.some(oldPart => oldPart.name.trim().toLowerCase() === newPart.name.trim().toLowerCase());
-        if (!wasUsedBefore) {
-          removeFromStock(newPart.name, 1);
+      // Находим что добавили (списываем со склада)
+      newPartsMap.forEach((newCount, partNameLower) => {
+        const oldCount = oldPartsMap.get(partNameLower) || 0;
+        if (newCount > oldCount) {
+          const diff = newCount - oldCount;
+          removeFromStockByLowerName(partNameLower, diff);
         }
       });
     }
 
-    function removeFromStock(partName, amount) {
-      const item = inventory.find(i => i.name.trim().toLowerCase() === partName.trim().toLowerCase());
+    function removeFromStockByLowerName(partNameLower, amount) {
+      const item = inventory.find(i => i.name.trim().toLowerCase() === partNameLower);
       if (item) {
-        item.inStock = Math.max(0, item.inStock - amount);
-        localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
-        if(currentTab === 'inventory') renderInventory();
+        if (item.inStock >= amount) {
+          item.inStock -= amount;
+          localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+          if (currentTab === 'inventory') renderInventory();
+        }
       }
     }
 
-    function addToStock(partName, amount) {
-      const item = inventory.find(i => i.name.trim().toLowerCase() === partName.trim().toLowerCase());
+    function addToStockByLowerName(partNameLower, amount) {
+      const item = inventory.find(i => i.name.trim().toLowerCase() === partNameLower);
       if (item) {
         item.inStock += amount;
         localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
-        if(currentTab === 'inventory') renderInventory();
+        if (currentTab === 'inventory') renderInventory();
       }
     }
 
@@ -688,6 +707,7 @@
 
     // === MAIN FUNCTIONS ===
     function switchTab(tab) {
+      currentTab = tab;
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
       event.target.classList.add('active');
       $('ordersSection').classList.toggle('hidden', tab !== 'orders');
@@ -796,56 +816,76 @@
       const isEdit = !!$('editId').value;
       let newStatus = $('status').value;
       
-      // 1. Сбор данных о запчастях из формы
-      const newParts = Array.from(document.querySelectorAll('.part-row')).map(r=>({
-        name: r.querySelector('.p-name').value, 
-        sku: r.querySelector('.p-sku').value, 
+      const newParts = Array.from(document.querySelectorAll('.part-row')).map(r => ({
+        name: r.querySelector('.p-name').value.trim(), 
+        sku: r.querySelector('.p-sku').value.trim(), 
         status: r.querySelector('.p-status').value, 
-        cost: parseFloat(r.querySelector('.p-cost').value)||0, 
-        price: parseFloat(r.querySelector('.p-price').value)||0
-      })).filter(p=>p.name);
+        cost: parseFloat(r.querySelector('.p-cost').value) || 0, 
+        price: parseFloat(r.querySelector('.p-price').value) || 0
+      })).filter(p => p.name);
 
-      // 2. Получаем старую версию заявки (для редактирования)
+      if (!$('client').value || !$('type').value || !$('repairCost').value) {
+        alert('❌ Заполните обязательные поля: телефон клиента, тип техники, стоимость работ');
+        return;
+      }
+
       let oldOrder = null;
       if (isEdit) oldOrder = orders.find(o => o.id === $('editId').value);
 
-      // 3. Синхронизация склада
-      // Если старая заявка была "Выдана", запчасти уже списаны, их трогать не надо (если не меняем статус)
-      // Если старая заявка была не "Выдана", запчасти были забронированы/списаны.
-      // Логика: всегда пересчитываем разницу между старым списком и новым
-      if (oldOrder && oldOrder.status !== 'Выдан') {
-         syncInventoryStock(newParts, oldOrder.parts);
-      } else if (!isEdit) {
-         // Новая заявка - списываем все запчасти
-         syncInventoryStock(newParts, []);
+      const warrantyDays = parseInt($('warrantyDays').value) || 0;
+      let warrantyUntil = null;
+      if (warrantyDays > 0) { 
+        const d = new Date($('orderDate').value); 
+        d.setDate(d.getDate() + warrantyDays); 
+        warrantyUntil = d.toISOString().split('T')[0]; 
       }
 
-      // 4. Логика коинов и статусов
+      const id = $('editId').value || Date.now().toString(36) + Math.random().toString(36).substr(2,5);
+      
+      const order = { 
+        id, 
+        client: $('client').value, 
+        date: $('orderDate').value, 
+        est: $('estDate').value, 
+        warrantyDays, 
+        warrantyUntil, 
+        type: $('type').value, 
+        status: newStatus, 
+        avitoLink: $('avitoLink').value, 
+        reason: $('reason').value, 
+        cost: parseFloat($('repairCost').value) || 0, 
+        transport: parseFloat($('transportCost').value) || 0, 
+        parts: newParts, 
+        createdAt: orders.find(o => o.id === id)?.createdAt || Date.now() 
+      };
+      
+      const idx = orders.findIndex(o => o.id === id);
+      if (idx > -1) orders[idx] = order; 
+      else orders.push(order);
+      
+      saveData();
+      
+      if (oldOrder && oldOrder.status !== 'Выдан') {
+        syncInventoryStock(newParts, oldOrder.parts);
+      } else if (!isEdit) {
+        syncInventoryStock(newParts, []);
+      }
+      
       if (isEdit) {
         if (oldOrder?.status === 'Выдан') newStatus = 'Выдан';
-        if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Заявка выдана');
-      } else addCoins(COIN_REWARDS.CREATE, '📋 Новая заявка');
+        if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') {
+          addCoins(COIN_REWARDS.COMPLETE, '✅ Заявка выдана');
+        }
+      } else {
+        addCoins(COIN_REWARDS.CREATE, '📋 Новая заявка');
+      }
 
       const fieldsFilled = [$('client').value, $('type').value, $('reason').value, $('repairCost').value].every(Boolean);
       if (fieldsFilled && !isEdit) addCoins(COIN_REWARDS.QUALITY_FIELDS, '📝 Полная заявка');
-
-      const warrantyDays = parseInt($('warrantyDays').value) || 0;
-      let warrantyUntil = null;
-      if (warrantyDays > 0) { const d = new Date($('orderDate').value); d.setDate(d.getDate() + warrantyDays); warrantyUntil = d.toISOString().split('T')[0]; }
-
-      const id = $('editId').value || Date.now().toString(36)+Math.random().toString(36).substr(2,5);
       
-      const order = { 
-        id, client:$('client').value, date:$('orderDate').value, est:$('estDate').value, warrantyDays, warrantyUntil, 
-        type:$('type').value, status:newStatus, avitoLink:$('avitoLink').value, reason:$('reason').value, 
-        cost:parseFloat($('repairCost').value)||0, transport:parseFloat($('transportCost').value)||0, 
-        parts: newParts, createdAt: orders.find(o=>o.id===id)?.createdAt||Date.now() 
-      };
-      
-      const idx = orders.findIndex(o=>o.id===id);
-      if(idx>-1) orders[idx]=order; else orders.push(order);
-      
-      saveData(); closeModal(); applyFilters(); updateUI();
+      closeModal(); 
+      applyFilters(); 
+      updateUI();
     }
     
     function revertOrder() {
@@ -854,7 +894,6 @@
       const order = orders.find(x => x.id === id);
       if (order) { 
         order.status = 'Готово'; 
-        // Возвращаем запчасти
         syncInventoryStock([], order.parts); 
         saveData(); closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен. Запчасти на складе.'); 
       }
