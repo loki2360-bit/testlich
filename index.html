@@ -201,7 +201,6 @@
     .chat-status.online { color:var(--success); }
     .chat-status.offline { color:var(--danger); }
 
-    /* === COIN POPUP & SHOP STYLES === */
     .coin-popup {
       position: fixed; top: 18%; left: 50%; transform: translateX(-50%) translateY(10px);
       background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #fff; padding: 10px 18px;
@@ -214,7 +213,6 @@
     .shop-item h4 { margin: 0 0 4px; font-size: 0.9rem; }
     .shop-item p { margin: 0 0 8px; font-size: 0.75rem; color: var(--muted); }
 
-    /* Profile Status Display */
     .profile-info-display {
       background: #f1f5f9; padding: 12px; border-radius: 8px; margin-bottom: 16px;
       font-size: 0.85rem; color: var(--text);
@@ -222,7 +220,6 @@
     .profile-info-display strong { display: block; margin-bottom: 4px; font-size: 1rem; }
     .profile-info-display span { color: var(--muted); }
 
-    /* === LANDING PAGE STYLES === */
     .landing-overlay {
       position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
       display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 9999;
@@ -270,7 +267,6 @@
     .landing-overlay.hiding .landing-content { animation: contentSlideDown 0.3s ease-in forwards; }
     @keyframes contentSlideDown { to { opacity: 0; transform: translateY(10px); } }
 
-    /* Order usage badge style */
     .order-link {
       display: inline-block;
       padding: 2px 6px;
@@ -289,7 +285,6 @@
       color: #fff;
     }
 
-    /* Scanner button and modal styles */
     .scanner-btn {
       background: linear-gradient(135deg, #8b5cf6, #7c3aed);
       color: white;
@@ -344,7 +339,6 @@
       border-color: #fca5a5;
     }
 
-    /* === CHAT: Support vs User Styles === */
     .chat-msg-row.support .chat-name { 
       color: var(--avito-blue); 
       font-weight: 700;
@@ -403,7 +397,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v6.2 • Beta</span>
+          <span class="brand-badge">v7.0 • Multi-manager</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -636,7 +630,7 @@
       </div>
       <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
       <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p></div>
-      <div class="landing-footer"><span class="version-badge">v6.2 • Beta</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
+      <div class="landing-footer"><span class="version-badge">v7.0 • Multi-manager</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
     </div>
     <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
@@ -676,10 +670,26 @@
     let supabaseClient = null;
     let chatSubscription = null;
     let html5QrCode = null;
+    let ordersSubscription = null;
+
+    // === МЕНЕДЖЕРЫ (максимум 2, без регистрации) ===
+    const MANAGERS = [
+      { id: 'mgr_1', name: 'Менеджер 1', pin: '1111', color: '#3b82f6' },
+      { id: 'mgr_2', name: 'Менеджер 2', pin: '2222', color: '#10b981' }
+    ];
+    let currentManager = null;
+    let ordersSyncEnabled = false;
+    const ORDERS_TABLE = 'orders';
 
     function initSupabase() {
       if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) return false;
-      try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); return true; } catch(e) { return false; }
+      try { 
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
+        return true; 
+      } catch(e) { 
+        console.warn('Supabase init error:', e);
+        return false; 
+      }
     }
 
     let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
@@ -695,13 +705,283 @@
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
     const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
 
+    // === МЕНЕДЖЕР: АВТОРИЗАЦИЯ ===
+    function initManager() {
+      const saved = localStorage.getItem('current_manager');
+      if (saved) {
+        currentManager = MANAGERS.find(m => m.id === saved);
+      }
+      if (!currentManager) {
+        showManagerSelect();
+      } else {
+        startApp();
+      }
+    }
+
+    function showManagerSelect() {
+      document.querySelector('.container').style.opacity = '0';
+      document.querySelector('.container').style.pointerEvents = 'none';
+      
+      const overlay = document.createElement('div');
+      overlay.id = 'managerSelect';
+      overlay.style.cssText = `
+        position:fixed;inset:0;background:linear-gradient(135deg,#0f172a,#1e293b);
+        display:flex;justify-content:center;align-items:center;z-index:10000;
+        padding:20px;animation:fadeIn 0.3s ease;
+      `;
+      overlay.innerHTML = `
+        <div style="background:#fff;border-radius:20px;padding:32px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+          <div style="text-align:center;margin-bottom:24px">
+            <h2 style="font-size:1.4rem;margin:0 0 8px">👤 Выберите менеджера</h2>
+            <p style="color:var(--muted);font-size:0.9rem">Заказы синхронизируются между обоими</p>
+          </div>
+          ${MANAGERS.map(m => `
+            <button onclick="selectManager('${m.id}')" style="
+              width:100%;padding:14px 20px;margin:8px 0;border:2px solid var(--border);
+              border-radius:12px;background:#f8fafc;cursor:pointer;font-weight:600;
+              display:flex;align-items:center;gap:12px;transition:0.2s;
+            " onmouseover="this.style.borderColor='${m.color}';this.style.background='#f0f9ff'"
+            onmouseout="this.style.borderColor='var(--border)';this.style.background='#f8fafc'">
+              <div style="width:40px;height:40px;border-radius:10px;background:${m.color};
+                display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700">
+                ${m.name.charAt(0)}
+              </div>
+              <div style="text-align:left;flex:1">
+                <div style="font-size:1rem">${m.name}</div>
+                <div style="font-size:0.75rem;color:var(--muted)">PIN: ${m.pin}</div>
+              </div>
+              <span style="font-size:1.2rem">→</span>
+            </button>
+          `).join('')}
+          <p style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:20px">
+            🔒 Заявки в облаке • Склад локально
+          </p>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+    }
+
+    function selectManager(managerId) {
+      currentManager = MANAGERS.find(m => m.id === managerId);
+      if (!currentManager) return;
+      
+      localStorage.setItem('current_manager', managerId);
+      document.getElementById('managerSelect')?.remove();
+      
+      const container = document.querySelector('.container');
+      container.style.opacity = '1';
+      container.style.pointerEvents = 'all';
+      
+      startApp();
+    }
+
+    function updateManagerUI() {
+      if (!currentManager) return;
+      
+      const header = document.querySelector('header > div:last-child');
+      let badge = document.getElementById('managerBadge');
+      if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'managerBadge';
+        badge.style.cssText = `
+          display:inline-flex;align-items:center;gap:6px;
+          padding:6px 12px;border-radius:20px;
+          background:${currentManager.color}20;color:${currentManager.color};
+          font-weight:600;font-size:0.8rem;cursor:pointer;
+        `;
+        badge.title = 'Сменить менеджера';
+        badge.onclick = () => {
+          if(confirm('Сменить менеджера?')) {
+            localStorage.removeItem('current_manager');
+            location.reload();
+          }
+        };
+        header.insertBefore(badge, header.firstChild);
+      }
+      badge.innerHTML = `
+        <span style="width:20px;height:20px;border-radius:50%;background:${currentManager.color};
+          display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:0.7rem">
+          ${currentManager.name.charAt(0)}
+        </span>
+        ${currentManager.name}
+      `;
+    }
+
+    // === ЗАПУСК ПРИЛОЖЕНИЯ ===
+    async function startApp() {
+      updateManagerUI();
+      
+      if (initSupabase()) {
+        await syncOrdersFromCloud();
+        setupOrdersRealtime();
+        ordersSyncEnabled = true;
+      }
+      
+      updateUI(); 
+      renderTable(); 
+      renderInventory();
+      
+      const selType=$('filterType'),selStatus=$('filterStatus'),typeSel=$('type'),statusSel=$('status');
+      if (selType && typeSel && !selType.options.length) {
+        TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;selType.appendChild(o);typeSel.appendChild(o.cloneNode(true))});
+      }
+      if (selStatus && statusSel && !selStatus.options.length) {
+        STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;selStatus.appendChild(o);statusSel.appendChild(o.cloneNode(true))});
+      }
+      
+      if($('masterName')) $('masterName').value=settings.master||'Мастер';
+      $('repairCost').oninput=$('transportCost').oninput=calcTotals;
+      $('secretInput')?.addEventListener('keyup',e=>{if(e.key==='Enter'&&e.target.value.trim()===SECRET_CODE){addCoins(COIN_REWARDS.SECRET,'🤫 Секрет');e.target.value=''}});
+      $('inventoryForm').onsubmit=handleInventorySubmit; 
+      setupCsvDragDrop();
+      if(supabaseClient) await checkChatConnection();
+
+      const last=localStorage.getItem('last_login_date'), today=new Date().toISOString().split('T')[0];
+      if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Ежедневный вход');localStorage.setItem('last_login_date',today)}
+    }
+
+    // === SUPABASE: СИНХРОНИЗАЦИЯ ЗАКАЗОВ ===
+    async function syncOrdersFromCloud() {
+      if (!supabaseClient || !currentManager) return;
+      
+      try {
+        const {  cloudOrders, error } = await supabaseClient
+          .from(ORDERS_TABLE)
+          .select('*')
+          .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        const localMap = new Map(orders.map(o => [o.id, o]));
+        
+        if (cloudOrders) {
+          cloudOrders.forEach(co => {
+            const local = localMap.get(co.id);
+            if (!local || new Date(co.updated_at) > new Date(local.updated_at || 0)) {
+              localMap.set(co.id, {
+                id: co.id,
+                manager_id: co.manager_id,
+                client: co.client,
+                date: co.date,
+                est: co.est,
+                warrantyDays: co.warranty_days,
+                warrantyUntil: co.warranty_until,
+                type: co.type,
+                status: co.status,
+                avitoLink: co.avito_link,
+                reason: co.reason,
+                cost: co.cost,
+                transport: co.transport,
+                parts: co.parts || [],
+                createdAt: new Date(co.created_at).getTime(),
+                updatedAt: new Date(co.updated_at).getTime()
+              });
+            }
+          });
+        }
+        
+        orders = Array.from(localMap.values());
+        saveDataLocal();
+        
+      } catch (err) {
+        console.warn('⚠️ Не удалось загрузить заказы из облака:', err.message);
+      }
+    }
+
+    function setupOrdersRealtime() {
+      if (!supabaseClient || ordersSubscription) return;
+      
+      ordersSubscription = supabaseClient
+        .channel('orders_changes')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: ORDERS_TABLE
+        }, async (payload) => {
+          if (payload.new?.manager_id === currentManager?.id && 
+              payload.eventType !== 'DELETE') {
+            return;
+          }
+          
+          await new Promise(r => setTimeout(r, 300));
+          await syncOrdersFromCloud();
+          
+          if (currentTab === 'orders') {
+            applyFilters();
+            updateUI();
+          }
+          
+          showCloudSyncToast(payload.eventType);
+        })
+        .subscribe();
+    }
+
+    function showCloudSyncToast(eventType) {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position:fixed;bottom:20px;right:20px;padding:12px 20px;
+        background:var(--card);border-left:4px solid var(--primary);
+        border-radius:10px;box-shadow:var(--shadow);z-index:1000;
+        font-size:0.85rem;animation:slideIn 0.3s ease;
+      `;
+      
+      const actions = { INSERT: '📥 Новый заказ', UPDATE: '🔄 Обновление', DELETE: '🗑️ Удаление' };
+      toast.textContent = `${actions[eventType] || 'Синхронизация'} от другого менеджера`;
+      
+      document.body.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    async function saveOrderToCloud(order) {
+      if (!supabaseClient || !ordersSyncEnabled || !currentManager) return;
+      
+      const cloudOrder = {
+        id: order.id,
+        manager_id: currentManager.id,
+        client: order.client,
+        date: order.date,
+        est: order.est,
+        warranty_days: order.warrantyDays,
+        warranty_until: order.warrantyUntil,
+        type: order.type,
+        status: order.status,
+        avito_link: order.avitoLink,
+        reason: order.reason,
+        cost: order.cost,
+        transport: order.transport,
+        parts: order.parts,
+        updated_at: new Date().toISOString()
+      };
+      
+      const { data: existing } = await supabaseClient
+        .from(ORDERS_TABLE)
+        .select('id')
+        .eq('id', order.id)
+        .single();
+      
+      if (existing) {
+        await supabaseClient.from(ORDERS_TABLE).update(cloudOrder).eq('id', order.id);
+      } else {
+        cloudOrder.created_at = new Date(order.createdAt || Date.now()).toISOString();
+        await supabaseClient.from(ORDERS_TABLE).insert(cloudOrder);
+      }
+    }
+
+    function saveDataLocal() {
+      localStorage.setItem(DB_KEY, JSON.stringify(orders));
+      localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    }
+
     // === SCANNER FUNCTIONS ===
     function openScanner() {
       const modal = $('scannerModal');
       if (!modal) return;
       modal.classList.add('active');
       
-      // Инициализация сканера
       html5QrCode = new Html5Qrcode("reader");
       const config = { fps: 10, qrbox: { width: 250, height: 250 } };
       
@@ -732,10 +1012,8 @@
     }
 
     function onScanSuccess(decodedText, decodedResult) {
-      // Останавливаем сканирование после успешного считывания
       html5QrCode.stop();
       
-      // Ищем запчасть по артикулу или названию
       const foundPart = inventory.find(item => 
         (item.sku && item.sku.toLowerCase() === decodedText.toLowerCase()) ||
         item.name.toLowerCase().includes(decodedText.toLowerCase())
@@ -769,7 +1047,6 @@
     }
 
     function onScanFailure(error) {
-      // Игнорируем ошибки сканирования (это нормально при отсутствии кода в кадре)
       console.warn(`Код не распознан: ${error}`);
     }
 
@@ -979,7 +1256,9 @@
       const order = orders.find(x => x.id === id); if (!order) return;
       order.status = newStatus;
       if (newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Быстрый статус');
-      saveData(); updateUI(); applyFilters();
+      saveDataLocal(); 
+      if (ordersSyncEnabled) saveOrderToCloud(order);
+      updateUI(); applyFilters();
     }
     function applyFilters() {
       const q = $('search').value.toLowerCase(), t = $('filterType').value, s = $('filterStatus').value;
@@ -1036,7 +1315,7 @@
       $('sumParts').textContent = fmt(pSum); $('sumExp').textContent = fmt(pSum+tr);
       $('sumProfit').textContent = fmt(cost-pSum-tr); $('sumProfit').style.color = (cost-pSum-tr)>=0 ? 'var(--success)' : 'var(--danger)';
     }
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
       e.preventDefault();
       const isEdit = !!$('editId').value;
       let newStatus = $('status').value;
@@ -1081,19 +1360,24 @@
         cost: parseFloat($('repairCost').value) || 0, 
         transport: parseFloat($('transportCost').value) || 0, 
         parts: newParts, 
-        createdAt: orders.find(o => o.id === id)?.createdAt || Date.now() 
+        createdAt: orders.find(o => o.id === id)?.createdAt || Date.now(),
+        updatedAt: Date.now()
       };
       
       const idx = orders.findIndex(o => o.id === id);
       if (idx > -1) orders[idx] = order; 
       else orders.push(order);
       
-      saveData();
+      saveDataLocal();
       
       if (oldOrder && oldOrder.status !== 'Выдан') {
         syncInventoryStock(newParts, oldOrder.parts);
       } else if (!isEdit) {
         syncInventoryStock(newParts, []);
+      }
+      
+      if (ordersSyncEnabled) {
+        await saveOrderToCloud(order);
       }
       
       if (isEdit) {
@@ -1120,20 +1404,26 @@
       if (order) { 
         order.status = 'Готово'; 
         syncInventoryStock([], order.parts); 
-        saveData(); closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен. Запчасти на складе.'); 
+        saveDataLocal(); 
+        if (ordersSyncEnabled) saveOrderToCloud(order);
+        closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен. Запчасти на складе.'); 
       }
     }
-    function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(orders)); }
+    
     function editOrder(id) { const o=orders.find(x=>x.id===id); if(o) openModal(o); }
     
-    function delOrder(id) { 
+    async function delOrder(id) { 
       if(!confirm('Удалить заявку? Запчасти вернутся на склад.')) return; 
       const order = orders.find(x => x.id === id);
       if (order && order.status !== 'Выдан') {
          syncInventoryStock([], order.parts);
       }
       orders=orders.filter(x=>x.id!==id); 
-      saveData(); applyFilters(); updateUI(); 
+      saveDataLocal();
+      if (ordersSyncEnabled && supabaseClient) {
+        await supabaseClient.from(ORDERS_TABLE).delete().eq('id', id);
+      }
+      applyFilters(); updateUI(); 
     }
 
     function openDetail(id) {
@@ -1230,13 +1520,11 @@
       const s = localStorage.getItem('chat_username'); 
       if(s) {
         $('chatUsername').value = s;
-        // Если сохранённое имя — это техподдержка, активируем режим
         if (s === 'ТЕХПОДДЕРЖКА') {
           $('chatUsername').classList.add('support-mode');
           $('chatUsername').disabled = true;
         }
       }
-      // Добавляем подсказку динамически, если её нет
       if (!$('chatHint')) {
         const hint = document.createElement('div');
         hint.id = 'chatHint';
@@ -1265,7 +1553,7 @@
         return
       } 
       c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>'; 
-      const { data, error } = await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); 
+      const {  data, error } = await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); 
       if(error){
         c.innerHTML='❌ '+error.message;
         return
@@ -1282,14 +1570,9 @@
       
       c.innerHTML = msgs.map(m => {
         if(m.user_meta?.type === 'system_context') return '';
-        
-        // 🔍 Определяем, кто отправил сообщение
         const isSupportMsg = m.is_user === false || m.user_meta?.is_support === true;
         const rowClass = isSupportMsg ? 'support' : 'user';
-        
-        // Для поддержки всегда показываем фиксированное имя
         const displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (m.user_name || 'Аноним');
-        
         return `<div class="chat-msg-row ${rowClass}">
           <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
           <div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
@@ -1323,14 +1606,12 @@
       const i = $('chatInput'), n = $('chatUsername'), t = i?.value?.trim(), name = n?.value?.trim(); 
       if(!t || !name) { if(!n?.value) n?.focus(); return } 
       
-      // 🔐 Проверка секретного кода для техподдержки
       let isSupport = false;
       let displayName = name;
       
       if (name === SUPPORT_SECRET) {
         isSupport = true;
         displayName = 'ТЕХПОДДЕРЖКА';
-        // Визуально подсветим, что включён режим поддержки
         if (n) {
           n.value = displayName;
           n.classList.add('support-mode');
@@ -1338,7 +1619,6 @@
           n.title = 'Режим техподдержки активен';
         }
       } else {
-        // Если ввели не секретный код — обычный пользователь
         if (n) {
           n.classList.remove('support-mode');
           n.disabled = false;
@@ -1360,11 +1640,11 @@
         const { error } = await supabaseClient.from('support_messages').insert({
           user_name: displayName,
           message: t,
-          is_user: !isSupport,  // false = поддержка, true = пользователь
+          is_user: !isSupport,
           user_meta: { 
-            appVersion: 'v6.2', 
+            appVersion: 'v7.0', 
             ua: navigator.userAgent.substring(0, 50),
-            is_support: isSupport  // флаг для надёжной идентификации
+            is_support: isSupport
           }
         });
         if(error) throw error;
@@ -1379,20 +1659,7 @@
 
     // === INIT ===
     window.onload = async () => {
-      initSupabase();
-      const selType=$('filterType'),selStatus=$('filterStatus'),typeSel=$('type'),statusSel=$('status');
-      TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;selType.appendChild(o);typeSel.appendChild(o.cloneNode(true))});
-      STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;selStatus.appendChild(o);statusSel.appendChild(o.cloneNode(true))});
-      if($('masterName')) $('masterName').value=settings.master||'Мастер';
-      
-      updateUI(); renderTable(); renderInventory();
-      $('repairCost').oninput=$('transportCost').oninput=calcTotals;
-      $('secretInput')?.addEventListener('keyup',e=>{if(e.key==='Enter'&&e.target.value.trim()===SECRET_CODE){addCoins(COIN_REWARDS.SECRET,'🤫 Секрет');e.target.value=''}});
-      $('inventoryForm').onsubmit=handleInventorySubmit; setupCsvDragDrop();
-      if(supabaseClient) await checkChatConnection();
-
-      const last=localStorage.getItem('last_login_date'), today=new Date().toISOString().split('T')[0];
-      if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Ежедневный вход');localStorage.setItem('last_login_date',today)}
+      initManager();
     };
 
     // === LANDING LOGIC ===
