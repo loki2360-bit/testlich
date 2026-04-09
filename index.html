@@ -200,6 +200,7 @@
     .chat-status { font-size:0.7rem; color:var(--muted); text-align:center; margin-top:8px; }
     .chat-status.online { color:var(--success); }
     .chat-status.offline { color:var(--danger); }
+    .chat-hint { font-size:0.65rem; color:var(--muted); text-align:center; margin-top:6px; font-style:italic; }
 
     /* === COIN POPUP & SHOP STYLES === */
     .coin-popup {
@@ -366,13 +367,6 @@
       background: #f0f9ff;
       box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.15);
     }
-    .chat-hint {
-      font-size: 0.65rem;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 4px;
-      font-style: italic;
-    }
 
     @media (max-width: 640px) {
       .landing-content { padding: 28px 20px; margin: 10px; }
@@ -403,7 +397,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v6.2 • Beta</span>
+          <span class="brand-badge">v6.3 • Beta</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -413,6 +407,7 @@
         <button class="btn btn-outline" onclick="openSettings()">⚙️ Профиль</button>
         <button class="btn btn-outline" onclick="openSupportChat()">💬 Чат поддержки</button>
         <button class="btn btn-outline" onclick="exportData()">📥 Бэкап</button>
+        <label class="btn btn-outline" style="cursor:pointer" title="Импорт заказа из JSON">📤<input type="file" accept=".json" style="display:none" onchange="importOrderFromJSON(this)"></label>
         <label class="btn btn-outline" style="cursor:pointer">📤<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
       </div>
     </header>
@@ -582,7 +577,11 @@
       <div class="detail-finances">
         <div class="fin-card"><span>Запчасти</span><strong id="dPartsSum">0 ₽</strong></div><div class="fin-card"><span>Транспорт</span><strong id="dTrans">0 ₽</strong></div><div class="fin-card"><span>Затраты</span><strong id="dExp">0 ₽</strong></div><div class="fin-card"><span>Стоимость</span><strong id="dCost">0 ₽</strong></div><div class="fin-card profit"><span>Прибыль</span><strong id="dProfit">0 ₽</strong></div>
       </div>
-      <div class="form-actions"><button class="btn btn-outline" onclick="editFromDetail()">✏️ Редактировать</button><button class="btn btn-primary" onclick="closeDetailModal()">Закрыть</button></div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="exportOrderAsJSON(currentDetailId)" title="Скачать заказ">📥 Скачать JSON</button>
+        <button class="btn btn-outline" onclick="editFromDetail()">✏️ Редактировать</button>
+        <button class="btn btn-primary" onclick="closeDetailModal()">Закрыть</button>
+      </div>
     </div>
   </div>
 
@@ -606,7 +605,14 @@
       <div class="modal-header" style="margin-bottom:8px; padding-bottom:10px; border-bottom:1px solid var(--border);"><div style="display:flex; align-items:center; gap:10px;"><h2 style="font-size:1.05rem; margin:0;">💬 чат поддержки</h2><span id="chatConnectionStatus" class="chat-status offline">● Офлайн</span></div><button class="close" onclick="closeSupportChat()" style="font-size:1.3rem;">&times;</button></div>
       <div id="chatMessages"></div>
       <div style="margin-bottom:8px; display:flex; gap:8px; align-items:center;"><input type="text" id="chatUsername" placeholder="Ваше имя..." style="width:140px; padding:8px 12px; border:1px solid var(--border); border-radius:8px; font-size:0.85rem;"></div>
-      <div class="chat-input-wrap"><input type="text" id="chatInput" placeholder="Написать сообщение..." onkeypress="if(event.key==='Enter') sendChatMessage()"><button class="btn btn-primary" onclick="sendChatMessage()" style="padding:10px 16px;">➤</button></div>
+      <div class="chat-input-wrap">
+        <label class="action-link" style="cursor:pointer;padding:10px" title="Прикрепить заказ (JSON)">
+          📎<input type="file" id="chatFileInput" accept=".json" style="display:none" onchange="handleChatFileUpload(this)">
+        </label>
+        <input type="text" id="chatInput" placeholder="Написать сообщение..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+        <button class="btn btn-primary" onclick="sendChatMessage()" style="padding:10px 16px;">➤</button>
+      </div>
+      <div class="chat-hint">💡 Перетащите файл .json в чат или нажмите 📎 для отправки заказа</div>
       <div style="font-size:0.68rem; color:var(--muted); margin-top:10px; text-align:center; line-height:1.4;">💡 Сообщения видны всем пользователям • Данные хранятся в облаке</div>
     </div>
   </div>
@@ -633,10 +639,11 @@
         <div class="feature-card"><div class="feature-icon">📦</div><h3>Склад запчастей</h3><p>Контролируйте остатки, бронируйте детали, импортируйте из CSV</p></div>
         <div class="feature-card"><div class="feature-icon">💰</div><h3>Финансы</h3><p>Считайте себестоимость, прибыль и отслеживайте гарантии</p></div>
         <div class="feature-card"><div class="feature-icon">☁️</div><h3>Бэкап в облако</h3><p>Экспорт/импорт данных — ваши данные всегда под защитой</p></div>
+        <div class="feature-card"><div class="feature-icon">📤</div><h3>Обмен заказами</h3><p>Экспортируйте заказы в JSON и делитесь ими в чате в реальном времени</p></div>
       </div>
       <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
       <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p></div>
-      <div class="landing-footer"><span class="version-badge">v6.2 • Beta</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
+      <div class="landing-footer"><span class="version-badge">v6.3 • Beta</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
     </div>
     <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
@@ -664,7 +671,7 @@
       { level: 7, name: 'Легенда ⭐', threshold: 2000 }
     ];
 
-    const COIN_REWARDS = { CREATE: 3, COMPLETE: 12, QUALITY_FIELDS: 2, ADD_PART: 2, SECRET: 500, DAILY_LOGIN: 1 };
+    const COIN_REWARDS = { CREATE: 3, COMPLETE: 12, QUALITY_FIELDS: 2, ADD_PART: 2, SECRET: 500, DAILY_LOGIN: 1, EXPORT_ORDER: 1, IMPORT_ORDER: 2, CHAT_FILE: 1, CHAT_IMPORT: 3 };
     const COSMETICS = [
       { id: 'status', name: '📝 Персональный статус', cost: 40, desc: 'Ваша подпись в профиле и бейдже', type: 'text' },
       { id: 'certificate', name: '📜 Почётная грамота', cost: 150, desc: 'Красивая сводка ваших достижений', type: 'cert' }
@@ -676,6 +683,7 @@
     let supabaseClient = null;
     let chatSubscription = null;
     let html5QrCode = null;
+    let chatMessagesCache = []; // Кэш сообщений чата для локального доступа
 
     function initSupabase() {
       if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) return false;
@@ -694,6 +702,163 @@
     const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
     const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
+
+    // === EXPORT/IMPORT SINGLE ORDER ===
+    function exportOrderAsJSON(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+      
+      const blob = new Blob([JSON.stringify(order, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `order_${order.id.slice(-6).toUpperCase()}_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      addCoins(COIN_REWARDS.EXPORT_ORDER, '📥 Экспорт заказа');
+    }
+
+    function importOrderFromJSON(input) {
+      const file = input.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const order = JSON.parse(e.target.result);
+          // Валидация
+          if (!order.id || !order.client || !order.type) throw new Error('Неверный формат файла');
+          
+          // Проверка дубликата
+          const existing = orders.find(o => o.id === order.id);
+          if (existing) {
+            if (!confirm(`Заказ #${order.id.slice(-6).toUpperCase()} уже существует. Заменить?`)) return;
+            const idx = orders.findIndex(o => o.id === order.id);
+            orders[idx] = { ...existing, ...order, updatedAt: Date.now() };
+          } else {
+            order.createdAt = order.createdAt || Date.now();
+            orders.push(order);
+          }
+          
+          saveData();
+          applyFilters();
+          renderInventory();
+          updateUI();
+          alert('✅ Заказ импортирован успешно');
+          addCoins(COIN_REWARDS.IMPORT_ORDER, '📤 Импорт заказа');
+        } catch (err) {
+          alert('❌ Ошибка импорта: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      input.value = '';
+    }
+
+    // === CHAT FILE SHARING ===
+    async function handleChatFileUpload(input) {
+      const file = input.files[0];
+      if (!file || !supabaseClient) {
+        if (!supabaseClient) alert('⚠️ Чат не подключён к облаку');
+        return;
+      }
+      
+      const userName = $('chatUsername')?.value?.trim() || 'Аноним';
+      
+      try {
+        const text = await file.text();
+        const orderData = JSON.parse(text);
+        
+        if (!orderData.id || !orderData.client) throw new Error('Неверный формат заказа');
+        
+        const fileMeta = {
+          fileName: file.name,
+          fileType: 'order_json',
+          orderPreview: {
+            id: orderData.id,
+            client: orderData.client,
+            type: orderData.type,
+            status: orderData.status,
+            cost: orderData.cost,
+            date: orderData.date,
+            warrantyUntil: orderData.warrantyUntil
+          },
+          fullData: orderData
+        };
+        
+        const { error } = await supabaseClient.from('support_messages').insert({
+          user_name: userName,
+          message: `📎 Прикреплён заказ: ${orderData.type} — ${orderData.client}`,
+          is_user: true,
+          user_meta: {
+            appVersion: 'v6.3',
+            ua: navigator.userAgent.substring(0, 50),
+            attachment: fileMeta
+          }
+        });
+        
+        if (error) throw error;
+        addCoins(COIN_REWARDS.CHAT_FILE, '📎 Файл в чат');
+        
+      } catch (err) {
+        alert('❌ Ошибка: ' + err.message);
+      }
+      input.value = '';
+    }
+
+    async function importSharedOrder(messageId) {
+      if (!supabaseClient) return;
+      
+      // Сначала пробуем из кэша
+      let msg = chatMessagesCache.find(m => m.id === messageId);
+      
+      // Если нет в кэше - запрашиваем из Supabase
+      if (!msg) {
+        const { data, error } = await supabaseClient
+          .from('support_messages')
+          .select('*')
+          .eq('id', messageId)
+          .single();
+        
+        if (error || !data?.user_meta?.attachment?.fullData) {
+          alert('❌ Не удалось получить данные заказа');
+          return;
+        }
+        msg = data;
+      }
+      
+      const order = msg.user_meta.attachment.fullData;
+      const existing = orders.find(o => o.id === order.id);
+      
+      if (existing) {
+        if (!confirm(`Заказ #${order.id.slice(-6).toUpperCase()} уже есть. Обновить?`)) return;
+        const idx = orders.findIndex(o => o.id === order.id);
+        orders[idx] = { ...existing, ...order, updatedAt: Date.now() };
+      } else {
+        order.createdAt = order.createdAt || Date.now();
+        orders.push(order);
+      }
+      
+      saveData();
+      applyFilters();
+      renderInventory();
+      updateUI();
+      alert('✅ Заказ импортирован из чата');
+      addCoins(COIN_REWARDS.CHAT_IMPORT, '📥 Импорт из чата');
+    }
+
+    function downloadSharedOrder(messageId) {
+      // Сначала пробуем из кэша
+      const msg = chatMessagesCache.find(m => m.id === messageId);
+      if (!msg?.user_meta?.attachment?.fullData) return;
+      
+      const blob = new Blob([JSON.stringify(msg.user_meta.attachment.fullData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = msg.user_meta.attachment.fileName || 'order.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
 
     // === SCANNER FUNCTIONS ===
     function openScanner() {
@@ -972,7 +1137,7 @@
         const cleanPhone = getCleanPhone(o.client);
         const contacts = `<a href="tel:${cleanPhone}" class="action-link" title="Позвонить">📞</a><a href="https://wa.me/${cleanPhone}?text=Здравствуйте!" target="_blank" class="action-link" title="WhatsApp">💬</a>`;
         const statusSelect = `<select class="inline-status" onchange="handleInlineStatus('${o.id}', this.value)">${STATUSES.map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>`;
-        tb.innerHTML += `<tr><td>${o.id.slice(-6).toUpperCase()}</td><td>${toDate(o.date)}</td><td>${o.client}</td><td>${contacts}</td><td>${avitoLink}</td><td>${o.type}</td><td>${statusSelect}</td><td>${getWarrantyBadge(o)}</td><td class="money">${fmt(exp)}</td><td class="money" style="font-weight:600">${fmt(o.cost)}</td><td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td><td class="actions"><button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button><button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button></td></tr>`;
+        tb.innerHTML += `<tr><td>${o.id.slice(-6).toUpperCase()}</td><td>${toDate(o.date)}</td><td>${o.client}</td><td>${contacts}</td><td>${avitoLink}</td><td>${o.type}</td><td>${statusSelect}</td><td>${getWarrantyBadge(o)}</td><td class="money">${fmt(exp)}</td><td class="money" style="font-weight:600">${fmt(o.cost)}</td><td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td><td class="actions"><button class="btn btn-outline btn-sm" onclick="exportOrderAsJSON('${o.id}')" title="Скачать заказ как JSON">📥</button><button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button><button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button></td></tr>`;
       });
     }
     function handleInlineStatus(id, newStatus) {
@@ -1270,6 +1435,7 @@
         c.innerHTML='❌ '+error.message;
         return
       } 
+      chatMessagesCache = data || []; // Сохраняем в кэш
       renderChatMsgs(data||[]); 
     }
     
@@ -1290,9 +1456,38 @@
         // Для поддержки всегда показываем фиксированное имя
         const displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (m.user_name || 'Аноним');
         
+        // Превью прикреплённого заказа
+        let attachmentHtml = '';
+        if (m.user_meta?.attachment?.fileType === 'order_json') {
+          const a = m.user_meta.attachment;
+          const p = a.orderPreview;
+          attachmentHtml = `
+            <div style="background:rgba(255,255,255,0.95);border-radius:10px;padding:12px;margin-top:10px;border:1px solid var(--border);box-shadow:var(--shadow)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <span style="font-size:1.2rem">📋</span>
+                <strong style="font-size:0.9rem">${a.fileName}</strong>
+              </div>
+              <div style="font-size:0.8rem;line-height:1.5;color:var(--text)">
+                <div><strong>Заказ #${p.id?.slice(-6).toUpperCase()}</strong></div>
+                <div>👤 ${p.client}</div>
+                <div>🔧 ${p.type}</div>
+                <div>📊 <span class="status-badge status-${STATUS_CLASSES[p.status]||''}">${p.status}</span> • <strong class="money">${fmt(p.cost)}</strong></div>
+                <div>📅 ${toDate(p.date)} ${p.warrantyUntil ? '• 🛡️ до '+toDate(p.warrantyUntil) : ''}</div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+                <button class="btn btn-sm btn-outline" onclick="downloadSharedOrder('${m.id}')" title="Скачать файл">💾 Скачать</button>
+                <button class="btn btn-sm btn-primary" onclick="importSharedOrder('${m.id}')" title="Добавить в учёт">📥 Импорт в систему</button>
+              </div>
+            </div>
+          `;
+        }
+        
         return `<div class="chat-msg-row ${rowClass}">
           <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
-          <div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
+          <div class="chat-bubble">
+            ${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+            ${attachmentHtml}
+          </div>
           <span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span>
         </div>`;
       }).join(''); 
@@ -1304,16 +1499,51 @@
       if(!supabaseClient||chatSubscription)return; 
       chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{
         if(p.new.user_meta?.type==='system_context')return;
+        
+        // Добавляем в кэш
+        chatMessagesCache.push(p.new);
+        if (chatMessagesCache.length > 200) chatMessagesCache.shift(); // Ограничиваем кэш
+        
         const c=$('chatMessages'),
               t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
               isSupportMsg = p.new.is_user === false || p.new.user_meta?.is_support === true,
               displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (p.new.user_name || 'Аноним'),
-              rowClass = isSupportMsg ? 'support' : 'user',
-              m=`<div class="chat-msg-row ${rowClass}">
-                <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
-                <div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
-                <span class="chat-time">${t}</span>
-              </div>`;
+              rowClass = isSupportMsg ? 'support' : 'user';
+              
+        // Превью прикреплённого заказа
+        let attachmentHtml = '';
+        if (p.new.user_meta?.attachment?.fileType === 'order_json') {
+          const a = p.new.user_meta.attachment;
+          const pr = a.orderPreview;
+          attachmentHtml = `
+            <div style="background:rgba(255,255,255,0.95);border-radius:10px;padding:12px;margin-top:10px;border:1px solid var(--border);box-shadow:var(--shadow)">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <span style="font-size:1.2rem">📋</span>
+                <strong style="font-size:0.9rem">${a.fileName}</strong>
+              </div>
+              <div style="font-size:0.8rem;line-height:1.5;color:var(--text)">
+                <div><strong>Заказ #${pr.id?.slice(-6).toUpperCase()}</strong></div>
+                <div>👤 ${pr.client}</div>
+                <div>🔧 ${pr.type}</div>
+                <div>📊 <span class="status-badge status-${STATUS_CLASSES[pr.status]||''}">${pr.status}</span> • <strong class="money">${fmt(pr.cost)}</strong></div>
+                <div>📅 ${toDate(pr.date)} ${pr.warrantyUntil ? '• 🛡️ до '+toDate(pr.warrantyUntil) : ''}</div>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+                <button class="btn btn-sm btn-outline" onclick="downloadSharedOrder('${p.new.id}')" title="Скачать файл">💾 Скачать</button>
+                <button class="btn btn-sm btn-primary" onclick="importSharedOrder('${p.new.id}')" title="Добавить в учёт">📥 Импорт в систему</button>
+              </div>
+            </div>
+          `;
+        }
+              
+        const m=`<div class="chat-msg-row ${rowClass}">
+          <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
+          <div class="chat-bubble">
+            ${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
+            ${attachmentHtml}
+          </div>
+          <span class="chat-time">${t}</span>
+        </div>`;
         c.insertAdjacentHTML('beforeend',m);
         c.scrollTop=c.scrollHeight
       }).subscribe(); 
@@ -1362,7 +1592,7 @@
           message: t,
           is_user: !isSupport,  // false = поддержка, true = пользователь
           user_meta: { 
-            appVersion: 'v6.2', 
+            appVersion: 'v6.3', 
             ua: navigator.userAgent.substring(0, 50),
             is_support: isSupport  // флаг для надёжной идентификации
           }
@@ -1393,6 +1623,28 @@
 
       const last=localStorage.getItem('last_login_date'), today=new Date().toISOString().split('T')[0];
       if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Ежедневный вход');localStorage.setItem('last_login_date',today)}
+      
+      // Drag & drop для импорта заказа
+      document.body.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      document.body.addEventListener('drop', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        const file = e.dataTransfer.files[0];
+        if (file && file.name.endsWith('.json')) {
+          // Проверяем, не перетаскиваем ли мы файл в область импорта запчастей
+          if (e.target.closest('#csvDropZone')) return;
+          
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = '.json';
+          input.onchange = () => importOrderFromJSON(input);
+          input.files = e.dataTransfer.files;
+          importOrderFromJSON(input);
+        }
+      });
     };
 
     // === LANDING LOGIC ===
