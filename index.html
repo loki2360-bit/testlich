@@ -114,9 +114,23 @@
       font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; 
       background: #dbeafe; color: #1e40af; margin-left: 4px; 
     }
-    .sync-status { font-size: 0.7rem; color: var(--muted); margin-left: 8px; }
-    .sync-status.ok { color: var(--success); }
-    .sync-status.error { color: var(--danger); }
+    .sync-status { 
+      font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; 
+      margin-left: 8px; cursor: pointer; transition: 0.2s;
+    }
+    .sync-status.ok { background: #dcfce7; color: #166534; }
+    .sync-status.error { background: #fee2e2; color: #991b1b; }
+    .sync-status.loading { background: #f1f5f9; color: #64748b; }
+    .sync-status:hover { opacity: 0.8; }
+
+    .alert {
+      padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px; font-size: 0.9rem;
+    }
+    .alert.error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .alert.warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .alert.success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+    .alert button { margin-left: auto; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
 
     .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; padding: 16px; z-index: 100; }
     .modal.active { display: flex; }
@@ -350,7 +364,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v7.1 • Stable</span>
+          <span class="brand-badge">v7.2 • Fixed</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -359,7 +373,7 @@
           <span id="currentUserIcon">👤</span>
           <span id="currentUserLabel">Пользователь</span>
         </div>
-        <span id="syncStatus" class="sync-status">🔄</span>
+        <span id="syncStatus" class="sync-status loading" onclick="manualSync()" title="Нажмите для ручной синхронизации">🔄</span>
         <button class="btn btn-outline" onclick="openAchievements()">🛒 Магазин</button>
         <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
         <button class="btn btn-outline" onclick="openSettings()">⚙️ Профиль</button>
@@ -368,6 +382,8 @@
         <label class="btn btn-outline" style="cursor:pointer">📤<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
       </div>
     </header>
+
+    <div id="alertContainer"></div>
 
     <div class="nav-tabs">
       <button class="nav-tab active" onclick="switchTab('orders')">📋 Заявки <span class="sync-badge">☁️</span></button>
@@ -587,7 +603,7 @@
     const INVENTORY_KEY = 'repair_inventory_v2';
     const SETTINGS_KEY = 'repair_settings_v8';
     const USER_KEY = 'repair_user_v1';
-    const CLOUD_ORDERS_CACHE_KEY = 'repair_cloud_orders_cache_v1';
+    const CLOUD_ORDERS_CACHE_KEY = 'repair_cloud_orders_cache_v2';
     
     const SECRET_CODE = 'AVITO2026';
     const SUPPORT_SECRET = '9379992';
@@ -623,6 +639,7 @@
     let currentDetailId = null;
     let currentPhotoBase64 = null;
     let pendingCsvData = [];
+    let isSupabaseReady = false;
 
     const $ = id => document.getElementById(id);
     const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
@@ -630,14 +647,45 @@
     const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
     const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2,5);
 
+    // === ALERT SYSTEM ===
+    function showAlert(message, type = 'error', duration = 5000) {
+      const container = $('alertContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert ${type}`;
+      alert.innerHTML = `<span>${message}</span><button onclick="this.parentElement.remove()">×</button>`;
+      container.appendChild(alert);
+      if (duration > 0) setTimeout(() => alert.remove(), duration);
+    }
+
     // === SUPABASE INIT ===
-    function initSupabase() {
-      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) return false;
+    async function initSupabase() {
+      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) {
+        showAlert('⚠️ Supabase не настроен. Заявки сохраняются только локально.', 'warning', 0);
+        return false;
+      }
       try { 
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Проверяем подключение
+        const { data, error } = await supabaseClient.from('orders').select('count', { count: 'exact', head: true });
+        if (error) {
+          if (error.code === '42P01') {
+            showAlert('❌ Таблица "orders" не найдена в Supabase! Выполните SQL скрипт из инструкции.', 'error', 0);
+          } else {
+            showAlert(`⚠️ Ошибка подключения к Supabase: ${error.message}. Заявки сохраняются локально.`, 'warning', 0);
+          }
+          isSupabaseReady = false;
+          return false;
+        }
+        
+        console.log('✅ Supabase подключён. Таблица orders доступна.');
+        isSupabaseReady = true;
+        updateSyncStatus(true, 'Подключено');
         return true; 
       } catch(e) { 
         console.error('❌ Supabase init error:', e);
+        showAlert('⚠️ Supabase недоступен. Заявки сохраняются локально.', 'warning', 0);
+        isSupabaseReady = false;
         return false; 
       }
     }
@@ -682,12 +730,18 @@
     function updateSyncStatus(ok, msg = '') {
       const el = $('syncStatus');
       if (!el) return;
-      if (ok) {
+      if (ok === 'loading') {
+        el.textContent = '🔄'; el.className = 'sync-status loading'; el.title = 'Синхронизация...';
+      } else if (ok) {
         el.textContent = '✅'; el.className = 'sync-status ok'; el.title = msg || 'Синхронизировано';
       } else {
-        el.textContent = '⚠️'; el.className = 'sync-status error'; el.title = msg || 'Ошибка подключения';
+        el.textContent = '⚠️'; el.className = 'sync-status error'; el.title = msg || 'Ошибка подключения. Нажмите для повтора';
       }
-      setTimeout(() => { if (el.textContent === '✅') el.textContent = '🔄'; }, 3000);
+    }
+
+    async function manualSync() {
+      updateSyncStatus('loading');
+      await fetchCloudOrders();
     }
 
     // === LOCAL DATA MANAGEMENT ===
@@ -707,59 +761,125 @@
 
     // === CLOUD ORDERS WITH LOCAL FALLBACK ===
     function saveOrdersToCache() {
-      try { localStorage.setItem(CLOUD_ORDERS_CACHE_KEY, JSON.stringify(cloudOrders)); } catch(e) { console.warn(e); }
+      try { 
+        localStorage.setItem(CLOUD_ORDERS_CACHE_KEY, JSON.stringify(cloudOrders)); 
+        console.log(`💾 Кэш сохранён: ${cloudOrders.length} заявок`);
+      } catch(e) { console.warn('Не удалось сохранить кэш:', e); }
     }
 
     function loadOrdersFromCache() {
       try {
         const cached = localStorage.getItem(CLOUD_ORDERS_CACHE_KEY);
-        if (cached) { cloudOrders = JSON.parse(cached); return true; }
-      } catch(e) { console.warn(e); }
-      cloudOrders = []; return false;
+        if (cached) { 
+          cloudOrders = JSON.parse(cached); 
+          console.log(`📦 Загружено из кэша: ${cloudOrders.length} заявок`);
+          return true; 
+        }
+      } catch(e) { console.warn('Не удалось загрузить кэш:', e); }
+      cloudOrders = []; 
+      return false;
     }
 
     async function fetchCloudOrders() {
-      loadOrdersFromCache();
-      renderTable(); updateUI();
+      updateSyncStatus('loading');
       
-      if (!supabaseClient) { updateSyncStatus(false, 'Облако недоступно'); return; }
+      // Сначала показываем кэш
+      loadOrdersFromCache();
+      renderTable(); 
+      updateUI();
+      
+      if (!isSupabaseReady) { 
+        updateSyncStatus(false, 'Supabase не подключён'); 
+        return; 
+      }
+      
       try {
         const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
         if (error) throw error;
+        
         cloudOrders = data || [];
-        console.log(`✅ Загружено ${cloudOrders.length} заявок из облака`);
-        saveOrdersToCache(); updateSyncStatus(true); applyFilters(); updateUI();
+        console.log(`✅ Загружено из облака: ${cloudOrders.length} заявок`);
+        saveOrdersToCache(); 
+        updateSyncStatus(true, `Загружено: ${cloudOrders.length}`); 
+        applyFilters(); 
+        updateUI();
+        
+        if (cloudOrders.length === 0) {
+          showAlert('ℹ️ В облаке пока нет заявок. Создайте первую!', 'success', 3000);
+        }
       } catch (err) {
-        console.error('❌ Ошибка загрузки:', err); updateSyncStatus(false, 'Ошибка подключения');
+        console.error('❌ Ошибка загрузки:', err);
+        updateSyncStatus(false, 'Ошибка загрузки');
+        showAlert(`⚠️ Не удалось загрузить из облака: ${err.message}. Показываем локальную копию.`, 'warning', 5000);
       }
     }
 
     async function syncOrderToCloud(order) {
+      // 1. Сохраняем локально немедленно
       const idx = cloudOrders.findIndex(o => o.id === order.id);
       const now = new Date().toISOString();
-      if (idx > -1) cloudOrders[idx] = { ...cloudOrders[idx], ...order, updated_at: now };
-      else cloudOrders.unshift({ ...order, created_at: now, updated_at: now });
+      const orderWithTimestamps = { 
+        ...order, 
+        created_at: cloudOrders.find(o => o.id === order.id)?.created_at || now,
+        updated_at: now 
+      };
       
-      saveOrdersToCache(); applyFilters(); updateUI();
+      if (idx > -1) cloudOrders[idx] = orderWithTimestamps;
+      else cloudOrders.unshift(orderWithTimestamps);
       
-      if (!supabaseClient) { updateSyncStatus(false, 'Локально'); return false; }
+      // 2. Сохраняем в кэш
+      saveOrdersToCache();
+      
+      // 3. Обновляем интерфейс
+      applyFilters(); 
+      updateUI();
+      
+      // 4. Пробуем отправить в облако
+      if (!isSupabaseReady) { 
+        updateSyncStatus(false, 'Локально');
+        showAlert('⚠️ Заявка сохранена локально. Supabase недоступен.', 'warning', 3000);
+        return false; 
+      }
+      
+      updateSyncStatus('loading');
       try {
-        const { error } = await supabaseClient.from('orders').upsert(order, { onConflict: 'id' });
+        const { data, error } = await supabaseClient.from('orders').upsert(orderWithTimestamps, { onConflict: 'id' });
         if (error) throw error;
-        updateSyncStatus(true); return true;
+        
+        console.log('✅ Заявка синхронизирована с облаком');
+        updateSyncStatus(true, 'Синхронизировано');
+        showAlert('✅ Заявка сохранена в облаке!', 'success', 2000);
+        return true;
       } catch (err) {
-        console.error('❌ Sync error:', err); updateSyncStatus(false, 'Не синхронизировано'); return false;
+        console.error('❌ Ошибка синхронизации:', err);
+        updateSyncStatus(false, 'Не синхронизировано');
+        showAlert(`⚠️ Не удалось синхронизировать: ${err.message}. Заявка сохранена локально.`, 'error', 5000);
+        return false;
       }
     }
 
     async function deleteOrderFromCloud(orderId) {
+      // Удаляем локально
       cloudOrders = cloudOrders.filter(x => x.id !== orderId);
-      saveOrdersToCache(); applyFilters(); updateUI();
-      if (!supabaseClient) return false;
+      saveOrdersToCache(); 
+      applyFilters(); 
+      updateUI();
+      
+      if (!isSupabaseReady) {
+        showAlert('⚠️ Заявка удалена локально. Supabase недоступен.', 'warning', 3000);
+        return false;
+      }
+      
       try {
         const { error } = await supabaseClient.from('orders').delete().eq('id', orderId);
-        return !error;
-      } catch (err) { console.error(err); return false; }
+        if (error) throw error;
+        console.log('✅ Заявка удалена из облака');
+        return true;
+      } catch (err) {
+        console.error('❌ Ошибка удаления:', err);
+        showAlert(`⚠️ Не удалось удалить из облака: ${err.message}`, 'error', 5000);
+        return false;
+      }
     }
 
     // === INVENTORY STOCK LOGIC ===
@@ -940,7 +1060,7 @@
     async function loadChatHistory() { const c=$('chatMessages'); if(!supabaseClient){c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';return;} c.innerHTML='<div style="text-align:center;padding:20px">🔄...</div>'; const {data,error}=await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); if(error){c.innerHTML='❌ '+error.message;return;} renderChatMsgs(data||[]); }
     function renderChatMsgs(msgs) { const c=$('chatMessages'); if(!msgs.length){c.innerHTML='<div class="chat-system">👋 Чат пуст</div>';return;} c.innerHTML=msgs.map(m=>{if(m.user_meta?.type==='system_context')return ''; const isSup=m.is_user===false||m.user_meta?.is_support===true; const rc=isSup?'support':'user'; const dn=isSup?'ТЕХПОДДЕРЖКА':(m.user_name||'Аноним'); return `<div class="chat-msg-row ${rc}"><div class="chat-name">${dn}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></div>`;}).join(''); c.scrollTop=c.scrollHeight; }
     function subscribeToNewMessages() { if(!supabaseClient||chatSubscription)return; chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{if(p.new.user_meta?.type==='system_context')return; const c=$('chatMessages'),t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), isSup=p.new.is_user===false||p.new.user_meta?.is_support===true, rc=isSup?'support':'user', dn=isSup?'ТЕХПОДДЕРЖКА':(p.new.user_name||'Аноним'); c.insertAdjacentHTML('beforeend',`<div class="chat-msg-row ${rc}"><div class="chat-name">${dn}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${t}</span></div>`); c.scrollTop=c.scrollHeight; }).subscribe(); }
-    async function sendChatMessage() { const i=$('chatInput'), n=$('chatUsername'), t=i?.value?.trim(), name=n?.value?.trim(); if(!t||!name) return; let isSup=false, dn=name; if(name===SUPPORT_SECRET){isSup=true; dn='ТЕХПОДДЕРЖКА'; if(n){n.value=dn; n.classList.add('support-mode'); n.disabled=true;}} else {if(n){n.classList.remove('support-mode'); n.disabled=false;}} localStorage.setItem('chat_username',dn); if(!supabaseClient){alert('❌');return;} const b=i.nextElementSibling; b.disabled=true; try{const{error}=await supabaseClient.from('support_messages').insert({user_name:dn,message:t,is_user:!isSup,user_meta:{appVersion:'v7.1',ua:navigator.userAgent.substring(0,50),is_support:isSup}}); if(error) throw error; i.value='';}catch(err){alert('❌ '+err.message);}finally{b.disabled=false; i?.focus();} }
+    async function sendChatMessage() { const i=$('chatInput'), n=$('chatUsername'), t=i?.value?.trim(), name=n?.value?.trim(); if(!t||!name) return; let isSup=false, dn=name; if(name===SUPPORT_SECRET){isSup=true; dn='ТЕХПОДДЕРЖКА'; if(n){n.value=dn; n.classList.add('support-mode'); n.disabled=true;}} else {if(n){n.classList.remove('support-mode'); n.disabled=false;}} localStorage.setItem('chat_username',dn); if(!supabaseClient){alert('❌');return;} const b=i.nextElementSibling; b.disabled=true; try{const{error}=await supabaseClient.from('support_messages').insert({user_name:dn,message:t,is_user:!isSup,user_meta:{appVersion:'v7.2',ua:navigator.userAgent.substring(0,50),is_support:isSup}}); if(error) throw error; i.value='';}catch(err){alert('❌ '+err.message);}finally{b.disabled=false; i?.focus();} }
 
     function openScanner() { $('scannerModal').classList.add('active'); html5QrCode=new Html5Qrcode("reader"); html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},onScanSuccess,onScanFailure).catch(err=>{alert('❌ Камера недоступна'); closeScanner();}); }
     function closeScanner() { $('scannerModal').classList.remove('active'); if(html5QrCode){html5QrCode.stop().then(()=>{html5QrCode.clear(); html5QrCode=null;}).catch(()=>{});} $('scanResult').classList.remove('show','found','not-found'); }
@@ -948,7 +1068,7 @@
     function onScanFailure() {}
 
     async function initApp() {
-      initSupabase();
+      await initSupabase();
       ['filterType','type'].forEach(id=>{const el=$(id); if(!el) return; TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;el.appendChild(o);});});
       ['filterStatus','status'].forEach(id=>{const el=$(id); if(!el) return; STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;el.appendChild(o);});});
       loadLocalData(); await fetchCloudOrders();
