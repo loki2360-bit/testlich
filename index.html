@@ -184,7 +184,7 @@
     .template-link:hover { color: var(--primary-hover); }
 
     #chatMessages { flex:1; overflow-y:auto; padding:10px; background:#f8fafc; border-radius:8px; margin-bottom:10px; font-size:0.85rem; min-height:300px; display:flex; flex-direction:column; gap:8px; }
-    .chat-msg-row { display:flex; flex-direction:column; max-width:85%; }
+    .chat-msg-row { display:flex; flex-direction:column; max-width:85%; position: relative; }
     .chat-msg-row.user { align-self:flex-end; align-items:flex-end; }
     .chat-msg-row.support { align-self:flex-start; align-items:flex-start; }
     .chat-name { font-size:0.7rem; font-weight:700; margin-bottom:2px; color:var(--muted); }
@@ -201,6 +201,38 @@
     .chat-status.online { color:var(--success); }
     .chat-status.offline { color:var(--danger); }
     .chat-hint { font-size:0.65rem; color:var(--muted); text-align:center; margin-top:6px; font-style:italic; }
+    
+    /* Кнопка удаления сообщения */
+    .chat-delete-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+      border: none;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.15s;
+      z-index: 2;
+    }
+    .chat-msg-row:hover .chat-delete-btn { opacity: 1; }
+    .chat-delete-btn:hover { 
+      background: var(--danger); 
+      transform: scale(1.1); 
+    }
+    .chat-msg-row.support .chat-delete-btn {
+      background: rgba(0, 170, 255, 0.9);
+    }
+    .chat-msg-row.support .chat-delete-btn:hover {
+      background: var(--avito-blue);
+    }
 
     /* === COIN POPUP & SHOP STYLES === */
     .coin-popup {
@@ -380,6 +412,7 @@
       .brand { flex-direction: column; align-items: flex-start; gap: 8px; }
       .part-row { grid-template-columns: 1fr 1fr 40px; }
       .part-row .part-sku-select { grid-column: 1 / -1; }
+      .chat-delete-btn { opacity: 1 !important; position: static; margin: 4px 0; }
     }
   </style>
 </head>
@@ -397,7 +430,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v6.3 • Beta</span>
+          <span class="brand-badge">v6.4 • Beta</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -640,10 +673,11 @@
         <div class="feature-card"><div class="feature-icon">💰</div><h3>Финансы</h3><p>Считайте себестоимость, прибыль и отслеживайте гарантии</p></div>
         <div class="feature-card"><div class="feature-icon">☁️</div><h3>Бэкап в облако</h3><p>Экспорт/импорт данных — ваши данные всегда под защитой</p></div>
         <div class="feature-card"><div class="feature-icon">📤</div><h3>Обмен заказами</h3><p>Экспортируйте заказы в JSON и делитесь ими в чате в реальном времени</p></div>
+        <div class="feature-card"><div class="feature-icon">🗑️</div><h3>Управление чатом</h3><p>Удаляйте отдельные сообщения в чате по необходимости</p></div>
       </div>
       <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
       <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p></div>
-      <div class="landing-footer"><span class="version-badge">v6.3 • Beta</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
+      <div class="landing-footer"><span class="version-badge">v6.4 • Beta</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
     </div>
     <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
@@ -671,7 +705,7 @@
       { level: 7, name: 'Легенда ⭐', threshold: 2000 }
     ];
 
-    const COIN_REWARDS = { CREATE: 3, COMPLETE: 12, QUALITY_FIELDS: 2, ADD_PART: 2, SECRET: 500, DAILY_LOGIN: 1, EXPORT_ORDER: 1, IMPORT_ORDER: 2, CHAT_FILE: 1, CHAT_IMPORT: 3 };
+    const COIN_REWARDS = { CREATE: 3, COMPLETE: 12, QUALITY_FIELDS: 2, ADD_PART: 2, SECRET: 500, DAILY_LOGIN: 1, EXPORT_ORDER: 1, IMPORT_ORDER: 2, CHAT_FILE: 1, CHAT_IMPORT: 3, DELETE_CHAT_MSG: 1 };
     const COSMETICS = [
       { id: 'status', name: '📝 Персональный статус', cost: 40, desc: 'Ваша подпись в профиле и бейдже', type: 'text' },
       { id: 'certificate', name: '📜 Почётная грамота', cost: 150, desc: 'Красивая сводка ваших достижений', type: 'cert' }
@@ -684,6 +718,7 @@
     let chatSubscription = null;
     let html5QrCode = null;
     let chatMessagesCache = []; // Кэш сообщений чата для локального доступа
+    let currentChatUsername = 'Аноним'; // Текущее имя пользователя в чате
 
     function initSupabase() {
       if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) return false;
@@ -762,7 +797,7 @@
         return;
       }
       
-      const userName = $('chatUsername')?.value?.trim() || 'Аноним';
+      const userName = currentChatUsername;
       
       try {
         const text = await file.text();
@@ -790,7 +825,7 @@
           message: `📎 Прикреплён заказ: ${orderData.type} — ${orderData.client}`,
           is_user: true,
           user_meta: {
-            appVersion: 'v6.3',
+            appVersion: 'v6.4',
             ua: navigator.userAgent.substring(0, 50),
             attachment: fileMeta
           }
@@ -858,6 +893,47 @@
       a.download = msg.user_meta.attachment.fileName || 'order.json';
       a.click();
       URL.revokeObjectURL(url);
+    }
+
+    // === CHAT MESSAGE DELETION ===
+    async function deleteChatMessage(messageId, isSupportMsg) {
+      const userName = currentChatUsername;
+      const isCurrentUserSupport = userName === 'ТЕХПОДДЕРЖКА';
+      
+      // Проверка прав: можно удалить своё сообщение ИЛИ если пользователь — поддержка
+      if (!isCurrentUserSupport && !isSupportMsg) {
+        // Проверяем, является ли это сообщением текущего пользователя
+        const msg = chatMessagesCache.find(m => m.id === messageId);
+        if (!msg || msg.user_name !== userName) {
+          alert('❌ Можно удалять только свои сообщения');
+          return;
+        }
+      }
+      
+      if (!confirm('Удалить это сообщение?')) return;
+      
+      if (!supabaseClient) {
+        alert('⚠️ Чат не подключён к облаку');
+        return;
+      }
+      
+      try {
+        const { error } = await supabaseClient
+          .from('support_messages')
+          .delete()
+          .eq('id', messageId);
+        
+        if (error) throw error;
+        
+        // Удаляем из кэша и удаляем из DOM
+        chatMessagesCache = chatMessagesCache.filter(m => m.id !== messageId);
+        const msgEl = document.querySelector(`[data-msg-id="${messageId}"]`);
+        if (msgEl) msgEl.remove();
+        
+        addCoins(COIN_REWARDS.DELETE_CHAT_MSG, '🗑️ Удалено сообщение');
+      } catch (err) {
+        alert('❌ Ошибка удаления: ' + err.message);
+      }
     }
 
     // === SCANNER FUNCTIONS ===
@@ -1395,6 +1471,7 @@
       const s = localStorage.getItem('chat_username'); 
       if(s) {
         $('chatUsername').value = s;
+        currentChatUsername = s;
         // Если сохранённое имя — это техподдержка, активируем режим
         if (s === 'ТЕХПОДДЕРЖКА') {
           $('chatUsername').classList.add('support-mode');
@@ -1441,6 +1518,9 @@
     
     function renderChatMsgs(msgs) { 
       const c = $('chatMessages'); 
+      const userName = currentChatUsername;
+      const isCurrentUserSupport = userName === 'ТЕХПОДДЕРЖКА';
+      
       if(!msgs.length) { 
         c.innerHTML = '<div class="chat-system">👋 Чат пуст</div>'; 
         return 
@@ -1455,6 +1535,12 @@
         
         // Для поддержки всегда показываем фиксированное имя
         const displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (m.user_name || 'Аноним');
+        
+        // Проверяем, можно ли показать кнопку удаления
+        const canDelete = isCurrentUserSupport || (!isSupportMsg && m.user_name === userName);
+        const deleteBtn = canDelete 
+          ? `<button class="chat-delete-btn" onclick="deleteChatMessage('${m.id}', ${isSupportMsg})" title="Удалить сообщение">✕</button>`
+          : '';
         
         // Превью прикреплённого заказа
         let attachmentHtml = '';
@@ -1482,7 +1568,8 @@
           `;
         }
         
-        return `<div class="chat-msg-row ${rowClass}">
+        return `<div class="chat-msg-row ${rowClass}" data-msg-id="${m.id}">
+          ${deleteBtn}
           <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
           <div class="chat-bubble">
             ${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
@@ -1508,7 +1595,13 @@
               t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
               isSupportMsg = p.new.is_user === false || p.new.user_meta?.is_support === true,
               displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (p.new.user_name || 'Аноним'),
-              rowClass = isSupportMsg ? 'support' : 'user';
+              rowClass = isSupportMsg ? 'support' : 'user',
+              userName = currentChatUsername,
+              isCurrentUserSupport = userName === 'ТЕХПОДДЕРЖКА',
+              canDelete = isCurrentUserSupport || (!isSupportMsg && p.new.user_name === userName),
+              deleteBtn = canDelete 
+                ? `<button class="chat-delete-btn" onclick="deleteChatMessage('${p.new.id}', ${isSupportMsg})" title="Удалить сообщение">✕</button>`
+                : '';
               
         // Превью прикреплённого заказа
         let attachmentHtml = '';
@@ -1536,7 +1629,8 @@
           `;
         }
               
-        const m=`<div class="chat-msg-row ${rowClass}">
+        const m=`<div class="chat-msg-row ${rowClass}" data-msg-id="${p.new.id}">
+          ${deleteBtn}
           <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
           <div class="chat-bubble">
             ${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}
@@ -1576,6 +1670,7 @@
         }
       }
       
+      currentChatUsername = displayName;
       localStorage.setItem('chat_username', displayName); 
       
       if(!supabaseClient) { 
@@ -1592,7 +1687,7 @@
           message: t,
           is_user: !isSupport,  // false = поддержка, true = пользователь
           user_meta: { 
-            appVersion: 'v6.3', 
+            appVersion: 'v6.4', 
             ua: navigator.userAgent.substring(0, 50),
             is_support: isSupport  // флаг для надёжной идентификации
           }
