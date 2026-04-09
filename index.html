@@ -328,16 +328,23 @@
     tr.vip-row { background: #fffbeb !important; border-left: 3px solid #f59e0b; }
     [data-theme="dark"] tr.vip-row { background: #451a03 !important; }
 
-    .quick-templates { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
-    .quick-template-btn { padding: 4px 10px; background: #f1f5f9; border: 1px solid var(--border); border-radius: 12px; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
-    .quick-template-btn:hover { background: #e0f2fe; border-color: var(--primary); }
-
-    @media print {
-      body * { visibility: hidden; }
-      #printArea, #printArea * { visibility: visible; }
-      #printArea { position: absolute; left: 0; top: 0; width: 100%; padding: 20px; background: white; color: black; }
-      .no-print { display: none !important; }
+    /* TAGS STYLES */
+    .order-tag { 
+      display: inline-block; 
+      padding: 2px 6px; 
+      border-radius: 4px; 
+      font-size: 0.65rem; 
+      font-weight: 700; 
+      margin: 1px 2px;
+      color: white;
     }
+    .tag-срочно { background: #ef4444; }
+    .tag-не-срочно { background: #6b7280; }
+    .tag-авито { background: #00aaff; }
+    .tag-проверенный-клиент { background: #10b981; }
+    .tag-аванс { background: #f59e0b; }
+    .tag-ждем-запчасти { background: #f97316; }
+    .tag-готово { background: #8b5cf6; }
 
     @media (max-width: 640px) {
       .landing-content { padding: 28px 20px; margin: 10px; }
@@ -369,7 +376,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v6.6 • Beta</span>
+          <span class="brand-badge">v6.7 • Beta</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -555,15 +562,29 @@
       <div class="detail-finances">
         <div class="fin-card"><span>Запчасти</span><strong id="dPartsSum">0 ₽</strong></div><div class="fin-card"><span>Транспорт</span><strong id="dTrans">0 ₽</strong></div><div class="fin-card"><span>Затраты</span><strong id="dExp">0 ₽</strong></div><div class="fin-card"><span>Стоимость</span><strong id="dCost">0 ₽</strong></div><div class="fin-card profit"><span>Прибыль</span><strong id="dProfit">0 ₽</strong></div>
       </div>
-      <div id="quickActions" class="quick-templates hidden" style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
-        <span style="font-size:0.75rem; color:var(--muted); margin-right:8px;">⚡ Быстрые действия:</span>
-        <button class="quick-template-btn" onclick="copyTemplate('ready')">📦 Готово к выдаче</button>
-        <button class="quick-template-btn" onclick="copyTemplate('wait')">⏳ Ждём запчасть</button>
-        <button class="quick-template-btn" onclick="copyTemplate('warranty')">🛡️ Напомнить гарантию</button>
+      
+      <!-- TAGS SECTION -->
+      <div class="detail-section" style="margin-top:18px; padding-top:18px; border-top:1px solid var(--border);">
+        <h3>🏷️ Теги заявки</h3>
+        <div id="currentTags" style="margin:8px 0; min-height:24px;"></div>
+        <div style="display:flex; gap:8px; margin-top:8px; flex-wrap:wrap;">
+          <select id="tagSelect" style="padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-size:0.85rem;">
+            <option value="">Выберите тег...</option>
+            <option value="срочно">🔴 Срочно</option>
+            <option value="не-срочно">⚪ Не срочно</option>
+            <option value="авито">🔵 Авито</option>
+            <option value="проверенный-клиент">🟢 Проверенный клиент</option>
+            <option value="аванс">🟡 Аванс</option>
+            <option value="ждем-запчасти">🟠 Ждем запчасти</option>
+            <option value="готово">🟣 Готово</option>
+          </select>
+          <button class="btn btn-primary btn-sm" onclick="addTagToOrder()">➕ Добавить тег</button>
+        </div>
+        <p style="font-size:0.7rem; color:var(--muted); margin-top:6px;">💡 Теги помогают быстро фильтровать и находить заказы. Доступно тегов: <strong id="availableTagsCount">0</strong></p>
       </div>
+      
       <div class="form-actions">
         <button class="btn btn-outline" onclick="exportOrderAsJSON(currentDetailId)" title="Скачать заказ">📥 JSON</button>
-        <button class="btn btn-outline" onclick="printReceipt()" title="Печать акта">🖨️ Акт PDF</button>
         <button class="btn btn-outline" onclick="editFromDetail()">✏️ Редактировать</button>
         <button class="btn btn-primary" onclick="closeDetailModal()">Закрыть</button>
       </div>
@@ -605,38 +626,60 @@
 
   <!-- Shop Modal -->
   <div id="shopModal" class="modal" onclick="if(event.target===this) closeShop()">
-    <div class="modal-box" style="max-width:540px;">
-      <div class="modal-header"><h2>🛒 Магазин инструментов</h2><button class="close" onclick="closeShop()">&times;</button></div>
-      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px">Покупайте реальные рабочие функции за коины. Никаких подписок.</p>
-      <div id="shopList" class="shop-grid"></div>
-      <div class="form-actions"><button class="btn btn-outline" onclick="closeShop()">Закрыть</button></div>
-    </div>
-  </div>
-
-  <!-- Print Area (Hidden) -->
-  <div id="printArea" style="display:none; font-family: 'Segoe UI', sans-serif; padding: 20px;">
-    <h2 style="text-align:center; margin-bottom:4px;">АКТ ВЫПОЛНЕННЫХ РАБОТ</h2>
-    <p style="text-align:center; color:#666; margin-bottom:20px;">AVITO SELLER | Учёт ремонтов</p>
-    <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
-      <tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold;">Заказ №</td><td style="padding:8px; border:1px solid #ccc;" id="printOrderId"></td></tr>
-      <tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold;">Дата</td><td style="padding:8px; border:1px solid #ccc;" id="printDate"></td></tr>
-      <tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold;">Клиент</td><td style="padding:8px; border:1px solid #ccc;" id="printClient"></td></tr>
-      <tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold;">Устройство / Неисправность</td><td style="padding:8px; border:1px solid #ccc;" id="printDevice"></td></tr>
-      <tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold;">Стоимость работ</td><td style="padding:8px; border:1px solid #ccc;" id="printCost"></td></tr>
-      <tr><td style="padding:8px; border:1px solid #ccc; font-weight:bold;">Гарантия</td><td style="padding:8px; border:1px solid #ccc;" id="printWarranty"></td></tr>
-    </table>
-    <p style="margin-top:30px;">Работы выполнены в полном объёме. Претензий к качеству нет.</p>
-    <div style="display:flex; justify-content:space-between; margin-top:40px;">
-      <div style="text-align:center; width:45%;">
-        <div style="border-bottom:1px solid #000; height:30px;"></div>
-        <p style="font-size:0.8rem; margin-top:4px;">Подпись клиента</p>
+    <div class="modal-box" style="max-width:600px;">
+      <div class="modal-header"><h2>🛒 Магазин</h2><button class="close" onclick="closeShop()">&times;</button></div>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:16px">Покупайте полезные функции и теги для работы.</p>
+      
+      <!-- Theme Section -->
+      <div style="margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid var(--border);">
+        <h3 style="margin-bottom:10px; font-size:0.95rem;">🎨 Оформление</h3>
+        <div class="shop-item" style="margin-bottom:10px;">
+          <h4>🌙 Тёмная тема</h4>
+          <p>Переключатель между светлой и тёмной темой интерфейса.</p>
+          <button class="btn btn-primary btn-sm" onclick="toggleTheme()">🔄 Переключить тему</button>
+        </div>
       </div>
-      <div style="text-align:center; width:45%;">
-        <div style="border-bottom:1px solid #000; height:30px;"></div>
-        <p style="font-size:0.8rem; margin-top:4px;">Подпись мастера</p>
+      
+      <!-- Tags Section -->
+      <div>
+        <h3 style="margin-bottom:10px; font-size:0.95rem;">🏷️ Теги для заявок</h3>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:12px;">Доступно тегов: <strong id="shopTagsCount">0</strong></p>
+        <div class="shop-grid">
+          <div class="shop-item">
+            <h4>📦 Пакет 10 тегов</h4>
+            <p>10 тегов для маркировки заявок</p>
+            <span class="price">90 🪙 (9 за тег)</span>
+            <button class="btn btn-primary btn-sm" onclick="buyTags(10, 90)">Купить</button>
+          </div>
+          <div class="shop-item">
+            <h4>📦 Пакет 20 тегов</h4>
+            <p>20 тегов для маркировки заявок</p>
+            <span class="price">160 🪙 (8 за тег)</span>
+            <button class="btn btn-primary btn-sm" onclick="buyTags(20, 160)">Купить</button>
+          </div>
+          <div class="shop-item">
+            <h4>📦 Пакет 30 тегов</h4>
+            <p>30 тегов для маркировки заявок</p>
+            <span class="price">210 🪙 (7 за тег)</span>
+            <button class="btn btn-primary btn-sm" onclick="buyTags(30, 210)">Купить</button>
+          </div>
+          <div class="shop-item">
+            <h4>📦 Пакет 50 тегов</h4>
+            <p>50 тегов для маркировки заявок</p>
+            <span class="price">300 🪙 (6 за тег)</span>
+            <button class="btn btn-primary btn-sm" onclick="buyTags(50, 300)">Купить</button>
+          </div>
+          <div class="shop-item">
+            <h4>📦 Пакет 100 тегов</h4>
+            <p>100 тегов для маркировки заявок</p>
+            <span class="price">500 🪙 (5 за тег)</span>
+            <button class="btn btn-primary btn-sm" onclick="buyTags(100, 500)">Купить</button>
+          </div>
+        </div>
       </div>
+      
+      <div class="form-actions" style="margin-top:20px;"><button class="btn btn-outline" onclick="closeShop()">Закрыть</button></div>
     </div>
-    <p style="text-align:center; margin-top:30px; font-size:0.75rem; color:#666;">Сгенерировано в AVITO SELLER • <span id="printStamp"></span></p>
   </div>
 
   <!-- Landing Page Overlay -->
@@ -652,11 +695,11 @@
         <div class="feature-card"><div class="feature-icon">💰</div><h3>Финансы</h3><p>Считайте себестоимость, прибыль и отслеживайте гарантии</p></div>
         <div class="feature-card"><div class="feature-icon">☁️</div><h3>Бэкап в облако</h3><p>Экспорт/импорт данных — ваши данные всегда под защитой</p></div>
         <div class="feature-card"><div class="feature-icon">📤</div><h3>Обмен заказами</h3><p>Экспортируйте заказы в JSON и делитесь ими в чате в реальном времени</p></div>
-        <div class="feature-card"><div class="feature-icon">🛠️</div><h3>Рабочие инструменты</h3><p>Покупайте PDF-акты, шаблоны, VIP-метки и автобэкапы за коины</p></div>
+        <div class="feature-card"><div class="feature-icon">🏷️</div><h3>Теги и темы</h3><p>Покупайте теги для заявок и переключайте тему оформления</p></div>
       </div>
       <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
       <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p></div>
-      <div class="landing-footer"><span class="version-badge">v6.6 • Beta</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
+      <div class="landing-footer"><span class="version-badge">v6.7 • Beta</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
     </div>
     <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
@@ -686,20 +729,6 @@
 
     const COIN_REWARDS = { CREATE: 3, COMPLETE: 12, QUALITY_FIELDS: 2, ADD_PART: 2, SECRET: 500, DAILY_LOGIN: 1, EXPORT_ORDER: 1, IMPORT_ORDER: 2, CHAT_FILE: 1, CHAT_IMPORT: 3, DELETE_CHAT_MSG: 1 };
     
-    const SHOP_ITEMS = [
-      { id: 'theme', name: '🌙 Тёмная тема + Цвета', cost: 30, desc: 'Переключатель тем и акцентных цветов интерфейса. Снижает нагрузку на глаза.', type: 'theme', unlocks: ['light', 'dark', 'blue', 'green'] },
-      { id: 'templates', name: '💬 Шаблоны ответов клиентам', cost: 50, desc: 'Готовые тексты для WhatsApp/Авито: «Готово», «Ждём запчасть», «Гарантия».', type: 'feature' },
-      { id: 'pdf_receipt', name: '📄 Генератор PDF-актов', cost: 80, desc: 'Печать/сохранение акта выполненных работ с печатью и подписью.', type: 'feature' },
-      { id: 'vip_orders', name: '⭐ VIP-метки и приоритет', cost: 60, desc: 'Метка «Срочно/VIP», автоподъём в таблице, цветовая подсветка.', type: 'feature' },
-      { id: 'auto_backup', name: '☁️ Автосохранение бэкапа', cost: 40, desc: 'Автоматический экспорт данных каждые 30 минут в localStorage.', type: 'feature' }
-    ];
-
-    const TEMPLATES = {
-      ready: 'Здравствуйте! Ваш заказ готов к выдаче. Ждём вас по адресу: [Ваш адрес]. Гарантия 30 дней.',
-      wait: 'Здравствуйте! Ожидаем поставку запчасти. Как только получим — сразу сообщим. Спасибо за терпение!',
-      warranty: 'Напоминаем: гарантия на выполненные работы действует 30 дней. При возникновении вопросов — пишите!'
-    };
-
     const SUPABASE_URL = 'https://wdbjpcpodkydaitotqqr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYmpwY3BvZGt5ZGFpdG90cXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTM4NDksImV4cCI6MjA5MTEyOTg0OX0.REToOamR3fU6cZcaa8DsHd0OORMyYy5AkErHweLihz4';
     
@@ -717,7 +746,7 @@
 
     let orders = JSON.parse(localStorage.getItem(DB_KEY) || '[]');
     let inventory = JSON.parse(localStorage.getItem(INVENTORY_KEY) || '[]');
-    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":0,"totalEarned":0,"unlocks":{},"level":1,"levelName":"Новичок 🌱","theme":"light","autoBackup":false}');
+    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{"master":"Мастер","coins":0,"totalEarned":0,"unlocks":{},"level":1,"levelName":"Новичок 🌱","theme":"light","tagsCount":0}');
     let currentDetailId = null;
     let currentTab = 'orders';
     let currentPhotoBase64 = null;
@@ -728,69 +757,123 @@
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
     const getCleanPhone = p => p ? p.replace(/\D/g, '').replace(/^8/, '7') : '';
 
-    // === SHOP FUNCTIONS ===
-    function openShop() { $('shopModal')?.classList.add('active'); renderShop(); }
-    function closeShop() { $('shopModal')?.classList.remove('active'); }
-    
-    function renderShop() {
-      const list = $('shopList'); if (!list) return;
-      list.innerHTML = SHOP_ITEMS.map(item => {
-        const owned = settings.unlocks?.[item.id];
-        let btnHtml = '';
-        
-        if (item.type === 'theme') {
-          const currentTheme = settings.theme || 'light';
-          btnHtml = owned 
-            ? `<button class="btn btn-success btn-sm" style="width:100%" disabled>✅ Активировано</button>`
-            : `<button class="btn btn-primary btn-sm" style="width:100%" onclick="buyShopItem('${item.id}')">Купить за ${item.cost} 🪙</button>`;
-        } else {
-          btnHtml = owned
-            ? `<button class="btn btn-success btn-sm" style="width:100%" disabled>✅ Куплено</button>`
-            : `<button class="btn btn-primary btn-sm" style="width:100%" onclick="buyShopItem('${item.id}')">Купить за ${item.cost} 🪙</button>`;
-        }
-        
-        return `<div class="shop-item ${owned ? 'owned' : ''}">
-          <h4>${item.name}</h4>
-          <p>${item.desc}</p>
-          ${btnHtml}
-        </div>`;
-      }).join('');
+    // === THEME FUNCTIONS ===
+    function toggleTheme() {
+      const currentTheme = settings.theme || 'light';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      settings.theme = newTheme;
+      applyTheme(newTheme);
+      persistSettings();
+      showCoinAnimation(0, `🎨 Тема: ${newTheme === 'dark' ? 'Тёмная' : 'Светлая'}`);
     }
     
-    function buyShopItem(id) {
-      const item = SHOP_ITEMS.find(i => i.id === id);
-      if (!item) return;
-      if (settings.coins < item.cost) {
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+      }
+    }
+
+    // === TAGS FUNCTIONS ===
+    function buyTags(count, cost) {
+      if (settings.coins < cost) {
         alert('❌ Недостаточно коинов!');
         return;
       }
-      settings.coins -= item.cost;
-      if (!settings.unlocks) settings.unlocks = {};
-      settings.unlocks[id] = true;
+      if (!confirm(`Купить ${count} тегов за ${cost} коинов?`)) return;
       
-      // Применяем сразу
-      if (id === 'theme') applyTheme(settings.theme || 'light');
-      if (id === 'auto_backup') startAutoBackup();
-      
+      settings.coins -= cost;
+      settings.tagsCount = (settings.tagsCount || 0) + count;
       persistSettings();
       updateCoinUI();
-      renderShop();
-      showCoinAnimation(0, `✅ Куплено: ${item.name}`);
+      updateShopTagsCount();
+      showCoinAnimation(0, `✅ Куплено ${count} тегов`);
+    }
+    
+    function updateShopTagsCount() {
+      const el = $('shopTagsCount');
+      if (el) el.textContent = settings.tagsCount || 0;
+    }
+    
+    function addTagToOrder() {
+      const select = $('tagSelect');
+      const tag = select.value;
+      if (!tag) {
+        alert('Выберите тег');
+        return;
+      }
+      if ((settings.tagsCount || 0) <= 0) {
+        alert('❌ Нет доступных тегов! Купите в магазине 🛒');
+        openShop();
+        return;
+      }
+      
+      const order = orders.find(o => o.id === currentDetailId);
+      if (!order) return;
+      
+      if (!order.tags) order.tags = [];
+      if (order.tags.includes(tag)) {
+        alert('Этот тег уже добавлен');
+        return;
+      }
+      
+      order.tags.push(tag);
+      settings.tagsCount--;
+      saveData();
+      persistSettings();
+      renderOrderTags(order);
+      updateCoinUI();
+      updateShopTagsCount();
+      select.value = '';
+      showCoinAnimation(0, `🏷️ Тег "${getTagName(tag)}" добавлен`);
+    }
+    
+    function removeTagFromOrder(tag) {
+      const order = orders.find(o => o.id === currentDetailId);
+      if (!order || !order.tags) return;
+      
+      order.tags = order.tags.filter(t => t !== tag);
+      saveData();
+      renderOrderTags(order);
+    }
+    
+    function getTagName(tag) {
+      const names = {
+        'срочно': 'Срочно',
+        'не-срочно': 'Не срочно',
+        'авито': 'Авито',
+        'проверенный-клиент': 'Проверенный клиент',
+        'аванс': 'Аванс',
+        'ждем-запчасти': 'Ждем запчасти',
+        'готово': 'Готово'
+      };
+      return names[tag] || tag;
+    }
+    
+    function renderOrderTags(order) {
+      const container = $('currentTags');
+      const countEl = $('availableTagsCount');
+      if (!container) return;
+      
+      if (countEl) countEl.textContent = settings.tagsCount || 0;
+      
+      if (!order.tags || order.tags.length === 0) {
+        container.innerHTML = '<span style="color:var(--muted); font-size:0.85rem;">Теги не добавлены</span>';
+        return;
+      }
+      
+      container.innerHTML = order.tags.map(tag => 
+        `<span class="order-tag tag-${tag}" onclick="removeTagFromOrder('${tag}')" style="cursor:pointer;" title="Нажмите чтобы удалить">${getTagName(tag)} ✕</span>`
+      ).join('');
     }
 
-    function applyTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'dark' : '');
-      settings.theme = theme;
+    // === SHOP FUNCTIONS ===
+    function openShop() { 
+      $('shopModal')?.classList.add('active'); 
+      updateShopTagsCount();
     }
-
-    function startAutoBackup() {
-      if (settings.autoBackup) return;
-      settings.autoBackup = true;
-      setInterval(() => {
-        localStorage.setItem('repair_autobackup_' + Date.now(), JSON.stringify({ orders, inventory, settings }));
-        console.log('☁️ Автосохранение выполнено');
-      }, 30 * 60 * 1000); // 30 минут
-    }
+    function closeShop() { $('shopModal')?.classList.remove('active'); }
 
     // === EXPORT/IMPORT SINGLE ORDER ===
     function exportOrderAsJSON(orderId) {
@@ -837,7 +920,7 @@
         const orderData = JSON.parse(text);
         if (!orderData.id || !orderData.client) throw new Error('Неверный формат заказа');
         const fileMeta = { fileName: file.name, fileType: 'order_json', orderPreview: { id: orderData.id, client: orderData.client, type: orderData.type, status: orderData.status, cost: orderData.cost, date: orderData.date, warrantyUntil: orderData.warrantyUntil }, fullData: orderData };
-        const { error } = await supabaseClient.from('support_messages').insert({ user_name: userName, message: `📎 Прикреплён заказ: ${orderData.type} — ${orderData.client}`, is_user: !supportModeActive, user_meta: { appVersion: 'v6.6', ua: navigator.userAgent.substring(0, 50), attachment: fileMeta } });
+        const { error } = await supabaseClient.from('support_messages').insert({ user_name: userName, message: `📎 Прикреплён заказ: ${orderData.type} — ${orderData.client}`, is_user: !supportModeActive, user_meta: { appVersion: 'v6.7', ua: navigator.userAgent.substring(0, 50), attachment: fileMeta } });
         if (error) throw error;
         addCoins(COIN_REWARDS.CHAT_FILE, '📎 Файл в чат');
       } catch (err) { alert('❌ Ошибка: ' + err.message); }
@@ -960,7 +1043,6 @@
     function renderTable(data=orders) {
       const tb=$('tbody'), empty=$('emptyState'); tb.innerHTML='';
       if(!data.length){empty.classList.remove('hidden');return;} empty.classList.add('hidden');
-      // VIP сначала
       const sorted = [...data].sort((a,b) => {
         if((a.vip&&!b.vip)) return -1;
         if((!a.vip&&b.vip)) return 1;
@@ -972,7 +1054,14 @@
         const phone=getCleanPhone(o.client), contacts=`<a href="tel:${phone}" class="action-link" title="Позвонить">📞</a><a href="https://wa.me/${phone}?text=Здравствуйте!" target="_blank" class="action-link" title="WhatsApp">💬</a>`;
         const statusSel=`<select class="inline-status" onchange="handleInlineStatus('${o.id}',this.value)">${STATUSES.map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>`;
         const vipBadge = o.vip ? '<span class="vip-badge">VIP</span>' : '';
-        tb.innerHTML+=`<tr class="${o.vip?'vip-row':''}"><td>${o.id.slice(-6).toUpperCase()}${vipBadge}</td><td>${toDate(o.date)}</td><td>${o.client}</td><td>${contacts}</td><td>${avito}</td><td>${o.type}</td><td>${statusSel}</td><td>${getWarrantyBadge(o)}</td><td class="money">${fmt(exp)}</td><td class="money" style="font-weight:600">${fmt(o.cost)}</td><td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td><td class="actions"><button class="btn btn-outline btn-sm" onclick="exportOrderAsJSON('${o.id}')" title="Скачать заказ как JSON">📥</button><button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button><button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button></td></tr>`;
+        
+        // Tags display
+        let tagsHtml = '';
+        if (o.tags && o.tags.length > 0) {
+          tagsHtml = o.tags.map(tag => `<span class="order-tag tag-${tag}">${getTagName(tag)}</span>`).join('');
+        }
+        
+        tb.innerHTML+=`<tr class="${o.vip?'vip-row':''}"><td>${o.id.slice(-6).toUpperCase()}${vipBadge}</td><td>${toDate(o.date)}</td><td>${o.client}</td><td>${contacts}</td><td>${avito}</td><td>${o.type}</td><td>${statusSel}</td><td>${getWarrantyBadge(o)}</td><td class="money">${fmt(exp)}</td><td class="money" style="font-weight:600">${fmt(o.cost)}</td><td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td><td class="actions"><button class="btn btn-outline btn-sm" onclick="exportOrderAsJSON('${o.id}')" title="Скачать заказ как JSON">📥</button><button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button><button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button></td></tr>${tagsHtml ? `<tr><td colspan="12" style="padding:4px 12px; background:var(--bg);">${tagsHtml}</td></tr>` : ''}`;
       });
     }
     
@@ -1010,7 +1099,7 @@
       let oldOrder=null; if(isEdit)oldOrder=orders.find(o=>o.id===$('editId').value);
       const wd=parseInt($('warrantyDays').value)||0; let wu=null; if(wd>0){const d=new Date($('orderDate').value);d.setDate(d.getDate()+wd);wu=d.toISOString().split('T')[0];}
       const id=$('editId').value||Date.now().toString(36)+Math.random().toString(36).substr(2,5);
-      const order={id,client:$('client').value,date:$('orderDate').value,est:$('estDate').value,warrantyDays:wd,warrantyUntil:wu,type:$('type').value,status:newStatus,avitoLink:$('avitoLink').value,reason:$('reason').value,cost:parseFloat($('repairCost').value)||0,transport:parseFloat($('transportCost').value)||0,parts:newParts,createdAt:orders.find(o=>o.id===id)?.createdAt||Date.now(),vip:$('vipCheck').checked};
+      const order={id,client:$('client').value,date:$('orderDate').value,est:$('estDate').value,warrantyDays:wd,warrantyUntil:wu,type:$('type').value,status:newStatus,avitoLink:$('avitoLink').value,reason:$('reason').value,cost:parseFloat($('repairCost').value)||0,transport:parseFloat($('transportCost').value)||0,parts:newParts,createdAt:orders.find(o=>o.id===id)?.createdAt||Date.now(),vip:$('vipCheck').checked,tags:oldOrder?.tags||[]};
       const idx=orders.findIndex(o=>o.id===id); if(idx>-1)orders[idx]=order; else orders.push(order);
       saveData();
       if(oldOrder&&oldOrder.status!=='Выдан')syncInventoryStock(newParts,oldOrder.parts); else if(!isEdit)syncInventoryStock(newParts,[]);
@@ -1036,36 +1125,13 @@
       const pSum=o.parts.reduce((s,p)=>s+(parseFloat(p.cost)||0),0),tr=parseFloat(o.transport)||0,cost=parseFloat(o.cost)||0;
       $('dPartsSum').textContent=fmt(pSum);$('dTrans').textContent=fmt(tr);$('dExp').textContent=fmt(pSum+tr);$('dCost').textContent=fmt(cost);$('dProfit').textContent=fmt(cost-pSum-tr);
       
-      // Показываем шаблоны только если куплены
-      if(settings.unlocks?.templates) $('quickActions').classList.remove('hidden');
-      else $('quickActions').classList.add('hidden');
+      // Render tags
+      renderOrderTags(o);
       
       $('detailModal').classList.add('active');
     }
     function closeDetailModal() { $('detailModal').classList.remove('active'); currentDetailId=null; }
     function editFromDetail() { if(currentDetailId){closeDetailModal();setTimeout(()=>editOrder(currentDetailId),100);} }
-    
-    function copyTemplate(key) {
-      if(!settings.unlocks?.templates) return;
-      const text = TEMPLATES[key];
-      const cleanPhone = getCleanPhone(orders.find(o=>o.id===currentDetailId)?.client || '');
-      const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
-      window.open(waUrl, '_blank');
-    }
-    
-    function printReceipt() {
-      if(!settings.unlocks?.pdf_receipt) { alert('🔒 Функция доступна после покупки в магазине'); return; }
-      const o = orders.find(x=>x.id===currentDetailId); if(!o) return;
-      $('printOrderId').textContent = '#' + o.id.slice(-6).toUpperCase();
-      $('printDate').textContent = toDate(o.date);
-      $('printClient').textContent = o.client + (o.avitoLink ? ` | 🔗 Авито` : '');
-      $('printDevice').textContent = `${o.type} | ${o.reason || 'Не указано'}`;
-      $('printCost').textContent = fmt(o.cost);
-      $('printWarranty').textContent = o.warrantyUntil ? `До ${toDate(o.warrantyUntil)} (${o.warrantyDays} дн.)` : 'Не указана';
-      $('printStamp').textContent = new Date().toLocaleString('ru-RU');
-      
-      window.print();
-    }
 
     function openSettings() { $('masterName').value=settings.master; updateProfileModal(); $('settingsModal').classList.add('active'); }
     function closeSettings() { $('settingsModal').classList.remove('active'); }
@@ -1111,7 +1177,7 @@
       c.innerHTML=msgs.map(m=>{if(m.user_meta?.type==='system_context')return'';const isSup=m.is_user===false||m.user_meta?.is_support===true,rc=isSup?'support':'user',dn=isSup?'ТЕХПОДДЕРЖКА':(m.user_name||'Аноним'),canDel=isCurrSup||(m.user_name===userName&&!isSup),db=canDel?`<button class="chat-delete-btn" onclick="deleteChatMessage('${m.id}')" title="Удалить">✕</button>`:'';let at='';if(m.user_meta?.attachment?.fileType==='order_json'){const a=m.user_meta.attachment,p=a.orderPreview;at=`<div style="background:rgba(255,255,255,0.95);border-radius:10px;padding:12px;margin-top:10px;border:1px solid var(--border);box-shadow:var(--shadow)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:1.2rem">📋</span><strong style="font-size:0.9rem">${a.fileName}</strong></div><div style="font-size:0.8rem;line-height:1.5;color:var(--text)"><div><strong>Заказ #${p.id?.slice(-6).toUpperCase()}</strong></div><div>👤 ${p.client}</div><div>🔧 ${p.type}</div><div>📊 <span class="status-badge status-${STATUS_CLASSES[p.status]||''}">${p.status}</span> • <strong class="money">${fmt(p.cost)}</strong></div><div>📅 ${toDate(p.date)} ${p.warrantyUntil?'• 🛡️ до '+toDate(p.warrantyUntil):''}</div></div><div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"><button class="btn btn-sm btn-outline" onclick="downloadSharedOrder('${m.id}')">💾 Скачать</button><button class="btn btn-sm btn-primary" onclick="importSharedOrder('${m.id}')">📥 Импорт</button></div></div>`;}return`<div class="chat-msg-row ${rc}" data-msg-id="${m.id}">${db}<div class="chat-name">${dn}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}${at}</div><span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></div>`;}).join('');c.scrollTop=c.scrollHeight; 
     }
     function subscribeToNewMessages() { if(!supabaseClient||chatSubscription)return; chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{if(p.new.user_meta?.type==='system_context')return;chatMessagesCache.push(p.new);if(chatMessagesCache.length>200)chatMessagesCache.shift();const c=$('chatMessages'),t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),isSup=p.new.is_user===false||p.new.user_meta?.is_support===true,dn=isSup?'ТЕХПОДДЕРЖКА':(p.new.user_name||'Аноним'),rc=isSup?'support':'user',userName=currentChatUsername,isCurrSup=userName==='ТЕХПОДДЕРЖКА'||supportModeActive,canDel=isCurrSup||(p.new.user_name===userName&&!isSup),db=canDel?`<button class="chat-delete-btn" onclick="deleteChatMessage('${p.new.id}')" title="Удалить">✕</button>`:'';let at='';if(p.new.user_meta?.attachment?.fileType==='order_json'){const a=p.new.user_meta.attachment,pr=a.orderPreview;at=`<div style="background:rgba(255,255,255,0.95);border-radius:10px;padding:12px;margin-top:10px;border:1px solid var(--border);box-shadow:var(--shadow)"><div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:1.2rem">📋</span><strong style="font-size:0.9rem">${a.fileName}</strong></div><div style="font-size:0.8rem;line-height:1.5;color:var(--text)"><div><strong>Заказ #${pr.id?.slice(-6).toUpperCase()}</strong></div><div>👤 ${pr.client}</div><div>🔧 ${pr.type}</div><div>📊 <span class="status-badge status-${STATUS_CLASSES[pr.status]||''}">${pr.status}</span> • <strong class="money">${fmt(pr.cost)}</strong></div><div>📅 ${toDate(pr.date)} ${pr.warrantyUntil?'• 🛡️ до '+toDate(pr.warrantyUntil):''}</div></div><div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap"><button class="btn btn-sm btn-outline" onclick="downloadSharedOrder('${p.new.id}')">💾 Скачать</button><button class="btn btn-sm btn-primary" onclick="importSharedOrder('${p.new.id}')">📥 Импорт</button></div></div>`;}const m=`<div class="chat-msg-row ${rc}" data-msg-id="${p.new.id}">${db}<div class="chat-name">${dn}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}${at}</div><span class="chat-time">${t}</span></div>`;c.insertAdjacentHTML('beforeend',m);c.scrollTop=c.scrollHeight}).subscribe(); }
-    async function sendChatMessage() { const i=$('chatInput'),n=$('chatUsername'),t=i?.value?.trim(),name=n?.value?.trim();if(!t||!name){if(!n?.value)n?.focus();return;}let isSup=supportModeActive,dn=isSup?'ТЕХПОДДЕРЖКА':name;if(supportModeActive&&name!=='ТЕХПОДДЕРЖКА'){toggleSupportRole();isSup=false;dn=name;}if(!isSup&&name===SUPPORT_SECRET){toggleSupportRole();isSup=true;dn='ТЕХПОДДЕРЖКА';}currentChatUsername=dn;localStorage.setItem('chat_username',dn);if(!supabaseClient){alert('❌ Чат не настроен');return;}const b=i.nextElementSibling;b.disabled=true;try{const{error}=await supabaseClient.from('support_messages').insert({user_name:dn,message:t,is_user:!isSup,user_meta:{appVersion:'v6.6',ua:navigator.userAgent.substring(0,50),is_support:isSup}});if(error)throw error;i.value=''}catch(err){alert('❌ '+err.message)}finally{b.disabled=false;i?.focus();} }
+    async function sendChatMessage() { const i=$('chatInput'),n=$('chatUsername'),t=i?.value?.trim(),name=n?.value?.trim();if(!t||!name){if(!n?.value)n?.focus();return;}let isSup=supportModeActive,dn=isSup?'ТЕХПОДДЕРЖКА':name;if(supportModeActive&&name!=='ТЕХПОДДЕРЖКА'){toggleSupportRole();isSup=false;dn=name;}if(!isSup&&name===SUPPORT_SECRET){toggleSupportRole();isSup=true;dn='ТЕХПОДДЕРЖКА';}currentChatUsername=dn;localStorage.setItem('chat_username',dn);if(!supabaseClient){alert('❌ Чат не настроен');return;}const b=i.nextElementSibling;b.disabled=true;try{const{error}=await supabaseClient.from('support_messages').insert({user_name:dn,message:t,is_user:!isSup,user_meta:{appVersion:'v6.7',ua:navigator.userAgent.substring(0,50),is_support:isSup}});if(error)throw error;i.value=''}catch(err){alert('❌ '+err.message)}finally{b.disabled=false;i?.focus();} }
 
     // === INIT ===
     window.onload = async () => {
@@ -1122,7 +1188,7 @@
       if($('masterName'))$('masterName').value=settings.master||'Мастер';
       
       // Применяем тему при загрузке
-      if(settings.unlocks?.theme) applyTheme(settings.theme || 'light');
+      applyTheme(settings.theme || 'light');
       
       updateUI(); renderTable(); renderInventory();
       $('repairCost').oninput=$('transportCost').oninput=calcTotals;
@@ -1132,9 +1198,6 @@
 
       const last=localStorage.getItem('last_login_date'), today=new Date().toISOString().split('T')[0];
       if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Ежедневный вход');localStorage.setItem('last_login_date',today)}
-      
-      // Автосохранение
-      if(settings.unlocks?.auto_backup) startAutoBackup();
 
       document.body.addEventListener('dragover', e => { e.preventDefault(); e.stopPropagation(); });
       document.body.addEventListener('drop', e => {
