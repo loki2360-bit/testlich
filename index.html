@@ -242,155 +242,6 @@
     .profile-info-display strong { display: block; margin-bottom: 4px; font-size: 1rem; }
     .profile-info-display span { color: var(--muted); }
 
-    .landing-overlay {
-      position: fixed; inset: 0; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
-      display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 9999;
-      overflow: hidden; animation: landingFadeIn 0.4s ease-out;
-    }
-    @keyframes landingFadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-    .landing-content {
-      background: rgba(255, 255, 255, 0.95); border-radius: 24px; padding: 40px 32px;
-      max-width: 720px; width: 100%; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
-      position: relative; z-index: 10; animation: contentSlideUp 0.5s ease-out 0.1s both;
-    }
-    @keyframes contentSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .landing-header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
-    .landing-logo { margin: 0 auto 16px; width: 72px; height: 72px; filter: drop-shadow(0 8px 24px rgba(0, 170, 255, 0.4)); animation: logoFloat 3s ease-in-out infinite; }
-    @keyframes logoFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
-    .landing-logo-svg { width: 100%; height: 100%; }
-    .landing-title { font-size: 2rem; font-weight: 800; letter-spacing: -0.04em; background: linear-gradient(135deg, #0f172a 0%, #334155 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
-    .landing-subtitle { font-size: 1rem; color: var(--muted); font-weight: 500; }
-    .landing-features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 28px; }
-    .feature-card { background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); padding: 16px; border-radius: 14px; border: 1px solid var(--border); transition: transform 0.2s, box-shadow 0.2s; text-align: center; }
-    .feature-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); border-color: var(--avito-blue); }
-    .feature-icon { font-size: 1.8rem; margin-bottom: 8px; display: block; }
-    .feature-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
-    .feature-card p { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
-    .landing-free-badge { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 20px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid var(--avito-blue); border-radius: 12px; margin-bottom: 24px; }
-    .free-label { font-size: 1.2rem; }
-    .free-text { font-size: 0.85rem; font-weight: 700; color: #0369a1; text-align: center; }
-    .landing-cta { text-align: center; margin-bottom: 20px; }
-    .btn-start { display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%); color: white; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35); width: 100%; max-width: 400px; justify-content: center; }
-    .btn-start:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(37, 99, 235, 0.5); background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%); }
-    .btn-arrow { font-size: 1.2rem; transition: transform 0.2s; }
-    .btn-start:hover .btn-arrow { transform: translateX(4px); }
-    .landing-note { font-size: 0.75rem; color: var(--muted); margin-top: 12px; line-height: 1.4; }
-    .landing-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.7rem; color: var(--muted); }
-    .version-badge { background: #f1f5f9; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
-    .made-with { font-style: italic; }
-    .landing-decoration { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.15; z-index: 1; }
-    .decoration-1 { width: 400px; height: 400px; background: var(--avito-blue); top: -150px; right: -100px; animation: float 8s ease-in-out infinite; }
-    .decoration-2 { width: 300px; height: 300px; background: var(--success); bottom: -100px; left: -50px; animation: float 10s ease-in-out infinite reverse; }
-    .decoration-3 { width: 250px; height: 250px; background: var(--warning); bottom: 20%; right: 10%; animation: float 12s ease-in-out infinite; }
-    @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 25% { transform: translate(20px, -20px) scale(1.05); } 50% { transform: translate(0, -40px) scale(1); } 75% { transform: translate(-20px, -20px) scale(0.95); } }
-    body.landing-active .container { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-    .landing-overlay.hiding { animation: landingFadeOut 0.3s ease-in forwards; pointer-events: none; }
-    @keyframes landingFadeOut { to { opacity: 0; transform: scale(1.02); } }
-    .landing-overlay.hiding .landing-content { animation: contentSlideDown 0.3s ease-in forwards; }
-    @keyframes contentSlideDown { to { opacity: 0; transform: translateY(10px); } }
-
-    .order-link {
-      display: inline-block;
-      padding: 2px 6px;
-      background: #e0f2fe;
-      color: #0284c7;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      margin: 2px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: 0.2s;
-    }
-    .order-link:hover {
-      background: var(--primary);
-      color: #fff;
-    }
-
-    .scanner-btn {
-      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-      color: white;
-      border: none;
-      padding: 9px 12px;
-      border-radius: 9px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.85rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: 0.2s;
-    }
-    .scanner-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-    }
-    
-    #reader {
-      width: 100%;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    
-    .scan-result {
-      margin-top: 12px;
-      padding: 12px;
-      background: #f0fdf4;
-      border: 1px solid #86efac;
-      border-radius: 8px;
-      display: none;
-    }
-    
-    .scan-result.show {
-      display: block;
-      animation: slideIn 0.3s ease;
-    }
-    
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .scan-result.found {
-      background: #f0fdf4;
-      border-color: #86efac;
-    }
-    
-    .scan-result.not-found {
-      background: #fef2f2;
-      border-color: #fca5a5;
-    }
-
-    .chat-msg-row.support .chat-name { 
-      color: var(--avito-blue); 
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.75rem;
-    }
-    .chat-msg-row.support .chat-bubble { 
-      background: linear-gradient(135deg, #e0f2fe, #bae6fd); 
-      color: #0369a1; 
-      border-bottom-left-radius: 4px;
-      border: 1px solid #7dd3fc;
-      font-weight: 500;
-    }
-    .chat-msg-row.user .chat-name { 
-      color: var(--muted); 
-    }
-    .chat-input-wrap input.support-mode {
-      border-color: var(--avito-blue);
-      background: #f0f9ff;
-      box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.15);
-    }
-    .chat-hint {
-      font-size: 0.65rem;
-      color: var(--muted);
-      text-align: center;
-      margin-top: 4px;
-      font-style: italic;
-    }
-
-    /* User selection modal */
     .user-select-modal {
       position: fixed; inset: 0; background: rgba(15,23,42,0.6); 
       display: flex; justify-content: center; align-items: center; 
@@ -415,13 +266,41 @@
     .user-select-icon { font-size: 1.5rem; }
     .user-select-desc { font-size: 0.75rem; color: var(--muted); margin-top: 4px; font-weight: 400; }
 
+    .order-link {
+      display: inline-block;
+      padding: 2px 6px;
+      background: #e0f2fe;
+      color: #0284c7;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .order-link:hover { background: var(--primary); color: #fff; }
+
+    .scanner-btn {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: white; border: none; padding: 9px 12px; border-radius: 9px; cursor: pointer;
+      font-weight: 600; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;
+    }
+    .scanner-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+    #reader { width: 100%; border-radius: 8px; overflow: hidden; }
+    .scan-result { margin-top: 12px; padding: 12px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; display: none; }
+    .scan-result.show { display: block; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .scan-result.found { background: #f0fdf4; border-color: #86efac; }
+    .scan-result.not-found { background: #fef2f2; border-color: #fca5a5; }
+
+    .chat-msg-row.support .chat-name { color: var(--avito-blue); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; }
+    .chat-msg-row.support .chat-bubble { background: linear-gradient(135deg, #e0f2fe, #bae6fd); color: #0369a1; border-bottom-left-radius: 4px; border: 1px solid #7dd3fc; font-weight: 500; }
+    .chat-msg-row.user .chat-name { color: var(--muted); }
+    .chat-input-wrap input.support-mode { border-color: var(--avito-blue); background: #f0f9ff; box-shadow: 0 0 0 3px rgba(0, 170, 255, 0.15); }
+    .chat-hint { font-size: 0.65rem; color: var(--muted); text-align: center; margin-top: 4px; font-style: italic; }
+
     @media (max-width: 640px) {
-      .landing-content { padding: 28px 20px; margin: 10px; }
-      .landing-title { font-size: 1.6rem; }
-      .landing-features { grid-template-columns: 1fr; }
-      .feature-card { padding: 14px; }
-      .btn-start { padding: 14px 24px; font-size: 0.95rem; }
-      .landing-free-badge { flex-direction: column; gap: 6px; padding: 10px 16px; }
       .part-row, .totals, .form-grid, .detail-grid, .detail-finances, .dashboard { grid-template-columns: 1fr; }
       .table-wrap { overflow-x: auto; }
       .brand { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -695,26 +574,6 @@
     </div>
   </div>
 
-  <!-- Landing Page Overlay -->
-  <div id="landingOverlay" class="landing-overlay">
-    <div class="landing-content">
-      <div class="landing-header">
-        <div class="landing-logo"><svg viewBox="0 0 44 44" fill="none" class="landing-logo-svg"><defs><linearGradient id="gradLanding" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#00AAFF"/><stop offset="1" stop-color="#0066FF"/></linearGradient></defs><rect width="44" height="44" rx="12" fill="url(#gradLanding)"/><path d="M14 16C14 16 16 12 22 12C28 12 30 16 30 16V28C30 28 28 32 22 32C16 32 14 28 14 28V16Z" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 20H26M18 24H23" stroke="white" stroke-width="2.2" stroke-linecap="round"/><circle cx="22" cy="34" r="3" fill="#97CF26"/></svg></div>
-        <h1 class="landing-title">AVITO SELLER</h1><p class="landing-subtitle">Система учёта ремонтов для мастеров</p>
-      </div>
-      <div class="landing-features">
-        <div class="feature-card"><div class="feature-icon">📋</div><h3>Учёт заявок</h3><p>Создавайте, отслеживайте и управляйте заказами в одном месте</p></div>
-        <div class="feature-card"><div class="feature-icon">📦</div><h3>Склад запчастей</h3><p>Контролируйте остатки, бронируйте детали, импортируйте из CSV</p></div>
-        <div class="feature-card"><div class="feature-icon">💰</div><h3>Финансы</h3><p>Считайте себестоимость, прибыль и отслеживайте гарантии</p></div>
-        <div class="feature-card"><div class="feature-icon">☁️</div><h3>Бэкап в облако</h3><p>Экспорт/импорт данных — ваши данные всегда под защитой</p></div>
-      </div>
-      <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
-      <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p></div>
-      <div class="landing-footer"><span class="version-badge">v7.1 • Stable</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
-    </div>
-    <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
-  </div>
-
   <script>
     // === КОНФИГУРАЦИЯ ===
     const TYPES = ['Микроволновки','Колонки','Музыкальные центры','Наушники','Телефоны','Ноутбуки','Планшеты','Стиральные машины','Роутеры','ПК','Мониторы','Пылесосы'];
@@ -722,21 +581,17 @@
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
     const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
     
-    // Supabase configuration - ЗАМЕНИТЕ НА СВОИ КЛЮЧИ
     const SUPABASE_URL = 'https://wdbjpcpodkydaitotqqr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYmpwY3BvZGt5ZGFpdG90cXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTM4NDksImV4cCI6MjA5MTEyOTg0OX0.REToOamR3fU6cZcaa8DsHd0OORMyYy5AkErHweLihz4';
     
-    // Local storage keys
     const INVENTORY_KEY = 'repair_inventory_v2';
     const SETTINGS_KEY = 'repair_settings_v8';
     const USER_KEY = 'repair_user_v1';
     const CLOUD_ORDERS_CACHE_KEY = 'repair_cloud_orders_cache_v1';
     
-    // Secrets
     const SECRET_CODE = 'AVITO2026';
     const SUPPORT_SECRET = '9379992';
     
-    // Gamification
     const LEVELS = [
       { level: 1, name: 'Новичок 🌱', threshold: 0 },
       { level: 2, name: 'Ученик 📖', threshold: 60 },
@@ -752,27 +607,23 @@
       { id: 'certificate', name: '📜 Почётная грамота', cost: 150, desc: 'Красивая сводка ваших достижений', type: 'cert' }
     ];
 
-    // User configuration
     const USERS = {
       manager: { id: 'manager', name: 'Менеджер', icon: '📋', class: 'manager' },
       master: { id: 'master', name: 'Мастер', icon: '🔧', class: 'master' }
     };
 
-    // Global state
     let supabaseClient = null;
     let chatSubscription = null;
     let html5QrCode = null;
     let currentUser = null;
-    
-    // Local data (per-user)
     let inventory = [];
     let settings = {};
-    
-    // Cloud data (shared) - с кэшем
     let cloudOrders = [];
-    let isCloudSynced = false;
+    let currentTab = 'orders';
+    let currentDetailId = null;
+    let currentPhotoBase64 = null;
+    let pendingCsvData = [];
 
-    // Helpers
     const $ = id => document.getElementById(id);
     const fmt = n => new Intl.NumberFormat('ru-RU', { style:'currency', currency:'RUB' }).format(n||0);
     const toDate = d => d ? new Date(d).toLocaleDateString('ru-RU') : '—';
@@ -781,13 +632,9 @@
 
     // === SUPABASE INIT ===
     function initSupabase() {
-      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) {
-        console.warn('⚠️ Supabase keys not configured');
-        return false;
-      }
+      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) return false;
       try { 
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
-        console.log('✅ Supabase initialized');
         return true; 
       } catch(e) { 
         console.error('❌ Supabase init error:', e);
@@ -798,8 +645,7 @@
     // === USER MANAGEMENT ===
     function getCurrentUser() {
       const saved = localStorage.getItem(USER_KEY);
-      if (saved) return JSON.parse(saved);
-      return null;
+      return saved ? JSON.parse(saved) : null;
     }
 
     function setCurrentUser(user) {
@@ -825,10 +671,7 @@
 
     function updateUserBadge() {
       if (!currentUser) return;
-      const badge = $('currentUserBadge');
-      const icon = $('currentUserIcon');
-      const label = $('currentUserLabel');
-      
+      const badge = $('currentUserBadge'), icon = $('currentUserIcon'), label = $('currentUserLabel');
       if (badge && icon && label) {
         badge.className = `user-badge ${currentUser.class}`;
         icon.textContent = currentUser.icon;
@@ -840,743 +683,287 @@
       const el = $('syncStatus');
       if (!el) return;
       if (ok) {
-        el.textContent = '✅';
-        el.className = 'sync-status ok';
-        el.title = msg || 'Синхронизировано';
+        el.textContent = '✅'; el.className = 'sync-status ok'; el.title = msg || 'Синхронизировано';
       } else {
-        el.textContent = '⚠️';
-        el.className = 'sync-status error';
-        el.title = msg || 'Ошибка синхронизации';
+        el.textContent = '⚠️'; el.className = 'sync-status error'; el.title = msg || 'Ошибка подключения';
       }
       setTimeout(() => { if (el.textContent === '✅') el.textContent = '🔄'; }, 3000);
     }
 
-    // === LOCAL DATA MANAGEMENT (per-user) ===
+    // === LOCAL DATA MANAGEMENT ===
     function loadLocalData() {
       if (!currentUser) return;
-      
-      // Load inventory (local only)
-      const invKey = `${INVENTORY_KEY}_${currentUser?.id || 'default'}`;
-      inventory = JSON.parse(localStorage.getItem(invKey) || '[]');
-      
-      // Load settings (local only)
-      const setKey = `${SETTINGS_KEY}_${currentUser?.id || 'default'}`;
-      settings = JSON.parse(localStorage.getItem(setKey) || `{"master":"${currentUser?.name || 'Мастер'}","coins":0,"totalEarned":0,"unlocks":{},"level":1,"levelName":"Новичок 🌱"}`);
-      
-      updateCoinUI();
-      updateProfileModal();
+      inventory = JSON.parse(localStorage.getItem(`${INVENTORY_KEY}_${currentUser.id}`) || '[]');
+      settings = JSON.parse(localStorage.getItem(`${SETTINGS_KEY}_${currentUser.id}`) || `{"master":"${currentUser.name}","coins":0,"totalEarned":0,"unlocks":{},"level":1,"levelName":"Новичок 🌱"}`);
+      updateCoinUI(); updateProfileModal();
       if (currentTab === 'inventory') renderInventory();
     }
 
     function saveLocalData() {
       if (!currentUser) return;
-      const invKey = `${INVENTORY_KEY}_${currentUser.id}`;
-      const setKey = `${SETTINGS_KEY}_${currentUser.id}`;
-      localStorage.setItem(invKey, JSON.stringify(inventory));
-      localStorage.setItem(setKey, JSON.stringify(settings));
+      localStorage.setItem(`${INVENTORY_KEY}_${currentUser.id}`, JSON.stringify(inventory));
+      localStorage.setItem(`${SETTINGS_KEY}_${currentUser.id}`, JSON.stringify(settings));
     }
 
     // === CLOUD ORDERS WITH LOCAL FALLBACK ===
     function saveOrdersToCache() {
-      try {
-        localStorage.setItem(CLOUD_ORDERS_CACHE_KEY, JSON.stringify(cloudOrders));
-        console.log(`💾 Кэш заявок сохранён: ${cloudOrders.length} записей`);
-      } catch (e) {
-        console.warn('⚠️ Не удалось сохранить кэш заявок:', e);
-      }
+      try { localStorage.setItem(CLOUD_ORDERS_CACHE_KEY, JSON.stringify(cloudOrders)); } catch(e) { console.warn(e); }
     }
 
     function loadOrdersFromCache() {
       try {
         const cached = localStorage.getItem(CLOUD_ORDERS_CACHE_KEY);
-        if (cached) {
-          cloudOrders = JSON.parse(cached);
-          console.log(`📦 Загружено ${cloudOrders.length} заявок из локального кэша`);
-          return true;
-        }
-      } catch (e) {
-        console.warn('⚠️ Не удалось загрузить кэш заявок:', e);
-      }
-      cloudOrders = [];
-      return false;
+        if (cached) { cloudOrders = JSON.parse(cached); return true; }
+      } catch(e) { console.warn(e); }
+      cloudOrders = []; return false;
     }
 
     async function fetchCloudOrders() {
-      // Сначала загружаем из кэша для мгновенного отображения
       loadOrdersFromCache();
-      renderTable();
-      updateUI();
+      renderTable(); updateUI();
       
-      if (!supabaseClient) {
-        console.warn('⚠️ Supabase не инициализирован, используем кэш');
-        updateSyncStatus(false, 'Облако недоступно');
-        return;
-      }
-      
+      if (!supabaseClient) { updateSyncStatus(false, 'Облако недоступно'); return; }
       try {
-        const { data, error } = await supabaseClient
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false });
-        
+        const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
         if (error) throw error;
-        
         cloudOrders = data || [];
         console.log(`✅ Загружено ${cloudOrders.length} заявок из облака`);
-        
-        // Сохраняем свежий кэш
-        saveOrdersToCache();
-        isCloudSynced = true;
-        updateSyncStatus(true, 'Синхронизировано');
-        
-        // Перерисовываем таблицу с актуальными данными
-        applyFilters();
-        updateUI();
-        
+        saveOrdersToCache(); updateSyncStatus(true); applyFilters(); updateUI();
       } catch (err) {
-        console.error('❌ Ошибка загрузки заявок:', err);
-        updateSyncStatus(false, 'Ошибка подключения');
-        // Данные уже загружены из кэша, пользователь видит их
+        console.error('❌ Ошибка загрузки:', err); updateSyncStatus(false, 'Ошибка подключения');
       }
     }
 
     async function syncOrderToCloud(order) {
-      // 1. Обновляем локальный массив немедленно
       const idx = cloudOrders.findIndex(o => o.id === order.id);
-      if (idx > -1) {
-        cloudOrders[idx] = { ...cloudOrders[idx], ...order, updated_at: new Date().toISOString() };
-      } else {
-        cloudOrders.unshift({ ...order, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
-      }
+      const now = new Date().toISOString();
+      if (idx > -1) cloudOrders[idx] = { ...cloudOrders[idx], ...order, updated_at: now };
+      else cloudOrders.unshift({ ...order, created_at: now, updated_at: now });
       
-      // 2. Сохраняем в кэш немедленно (гарантия сохранности)
-      saveOrdersToCache();
+      saveOrdersToCache(); applyFilters(); updateUI();
       
-      // 3. Перерисовываем интерфейс
-      applyFilters();
-      updateUI();
-      
-      // 4. Пробуем синхронизировать с облаком (асинхронно, не блокируя интерфейс)
-      if (!supabaseClient) {
-        console.warn('⚠️ Supabase недоступен, заявка сохранена локально');
-        updateSyncStatus(false, 'Локально');
-        return false;
-      }
-      
+      if (!supabaseClient) { updateSyncStatus(false, 'Локально'); return false; }
       try {
-        const { data, error } = await supabaseClient
-          .from('orders')
-          .upsert(order, { onConflict: 'id' });
-        
+        const { error } = await supabaseClient.from('orders').upsert(order, { onConflict: 'id' });
         if (error) throw error;
-        console.log('✅ Заявка синхронизирована с облаком');
-        updateSyncStatus(true);
-        return true;
+        updateSyncStatus(true); return true;
       } catch (err) {
-        console.error('❌ Ошибка синхронизации с облаком:', err);
-        updateSyncStatus(false, 'Не синхронизировано');
-        // Заявка уже сохранена в кэше, данные не потеряны
-        return false;
+        console.error('❌ Sync error:', err); updateSyncStatus(false, 'Не синхронизировано'); return false;
       }
     }
 
     async function deleteOrderFromCloud(orderId) {
-      // Удаляем из локального массива и кэша
       cloudOrders = cloudOrders.filter(x => x.id !== orderId);
-      saveOrdersToCache();
-      applyFilters();
-      updateUI();
-      
-      if (!supabaseClient) {
-        console.warn('⚠️ Supabase недоступен, заявка удалена только локально');
-        return false;
-      }
-      
+      saveOrdersToCache(); applyFilters(); updateUI();
+      if (!supabaseClient) return false;
       try {
-        const { error } = await supabaseClient
-          .from('orders')
-          .delete()
-          .eq('id', orderId);
-        if (error) throw error;
-        console.log('✅ Заявка удалена из облака');
-        return true;
-      } catch (err) {
-        console.error('❌ Ошибка удаления из облака:', err);
-        return false;
-      }
+        const { error } = await supabaseClient.from('orders').delete().eq('id', orderId);
+        return !error;
+      } catch (err) { console.error(err); return false; }
     }
 
-    // === INVENTORY STOCK LOGIC (local only) ===
+    // === INVENTORY STOCK LOGIC ===
     function syncInventoryStock(currentParts, oldParts) {
-      if (!currentParts) currentParts = [];
-      if (!oldParts) oldParts = [];
-
-      const oldPartsMap = new Map();
-      oldParts.forEach(part => {
-        const key = part.name.trim().toLowerCase();
-        const count = oldPartsMap.get(key) || 0;
-        oldPartsMap.set(key, count + 1);
-      });
-
-      const newPartsMap = new Map();
-      currentParts.forEach(part => {
-        const key = part.name.trim().toLowerCase();
-        const count = newPartsMap.get(key) || 0;
-        newPartsMap.set(key, count + 1);
-      });
-
-      oldPartsMap.forEach((oldCount, partNameLower) => {
-        const newCount = newPartsMap.get(partNameLower) || 0;
-        if (newCount < oldCount) {
-          const diff = oldCount - newCount;
-          addToStockByLowerName(partNameLower, diff);
-        }
-      });
-
-      newPartsMap.forEach((newCount, partNameLower) => {
-        const oldCount = oldPartsMap.get(partNameLower) || 0;
-        if (newCount > oldCount) {
-          const diff = newCount - oldCount;
-          removeFromStockByLowerName(partNameLower, diff);
-        }
-      });
+      const getMap = (parts) => {
+        const m = new Map();
+        (parts||[]).forEach(p => { const k = p.name.trim().toLowerCase(); m.set(k, (m.get(k)||0)+1); });
+        return m;
+      };
+      const oldM = getMap(oldParts), newM = getMap(currentParts);
+      oldM.forEach((cnt, k) => { if(newM.get(k) < cnt) addToStockByLowerName(k, cnt - newM.get(k)); });
+      newM.forEach((cnt, k) => { if(cnt > (oldM.get(k)||0)) removeFromStockByLowerName(k, cnt - (oldM.get(k)||0)); });
     }
+    function removeFromStockByLowerName(k, n) { const i = inventory.find(x=>x.name.trim().toLowerCase()===k); if(i && i.inStock>=n){i.inStock-=n; saveLocalData(); if(currentTab==='inventory') renderInventory(); } }
+    function addToStockByLowerName(k, n) { const i = inventory.find(x=>x.name.trim().toLowerCase()===k); if(i){i.inStock+=n; saveLocalData(); if(currentTab==='inventory') renderInventory(); } }
 
-    function removeFromStockByLowerName(partNameLower, amount) {
-      const item = inventory.find(i => i.name.trim().toLowerCase() === partNameLower);
-      if (item) {
-        if (item.inStock >= amount) {
-          item.inStock -= amount;
-          saveLocalData();
-          if (currentTab === 'inventory') renderInventory();
-        }
-      }
-    }
-
-    function addToStockByLowerName(partNameLower, amount) {
-      const item = inventory.find(i => i.name.trim().toLowerCase() === partNameLower);
-      if (item) {
-        item.inStock += amount;
-        saveLocalData();
-        if (currentTab === 'inventory') renderInventory();
-      }
-    }
-
-    // === PART USAGE ON ORDERS LOGIC ===
     function getPartUsageMap() {
       const map = {};
-      cloudOrders.forEach(o => {
-        (o.parts||[]).forEach(p => {
-          const key = p.name.trim().toLowerCase();
-          if (!map[key]) map[key] = [];
-          const exists = map[key].find(x => x.fullId === o.id);
-          if (!exists) {
-            map[key].push({
-              shortId: (o.id||'').slice(-6).toUpperCase(),
-              fullId: o.id,
-              status: o.status
-            });
-          }
-        });
-      });
+      cloudOrders.forEach(o => (o.parts||[]).forEach(p => {
+        const k = p.name.trim().toLowerCase();
+        if(!map[k]) map[k] = [];
+        if(!map[k].find(x=>x.fullId===o.id)) map[k].push({shortId:(o.id||'').slice(-6).toUpperCase(), fullId:o.id, status:o.status});
+      }));
       return map;
     }
 
-    // === COIN & LEVEL SYSTEM (local) ===
-    function addCoins(amount, reason = '') {
-      settings.coins += amount;
-      settings.totalEarned += amount;
-      checkLevel();
-      persistSettings();
-      showCoinAnimation(amount, reason);
-      updateCoinUI();
-    }
-    
-    function spendCoins(amount) {
-      if (settings.coins >= amount) { 
-        settings.coins -= amount; 
-        persistSettings(); 
-        updateCoinUI(); 
-        return true; 
-      }
-      alert('❌ Недостаточно коинов!');
-      return false;
-    }
-    
-    function checkLevel() {
-      let newLevel = LEVELS[0];
-      for (let l of LEVELS) if (settings.totalEarned >= l.threshold) newLevel = l;
-      if (newLevel.level > settings.level) {
-        settings.level = newLevel.level; 
-        settings.levelName = newLevel.name;
-        showCoinAnimation(0, `🎉 Уровень повышен: ${newLevel.name}!`);
-      } else { 
-        settings.level = newLevel.level; 
-        settings.levelName = newLevel.name; 
-      }
-    }
-    
-    function persistSettings() {
-      settings.master = $('masterName')?.value || settings.master || currentUser?.name || 'Мастер';
-      saveLocalData();
-      updateCoinUI();
-      updateProfileModal();
-    }
-    
-    function showCoinAnimation(amount, reason) {
-      const el = document.createElement('div'); 
-      el.className = 'coin-popup';
-      el.innerHTML = amount > 0 ? `+${amount} 🪙 <span style="display:block;font-size:0.7rem;color:#64748b">${reason}</span>` : `🎉 ${reason}`;
-      document.body.appendChild(el);
-      setTimeout(() => el.classList.add('show'), 10);
-      setTimeout(() => { 
-        el.classList.remove('show'); 
-        setTimeout(() => el.remove(), 300); 
-      }, 2000);
-    }
-    
-    function updateCoinUI() {
-      const badge = $('coinBadge'), display = $('coinDisplay');
-      if (!badge || !display) return;
-      display.textContent = settings.coins;
-      badge.title = `Уровень: ${settings.levelName}${settings.unlocks?.status ? ' • ' + settings.unlocks.status : ''}`;
-    }
-    
-    function updateProfileModal() {
-      if($('profileMasterName')) $('profileMasterName').textContent = settings.master || currentUser?.name || 'Мастер';
-      if($('profileLevel')) $('profileLevel').textContent = settings.levelName || 'Новичок';
-      if($('profileStatus')) $('profileStatus').textContent = settings.unlocks?.status || 'Не установлен';
-    }
-    
-    function applyCosmetic(type, value) {
-      if (!settings.unlocks) settings.unlocks = {};
-      settings.unlocks[type] = value;
-      persistSettings();
-      updateUI();
-    }
-    
-    function generateCertificate() {
-      if (!spendCoins(150)) return;
-      const completed = cloudOrders.filter(o=>o.status==='Выдан').length;
-      const stats = `📜 ПОЧЁТНАЯ ГРАМОТА\n\n👤 Мастер: ${settings.master}\n🏆 Уровень: ${settings.levelName}\n📋 Заявок закрыто: ${completed}\n🪙 Всего заработано: ${settings.totalEarned} коинов\n\n✅ Вы настоящий профи! Сохраните эту грамоту в сердце.`;
-      alert(stats);
-    }
-    
+    // === GAMIFICATION ===
+    function addCoins(amount, reason='') { settings.coins+=amount; settings.totalEarned+=amount; checkLevel(); persistSettings(); showCoinAnimation(amount, reason); updateCoinUI(); }
+    function spendCoins(amount) { if(settings.coins>=amount){settings.coins-=amount; persistSettings(); updateCoinUI(); return true;} alert('❌ Недостаточно коинов!'); return false; }
+    function checkLevel() { let nl=LEVELS[0]; for(let l of LEVELS) if(settings.totalEarned>=l.threshold) nl=l; if(nl.level>settings.level){settings.level=nl.level; settings.levelName=nl.name; showCoinAnimation(0, `🎉 Уровень: ${nl.name}!`);} else { settings.level=nl.level; settings.levelName=nl.name; } }
+    function persistSettings() { settings.master=$('masterName')?.value||settings.master||currentUser?.name||'Мастер'; saveLocalData(); updateCoinUI(); updateProfileModal(); }
+    function showCoinAnimation(amount, reason) { const el=document.createElement('div'); el.className='coin-popup'; el.innerHTML=amount>0?`+${amount} 🪙 <span style="display:block;font-size:0.7rem;color:#64748b">${reason}</span>`:`🎉 ${reason}`; document.body.appendChild(el); setTimeout(()=>el.classList.add('show'),10); setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),300);},2000); }
+    function updateCoinUI() { const d=$('coinDisplay'); if(d) d.textContent=settings.coins; }
+    function updateProfileModal() { if($('profileMasterName')) $('profileMasterName').textContent=settings.master; if($('profileLevel')) $('profileLevel').textContent=settings.levelName||'Новичок'; if($('profileStatus')) $('profileStatus').textContent=settings.unlocks?.status||'Не установлен'; }
+    function applyCosmetic(type, val) { if(!settings.unlocks) settings.unlocks={}; settings.unlocks[type]=val; persistSettings(); }
+    function generateCertificate() { if(!spendCoins(150)) return; alert(`📜 ПОЧЁТНАЯ ГРАМОТА\n\n👤 ${settings.master}\n🏆 ${settings.levelName}\n📋 Закрыто: ${cloudOrders.filter(o=>o.status==='Выдан').length}\n🪙 Всего: ${settings.totalEarned}`); }
     function openAchievements() { $('cosmeticsModal')?.classList.add('active'); renderCosmetics(); }
     function closeCosmetics() { $('cosmeticsModal')?.classList.remove('active'); }
-    
     function renderCosmetics() {
-      const list = $('shopList'); if (!list) return;
-      list.innerHTML = COSMETICS.map(item => {
-        let content = '';
-        if (item.type === 'text') {
-          const current = settings.unlocks?.status || '';
-          content = `<input type="text" id="input_status_shop" placeholder="Например: Делаю качественно..." value="${current}" style="width:100%;margin-bottom:6px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem"><button class="btn btn-primary btn-sm" onclick="buyCosmetic('status', $('input_status_shop').value)">Установить (${item.cost} 🪙)</button>`;
-        } else if (item.type === 'cert') {
-          content = `<button class="btn btn-outline btn-sm" style="width:100%" onclick="generateCertificate()">🖨️ Получить (${item.cost} 🪙)</button>`;
-        }
-        return `<div class="shop-item"><h4>${item.name}</h4><p>${item.desc}</p><div class="shop-actions">${content}</div></div>`;
+      const list=$('shopList'); if(!list) return;
+      list.innerHTML=COSMETICS.map(it=>{
+        let c='';
+        if(it.type==='text') c=`<input type="text" id="input_status_shop" placeholder="Статус..." value="${settings.unlocks?.status||''}" style="width:100%;margin-bottom:6px;padding:6px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem"><button class="btn btn-primary btn-sm" onclick="buyCosmetic('status',$('input_status_shop').value)">Установить (${it.cost}🪙)</button>`;
+        else if(it.type==='cert') c=`<button class="btn btn-outline btn-sm" style="width:100%" onclick="generateCertificate()">🖨️ Получить (${it.cost}🪙)</button>`;
+        return `<div class="shop-item"><h4>${it.name}</h4><p>${it.desc}</p>${c}</div>`;
       }).join('');
     }
-    
-    function buyCosmetic(id, value) {
-      const item = COSMETICS.find(i => i.id === id);
-      if (!item || !spendCoins(item.cost)) return;
-      applyCosmetic(id, value);
-      alert('✅ Настройка сохранена!'); renderCosmetics();
-    }
+    function buyCosmetic(id, val) { const it=COSMETICS.find(i=>i.id===id); if(!it||!spendCoins(it.cost)) return; applyCosmetic(id,val); alert('✅ Сохранено!'); renderCosmetics(); }
 
-    // === MAIN FUNCTIONS ===
-    let currentTab = 'orders';
-    let currentDetailId = null;
-    let currentPhotoBase64 = null;
-    let pendingCsvData = [];
-
+    // === MAIN UI ===
     function switchTab(tab) {
-      currentTab = tab;
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      event.target.classList.add('active');
-      $('ordersSection').classList.toggle('hidden', tab !== 'orders');
-      $('inventorySection').classList.toggle('hidden', tab !== 'inventory');
-      if (tab === 'inventory') renderInventory();
+      currentTab=tab; document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); event.target.classList.add('active');
+      $('ordersSection').classList.toggle('hidden', tab!=='orders'); $('inventorySection').classList.toggle('hidden', tab!=='inventory');
+      if(tab==='inventory') renderInventory();
     }
-    
     function updateUI() {
-      updateCoinUI();
-      let ready = 0, active = 0;
-      cloudOrders.forEach(o => {
-        const partsSum = (o.parts||[]).reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
-        const exp = partsSum + (parseFloat(o.transport)||0);
-        const profit = (parseFloat(o.cost)||0) - exp;
-        if (o.status === 'Выдан') ready += profit; else active += profit;
-      });
-      $('statReady').textContent = fmt(ready); 
-      $('statActive').textContent = fmt(active); 
-      $('statCount').textContent = cloudOrders.length;
+      updateCoinUI(); let r=0, a=0;
+      cloudOrders.forEach(o=>{const ps=(o.parts||[]).reduce((s,p)=>s+(+p.cost||0),0), exp=ps+(+o.transport||0), prof=(+o.cost||0)-exp; o.status==='Выдан'?r+=prof:a+=prof;});
+      $('statReady').textContent=fmt(r); $('statActive').textContent=fmt(a); $('statCount').textContent=cloudOrders.length;
     }
+    function getWarrantyBadge(o) { if(!o.warrantyUntil) return '<span style="color:var(--muted)">—</span>'; const today=new Date(); today.setHours(0,0,0,0); const diff=Math.ceil((new Date(o.warrantyUntil)-today)/86400000); if(diff<0) return `<span class="w-badge expired">Истекла</span>`; if(diff<=7) return `<span class="w-badge warning">${diff} дн.</span>`; return `<span class="w-badge active">${diff} дн.</span>`; }
+    function getCreatorBadge(o) { const u=USERS[o.createdBy]||{name:'Неизвестно',class:'',icon:'👤'}; return `<span class="creator-badge ${u.class}">${u.icon} ${u.name}</span>`; }
     
-    function getWarrantyBadge(order) {
-      if (!order.warrantyUntil) return '<span style="color:var(--muted)">—</span>';
-      const today = new Date(); today.setHours(0,0,0,0); 
-      const end = new Date(order.warrantyUntil);
-      const diff = Math.ceil((end - today) / 86400000);
-      if (diff < 0) return `<span class="w-badge expired" title="Истекла ${toDate(order.warrantyUntil)}">Истекла</span>`;
-      if (diff <= 7) return `<span class="w-badge warning" title="До ${toDate(order.warrantyUntil)}">${diff} дн.</span>`;
-      return `<span class="w-badge active" title="До ${toDate(order.warrantyUntil)}">${diff} дн.</span>`;
-    }
-    
-    function getCreatorBadge(order) {
-      const creator = order.createdBy || 'unknown';
-      const user = USERS[creator] || { name: 'Неизвестно', class: '', icon: '👤' };
-      return `<span class="creator-badge ${user.class}" title="Создано: ${user.name}">${user.icon} ${user.name}</span>`;
-    }
-    
-    function renderTable(data = cloudOrders) {
-      const tb = $('tbody'), empty = $('emptyState'); 
-      tb.innerHTML = '';
-      if (!data.length) { 
-        empty.classList.remove('hidden'); 
-        return; 
-      }
-      empty.classList.add('hidden');
-      
-      data.sort((a,b)=>(b.created_at||b.createdAt||0)-(a.created_at||a.createdAt||0)).forEach(o => {
-        const partsSum = (o.parts||[]).reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
-        const exp = partsSum + (parseFloat(o.transport)||0);
-        const profit = (parseFloat(o.cost)||0) - exp;
-        const avitoLink = o.avitoLink ? `<a href="${o.avitoLink}" target="_blank" rel="noopener noreferrer" class="link" title="Открыть">🔗</a>` : '';
-        const cleanPhone = getCleanPhone(o.client);
-        const contacts = `<a href="tel:${cleanPhone}" class="action-link" title="Позвонить">📞</a><a href="https://wa.me/${cleanPhone}?text=Здравствуйте!" target="_blank" class="action-link" title="WhatsApp">💬</a>`;
-        const statusSelect = `<select class="inline-status" onchange="handleInlineStatus('${o.id}', this.value)">${STATUSES.map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>`;
-        const creatorBadge = getCreatorBadge(o);
-        
-        tb.innerHTML += `<tr>
-          <td>${(o.id||'').slice(-6).toUpperCase()}</td>
-          <td>${toDate(o.date)}</td>
-          <td>${o.client}</td>
-          <td>${contacts}</td>
-          <td>${avitoLink}</td>
-          <td>${o.type}</td>
-          <td>${statusSelect}</td>
-          <td>${getWarrantyBadge(o)}</td>
-          <td class="money">${fmt(exp)}</td>
-          <td class="money" style="font-weight:600">${fmt(o.cost)}</td>
-          <td class="money ${profit>=0?'pos':'neg'}">${fmt(profit)}</td>
-          <td>${creatorBadge}</td>
-          <td class="actions">
-            <button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button>
-            <button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button>
-            <button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button>
-          </td>
-        </tr>`;
+    function renderTable(data=cloudOrders) {
+      const tb=$('tbody'), empty=$('emptyState'); tb.innerHTML='';
+      if(!data.length){empty.classList.remove('hidden'); return;} empty.classList.add('hidden');
+      data.sort((a,b)=>(b.created_at||b.createdAt||0)-(a.created_at||a.createdAt||0)).forEach(o=>{
+        const ps=(o.parts||[]).reduce((s,p)=>s+(+p.cost||0),0), exp=ps+(+o.transport||0), prof=(+o.cost||0)-exp;
+        const av=o.avitoLink?`<a href="${o.avitoLink}" target="_blank" class="link">🔗</a>`:'';
+        const cp=getCleanPhone(o.client), cont=`<a href="tel:${cp}" class="action-link">📞</a><a href="https://wa.me/${cp}" target="_blank" class="action-link">💬</a>`;
+        const sel=`<select class="inline-status" onchange="handleInlineStatus('${o.id}',this.value)">${STATUSES.map(s=>`<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}</select>`;
+        tb.innerHTML+=`<tr><td>${(o.id||'').slice(-6).toUpperCase()}</td><td>${toDate(o.date)}</td><td>${o.client}</td><td>${cont}</td><td>${av}</td><td>${o.type}</td><td>${sel}</td><td>${getWarrantyBadge(o)}</td><td class="money">${fmt(exp)}</td><td class="money" style="font-weight:600">${fmt(o.cost)}</td><td class="money ${prof>=0?'pos':'neg'}">${fmt(prof)}</td><td>${getCreatorBadge(o)}</td><td class="actions"><button class="btn btn-outline btn-sm" onclick="openDetail('${o.id}')">👁️</button><button class="btn btn-outline btn-sm" onclick="editOrder('${o.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="delOrder('${o.id}')">🗑️</button></td></tr>`;
       });
     }
-    
-    async function handleInlineStatus(id, newStatus) {
-      const order = cloudOrders.find(x => x.id === id); 
-      if (!order) return;
-      
-      order.status = newStatus;
-      if (newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Быстрый статус');
-      
-      await syncOrderToCloud(order);
-    }
-    
+    async function handleInlineStatus(id, ns) { const o=cloudOrders.find(x=>x.id===id); if(!o) return; o.status=ns; if(ns==='Выдан') addCoins(COIN_REWARDS.COMPLETE,'✅'); await syncOrderToCloud(o); }
     function applyFilters() {
-      const q = $('search').value.toLowerCase(), 
-            t = $('filterType').value, 
-            s = $('filterStatus').value,
-            c = $('filterCreator').value;
-      const d1 = $('dateFrom').value, d2 = $('dateTo').value;
-      
-      renderTable(cloudOrders.filter(o => 
-        (!q || o.client.toLowerCase().includes(q) || o.type.toLowerCase().includes(q)) && 
-        (!t || o.type===t) && 
-        (!s || o.status===s) && 
-        (!c || o.createdBy===c) &&
-        (!d1 || o.date>=d1) && 
-        (!d2 || o.date<=d2)
-      ));
+      const q=$('search').value.toLowerCase(), t=$('filterType').value, s=$('filterStatus').value, c=$('filterCreator').value, d1=$('dateFrom').value, d2=$('dateTo').value;
+      renderTable(cloudOrders.filter(o=>(!q||o.client.toLowerCase().includes(q)||o.type.toLowerCase().includes(q))&&(!t||o.type===t)&&(!s||o.status===s)&&(!c||o.createdBy===c)&&(!d1||o.date>=d1)&&(!d2||o.date<=d2)));
     }
-    
-    function resetFilters() { 
-      $('search').value=''; 
-      $('filterType').value=''; 
-      $('filterStatus').value=''; 
-      $('filterCreator').value='';
-      $('dateFrom').value=''; 
-      $('dateTo').value=''; 
-      renderTable(); 
-    }
+    function resetFilters() { $('search').value=''; $('filterType').value=''; $('filterStatus').value=''; $('filterCreator').value=''; $('dateFrom').value=''; $('dateTo').value=''; renderTable(); }
 
-    const modal = $('modal'), form = $('orderForm');
-    
+    const modal=$('modal'), form=$('orderForm');
     function openModal(o=null) {
-      if (!currentUser) {
-        alert('❌ Сначала выберите пользователя');
-        $('userSelectModal').classList.remove('hidden');
-        return;
-      }
-      
-      modal.classList.add('active');
-      $('modalTitle').textContent = o ? 'Редактирование заявки' : 'Новая заявка';
-      $('editId').value = o?.id || ''; 
-      $('client').value = o?.client || '';
-      $('orderDate').value = o?.date || new Date().toISOString().split('T')[0];
-      $('estDate').value = o?.est || ''; 
-      $('warrantyDays').value = o?.warrantyDays || 0;
-      $('type').value = o?.type || ''; 
-      $('status').value = o?.status || 'Принят';
-      $('avitoLink').value = o?.avitoLink || ''; 
-      $('reason').value = o?.reason || '';
-      $('repairCost').value = o?.cost || ''; 
-      $('transportCost').value = o?.transport || 0;
-      
-      $('partsList').innerHTML = '';
-      if (o?.parts?.length) o.parts.forEach(p=>addPartRow(p)); else addPartRow();
-      calcTotals();
-      
-      $('status').disabled = o?.status === 'Выдан';
-      $('revertSection').style.display = o?.status === 'Выдан' ? 'block' : 'none';
-      form.onsubmit = handleSubmit;
+      if(!currentUser){alert('❌ Выберите пользователя'); $('userSelectModal').classList.remove('hidden'); return;}
+      modal.classList.add('active'); $('modalTitle').textContent=o?'Редактирование':'Новая заявка';
+      $('editId').value=o?.id||''; $('client').value=o?.client||''; $('orderDate').value=o?.date||new Date().toISOString().split('T')[0];
+      $('estDate').value=o?.est||''; $('warrantyDays').value=o?.warrantyDays||0; $('type').value=o?.type||''; $('status').value=o?.status||'Принят';
+      $('avitoLink').value=o?.avitoLink||''; $('reason').value=o?.reason||''; $('repairCost').value=o?.cost||''; $('transportCost').value=o?.transport||0;
+      $('partsList').innerHTML=''; if(o?.parts?.length) o.parts.forEach(p=>addPartRow(p)); else addPartRow(); calcTotals();
+      $('status').disabled=o?.status==='Выдан'; $('revertSection').style.display=o?.status==='Выдан'?'block':'none'; form.onsubmit=handleSubmit;
     }
-    
     function closeModal() { modal.classList.remove('active'); form.reset(); }
-    
-    function openPartsSelector() { 
-      $('partsSelectorModal').classList.add('active'); 
-      $('partsSearchInput').value = ''; 
-      renderPartsSelector(); 
-    }
-    
-    function closePartsSelector() { 
-      $('partsSelectorModal').classList.remove('active'); 
-    }
-    
+    function openPartsSelector() { $('partsSelectorModal').classList.add('active'); $('partsSearchInput').value=''; renderPartsSelector(); }
+    function closePartsSelector() { $('partsSelectorModal').classList.remove('active'); }
     function renderPartsSelector() {
-      const list = $('partsSelectorList'), search = $('partsSearchInput').value.toLowerCase();
-      if (!list) return;
-      const filtered = inventory.filter(i => i.name.toLowerCase().includes(search) || (i.sku||'').toLowerCase().includes(search));
-      if (!filtered.length) { list.innerHTML = '<div class="empty">Запчасти не найдены</div>'; return; }
-      list.innerHTML = filtered.map(item => {
-        const available = item.inStock - item.reserved;
-        const stockBadge = available > 0 ? `<span class="part-item-stock in">✓ ${available} шт.</span>` : `<span class="part-item-stock out">✗ Нет</span>`;
-        const imgHtml = item.photo ? `<img src="${item.photo}" alt="${item.name}">` : `<div class="inv-no-photo" style="width:40px;height:40px;font-size:1rem">📦</div>`;
-        return `<div class="part-item" onclick="selectPartFromInventory('${item.id}')">${imgHtml}<div class="part-item-info"><div class="part-item-name">${item.name} ${stockBadge}</div><div class="part-item-meta">${item.category || 'Без категории'} ${item.sku ? '• ' + item.sku : ''}</div></div><div class="part-item-price">${fmt(item.price)}</div></div>`;
+      const list=$('partsSelectorList'), sr=$('partsSearchInput').value.toLowerCase(); if(!list) return;
+      const f=inventory.filter(i=>i.name.toLowerCase().includes(sr)||(i.sku||'').toLowerCase().includes(sr));
+      if(!f.length){list.innerHTML='<div class="empty">Не найдено</div>'; return;}
+      list.innerHTML=f.map(i=>{
+        const av=i.inStock-i.reserved, sb=av>0?`<span class="part-item-stock in">✓ ${av}</span>`:`<span class="part-item-stock out">✗</span>`;
+        return `<div class="part-item" onclick="selectPartFromInventory('${i.id}')"><div class="inv-no-photo" style="width:40px;height:40px;font-size:1rem">📦</div><div class="part-item-info"><div class="part-item-name">${i.name} ${sb}</div><div class="part-item-meta">${i.category||''} ${i.sku?'• '+i.sku:''}</div></div><div class="part-item-price">${fmt(i.price)}</div></div>`;
       }).join('');
     }
-    
-    function selectPartFromInventory(itemId) {
-      const item = inventory.find(x => x.id === itemId); if (!item) return;
-      addPartRow({ name: item.name, sku: item.sku, cost: item.cost, price: item.price, status: (item.inStock-item.reserved)>0?'in_stock':'search' });
-      closePartsSelector(); calcTotals();
-    }
-    
-    function addPartRow(d={}) {
-      const row = document.createElement('div'); row.className = 'part-row';
-      row.innerHTML = `<div class="part-sku-select"><input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required style="width:100%;margin-bottom:4px"><input type="text" placeholder="Артикул" value="${d.sku||''}" class="p-sku" style="width:100%"></div><select class="p-status" style="width:100%">${Object.entries(PART_STATUS).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`).join('')}</select><input type="number" step="0.01" placeholder="Закупка" value="${d.cost||''}" class="p-cost" oninput="calcTotals()" style="width:100%"><input type="number" step="0.01" placeholder="Продажа" value="${d.price||''}" class="p-price" style="width:100%"><button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>`;
-      $('partsList').appendChild(row);
-    }
-    
-    function calcTotals() {
-      const pSum = Array.from(document.querySelectorAll('.p-cost')).reduce((s,i)=>s+(parseFloat(i.value)||0),0);
-      const tr = parseFloat($('transportCost').value)||0, cost = parseFloat($('repairCost').value)||0;
-      $('sumParts').textContent = fmt(pSum); $('sumExp').textContent = fmt(pSum+tr);
-      $('sumProfit').textContent = fmt(cost-pSum-tr); $('sumProfit').style.color = (cost-pSum-tr)>=0 ? 'var(--success)' : 'var(--danger)';
-    }
+    function selectPartFromInventory(id) { const i=inventory.find(x=>x.id===id); if(!i) return; addPartRow({name:i.name,sku:i.sku,cost:i.cost,price:i.price,status:(i.inStock-i.reserved)>0?'in_stock':'search'}); closePartsSelector(); calcTotals(); }
+    function addPartRow(d={}) { const r=document.createElement('div'); r.className='part-row'; r.innerHTML=`<div class="part-sku-select"><input type="text" placeholder="Название" value="${d.name||''}" class="p-name" required style="width:100%;margin-bottom:4px"><input type="text" placeholder="Артикул" value="${d.sku||''}" class="p-sku" style="width:100%"></div><select class="p-status" style="width:100%">${Object.entries(PART_STATUS).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v}</option>`).join('')}</select><input type="number" step="0.01" placeholder="Закупка" value="${d.cost||''}" class="p-cost" oninput="calcTotals()" style="width:100%"><input type="number" step="0.01" placeholder="Продажа" value="${d.price||''}" class="p-price" style="width:100%"><button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove();calcTotals()">✕</button>`; $('partsList').appendChild(r); }
+    function calcTotals() { const ps=Array.from(document.querySelectorAll('.p-cost')).reduce((s,i)=>s+(+i.value||0),0), tr=+$('transportCost').value||0, co=+$('repairCost').value||0; $('sumParts').textContent=fmt(ps); $('sumExp').textContent=fmt(ps+tr); $('sumProfit').textContent=fmt(co-ps-tr); $('sumProfit').style.color=(co-ps-tr)>=0?'var(--success)':'var(--danger)'; }
     
     async function handleSubmit(e) {
-      e.preventDefault();
-      if (!currentUser) {
-        alert('❌ Сначала выберите пользователя');
-        return;
-      }
-      
-      const isEdit = !!$('editId').value;
-      let newStatus = $('status').value;
-      
-      const newParts = Array.from(document.querySelectorAll('.part-row')).map(r => ({
-        name: r.querySelector('.p-name').value.trim(), 
-        sku: r.querySelector('.p-sku').value.trim(), 
-        status: r.querySelector('.p-status').value, 
-        cost: parseFloat(r.querySelector('.p-cost').value) || 0, 
-        price: parseFloat(r.querySelector('.p-price').value) || 0
-      })).filter(p => p.name);
-
-      if (!$('client').value || !$('type').value || !$('repairCost').value) {
-        alert('❌ Заполните обязательные поля: телефон клиента, тип техники, стоимость работ');
-        return;
-      }
-
-      let oldOrder = null;
-      if (isEdit) oldOrder = cloudOrders.find(o => o.id === $('editId').value);
-
-      const warrantyDays = parseInt($('warrantyDays').value) || 0;
-      let warrantyUntil = null;
-      if (warrantyDays > 0) { 
-        const d = new Date($('orderDate').value); 
-        d.setDate(d.getDate() + warrantyDays); 
-        warrantyUntil = d.toISOString().split('T')[0]; 
-      }
-
-      const id = $('editId').value || generateId();
-      
-      const order = { 
-        id, 
-        client: $('client').value, 
-        date: $('orderDate').value, 
-        est: $('estDate').value, 
-        warrantyDays, 
-        warrantyUntil, 
-        type: $('type').value, 
-        status: newStatus, 
-        avitoLink: $('avitoLink').value, 
-        reason: $('reason').value, 
-        cost: parseFloat($('repairCost').value) || 0, 
-        transport: parseFloat($('transportCost').value) || 0, 
-        parts: newParts, 
-        createdAt: cloudOrders.find(o => o.id === id)?.createdAt || Date.now(),
-        createdBy: currentUser.id,
-        creatorName: currentUser.name
-      };
-      
-      // Синхронизация с облаком (с локальным кэшем)
+      e.preventDefault(); if(!currentUser) return;
+      const isEdit=!!$('editId').value, ns=$('status').value;
+      const parts=Array.from(document.querySelectorAll('.part-row')).map(r=>({name:r.querySelector('.p-name').value.trim(),sku:r.querySelector('.p-sku').value.trim(),status:r.querySelector('.p-status').value,cost:+r.querySelector('.p-cost').value||0,price:+r.querySelector('.p-price').value||0})).filter(p=>p.name);
+      if(!$('client').value||!$('type').value||!$('repairCost').value){alert('❌ Заполните обязательные поля'); return;}
+      let old=isEdit?cloudOrders.find(o=>o.id===$('editId').value):null;
+      const wd=+$('warrantyDays').value||0; let wu=null; if(wd>0){const d=new Date($('orderDate').value); d.setDate(d.getDate()+wd); wu=d.toISOString().split('T')[0];}
+      const id=$('editId').value||generateId();
+      const order={id,client:$('client').value,date:$('orderDate').value,est:$('estDate').value,warrantyDays:wd,warrantyUntil:wu,type:$('type').value,status:ns,avitoLink:$('avitoLink').value,reason:$('reason').value,cost:+$('repairCost').value||0,transport:+$('transportCost').value||0,parts,createdAt:cloudOrders.find(o=>o.id===id)?.createdAt||Date.now(),createdBy:currentUser.id,creatorName:currentUser.name};
       await syncOrderToCloud(order);
-      
-      // Inventory sync (local only)
-      if (oldOrder && oldOrder.status !== 'Выдан') {
-        syncInventoryStock(newParts, oldOrder.parts);
-      } else if (!isEdit) {
-        syncInventoryStock(newParts, []);
-      }
-      
-      // Gamification
-      if (isEdit) {
-        if (oldOrder?.status === 'Выдан') newStatus = 'Выдан';
-        if (oldOrder && oldOrder.status !== 'Выдан' && newStatus === 'Выдан') {
-          addCoins(COIN_REWARDS.COMPLETE, '✅ Заявка выдана');
-        }
-      } else {
-        addCoins(COIN_REWARDS.CREATE, '📋 Новая заявка');
-      }
-
-      const fieldsFilled = [$('client').value, $('type').value, $('reason').value, $('repairCost').value].every(Boolean);
-      if (fieldsFilled && !isEdit) addCoins(COIN_REWARDS.QUALITY_FIELDS, '📝 Полная заявка');
-      
-      closeModal(); 
+      if(old&&old.status!=='Выдан') syncInventoryStock(parts,old.parts); else if(!isEdit) syncInventoryStock(parts,[]);
+      if(isEdit){if(old?.status==='Выдан') ns='Выдан'; if(old&&old.status!=='Выдан'&&ns==='Выдан') addCoins(COIN_REWARDS.COMPLETE,'✅');} else { addCoins(COIN_REWARDS.CREATE,'📋'); }
+      if([$('client').value,$('type').value,$('reason').value,$('repairCost').value].every(Boolean)&&!isEdit) addCoins(COIN_REWARDS.QUALITY_FIELDS,'📝');
+      closeModal();
     }
-    
-    async function revertOrder() {
-      const id = $('editId').value; if (!id) return;
-      if (!confirm(`Вернуть заявку из статуса «Выдан»?\nЗапчасти вернутся на склад.`)) return;
-      const order = cloudOrders.find(x => x.id === id);
-      if (order) { 
-        order.status = 'Готово'; 
-        syncInventoryStock([], order.parts); 
-        await syncOrderToCloud(order);
-        closeModal(); applyFilters(); updateUI(); alert('✅ Статус возвращен. Запчасти на складе.'); 
-      }
-    }
-    
-    async function editOrder(id) { 
-      const o = cloudOrders.find(x=>x.id===id); 
-      if(o) openModal(o); 
-    }
-    
-    async function delOrder(id) { 
-      if(!confirm('Удалить заявку? Запчасти вернутся на склад.')) return; 
-      const order = cloudOrders.find(x => x.id === id);
-      if (order && order.status !== 'Выдан') {
-         syncInventoryStock([], order.parts);
-      }
-      await deleteOrderFromCloud(id);
-    }
+    async function revertOrder() { const id=$('editId').value; if(!id) return; if(!confirm('Вернуть статус?')) return; const o=cloudOrders.find(x=>x.id===id); if(o){o.status='Готово'; syncInventoryStock([],o.parts); await syncOrderToCloud(o); closeModal(); applyFilters(); updateUI(); alert('✅'); } }
+    async function editOrder(id) { const o=cloudOrders.find(x=>x.id===id); if(o) openModal(o); }
+    async function delOrder(id) { if(!confirm('Удалить?')) return; const o=cloudOrders.find(x=>x.id===id); if(o&&o.status!=='Выдан') syncInventoryStock([],o.parts); await deleteOrderFromCloud(id); }
 
     function openDetail(id) {
-      const o = cloudOrders.find(x=>x.id===id); if(!o) return;
-      $('detailTitle').textContent = `Заявка #${(o.id||'').slice(-6).toUpperCase()}`;
-      $('dDate').textContent = toDate(o.date); $('dEst').textContent = o.est ? toDate(o.est) : 'Не указана';
-      $('dStatus').textContent = o.status; $('dStatus').className = `status-badge status-${STATUS_CLASSES[o.status]||''}`;
-      $('dClient').textContent = o.client; $('dType').textContent = o.type; $('dReason').textContent = o.reason || 'Не указано';
-      $('dWarranty').innerHTML = o.warrantyUntil ? `${o.warrantyDays} дн. (до ${toDate(o.warrantyUntil)})` : 'Не указана';
-      
-      // Creator info
-      const creator = USERS[o.createdBy] || { name: 'Неизвестно', icon: '👤' };
-      $('dCreator').innerHTML = `<span class="creator-badge ${creator.class}">${creator.icon} ${creator.name}</span> • ${toDate(o.createdAt)}`;
-      
-      const dAvito = $('dAvito');
-      if (o.avitoLink) { dAvito.href = o.avitoLink; dAvito.textContent = 'Открыть ↗'; } else { dAvito.textContent = '—'; dAvito.removeAttribute('href'); }
-      
-      const tbody = $('dPartsBody'); tbody.innerHTML = '';
-      if (o.parts?.length) {
-        $('dNoParts').style.display = 'none'; $('dPartsTable').style.display = 'table';
-        o.parts.forEach(p => tbody.innerHTML += `<tr><td>${p.name}${p.sku?` <small>(${p.sku})</small>`:''}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`);
-      } else { $('dNoParts').style.display = 'block'; $('dPartsTable').style.display = 'none'; }
-      
-      const pSum = (o.parts||[]).reduce((s,p)=>s+(parseFloat(p.cost)||0),0), tr = parseFloat(o.transport)||0, cost = parseFloat(o.cost)||0;
-      $('dPartsSum').textContent = fmt(pSum); $('dTrans').textContent = fmt(tr); $('dExp').textContent = fmt(pSum+tr); $('dCost').textContent = fmt(cost); $('dProfit').textContent = fmt(cost-pSum-tr);
+      const o=cloudOrders.find(x=>x.id===id); if(!o) return; currentDetailId=id;
+      $('detailTitle').textContent=`Заявка #${(o.id||'').slice(-6).toUpperCase()}`; $('dDate').textContent=toDate(o.date); $('dEst').textContent=o.est?toDate(o.est):'—';
+      $('dStatus').textContent=o.status; $('dStatus').className=`status-badge status-${STATUS_CLASSES[o.status]||''}`; $('dClient').textContent=o.client; $('dType').textContent=o.type; $('dReason').textContent=o.reason||'—';
+      $('dWarranty').innerHTML=o.warrantyUntil?`${o.warrantyDays} дн. (до ${toDate(o.warrantyUntil)})`:'—';
+      const u=USERS[o.createdBy]||{name:'Неизвестно',icon:'👤'}; $('dCreator').innerHTML=`<span class="creator-badge ${u.class}">${u.icon} ${u.name}</span> • ${toDate(o.createdAt)}`;
+      if(o.avitoLink){$('dAvito').href=o.avitoLink; $('dAvito').textContent='Открыть ↗';} else {$('dAvito').textContent='—'; $('dAvito').removeAttribute('href');}
+      const tb=$('dPartsBody'); tb.innerHTML=''; if(o.parts?.length){$('dNoParts').style.display='none'; $('dPartsTable').style.display='table'; o.parts.forEach(p=>tb.innerHTML+=`<tr><td>${p.name}</td><td>${PART_STATUS[p.status]||'-'}</td><td class="money">${fmt(p.cost)}</td></tr>`);} else {$('dNoParts').style.display='block'; $('dPartsTable').style.display='none';}
+      const ps=(o.parts||[]).reduce((s,p)=>s+(+p.cost||0),0), tr=+o.transport||0, co=+o.cost||0;
+      $('dPartsSum').textContent=fmt(ps); $('dTrans').textContent=fmt(tr); $('dExp').textContent=fmt(ps+tr); $('dCost').textContent=fmt(co); $('dProfit').textContent=fmt(co-ps-tr);
       $('detailModal').classList.add('active');
     }
-    
     function closeDetailModal() { $('detailModal').classList.remove('active'); }
-    function editFromDetail() { closeDetailModal(); setTimeout(()=>editOrder(currentDetailId), 100); }
+    function editFromDetail() { closeDetailModal(); setTimeout(()=>editOrder(currentDetailId),100); }
 
-    function openSettings() { 
-      $('masterName').value = settings.master || currentUser?.name || 'Мастер'; 
-      updateProfileModal();
-      $('settingsModal').classList.add('active'); 
-    }
+    function openSettings() { $('masterName').value=settings.master||currentUser?.name||'Мастер'; updateProfileModal(); $('settingsModal').classList.add('active'); }
     function closeSettings() { $('settingsModal').classList.remove('active'); }
-    
-    function exportData() { 
-      const d = { 
-        orders: cloudOrders, 
-        inventory, 
-        settings, 
-        currentUser,
-        date: new Date().toISOString() 
-      }; 
-      const a = document.createElement('a'); 
-      a.href=URL.createObjectURL(new Blob([JSON.stringify(d,null,2)])); 
-      a.download=`seller_backup_${new Date().toISOString().split('T')[0]}.json`; 
-      a.click(); 
-    }
-    
-    function importData(input) { 
-      const f = input.files[0]; if(!f) return; 
-      const r = new FileReader(); 
-      r.onload = e => { 
-        try { 
-          const d=JSON.parse(e.target.result); 
-          if(d.orders) { cloudOrders = d.orders; saveOrdersToCache(); }
-          if(d.inventory) { inventory=d.inventory; saveLocalData(); }
-          if(d.settings) { settings=d.settings; saveLocalData(); }
-          if(d.currentUser) setCurrentUser(d.currentUser);
-          applyFilters(); renderInventory(); updateUI(); alert('✅ Импорт успешен'); 
-        } catch(err) { alert('❌ Ошибка: ' + err.message); } 
-      }; 
-      r.readAsText(f); input.value=''; 
-    }
+    function exportData() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify({orders:cloudOrders,inventory,settings,currentUser,date:new Date().toISOString()})])); a.download=`backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); }
+    function importData(input) { const f=input.files[0]; if(!f) return; const r=new FileReader(); r.onload=e=>{try{const d=JSON.parse(e.target.result); if(d.orders){cloudOrders=d.orders; saveOrdersToCache();} if(d.inventory){inventory=d.inventory; saveLocalData();} if(d.settings){settings=d.settings; saveLocalData();} if(d.currentUser) setCurrentUser(d.currentUser); applyFilters(); renderInventory(); updateUI(); alert('✅');}catch(err){alert('❌ '+err.message);}}; r.readAsText(f); input.value=''; }
 
     function renderInventory() {
-      const tbody = $('invTbody'), empty = $('invEmpty'), search = $('invSearch')?.value.toLowerCase()||'', cat = $('invCategoryFilter')?.value||'', fil = $('invFilter')?.value||'';
-      if (!tbody || !empty) return;
-      
-      const usageMap = getPartUsageMap();
+      const tb=$('invTbody'), empty=$('invEmpty'), sr=$('invSearch')?.value.toLowerCase()||'', cat=$('invCategoryFilter')?.value||'', fil=$('invFilter')?.value||'';
+      if(!tb||!empty) return; const um=getPartUsageMap();
+      const items=inventory.filter(i=>{const ms=!sr||i.name.toLowerCase().includes(sr)||(i.sku||'').toLowerCase().includes(sr); const mc=!cat||i.category===cat; const av=i.inStock-i.reserved; let mf=true; if(fil==='in-stock') mf=av>5; else if(fil==='low-stock') mf=av>0&&av<=5; else if(fil==='out-stock') mf=av<=0; return ms&&mc&&mf;});
+      if(!items.length){empty.classList.remove('hidden'); tb.innerHTML=''; return;} empty.classList.add('hidden');
+      tb.innerHTML=items.map(i=>{
+        const av=i.inStock-i.reserved; let sc='ok', st=`${av} шт.`; if(av<=0){sc='none'; st='Нет';} else if(av<=5){sc='low';}
+        const usage=(um[i.name.trim().toLowerCase()]||[]).map(u=>`<span class="order-link" onclick="openDetail('${u.fullId}')">#${u.shortId}</span>`).join('')||'—';
+        return `<tr><td><div class="inv-no-photo">📦</div></td><td><strong>${i.name}</strong></td><td>${i.sku||'—'}</td><td>${i.category||'—'}</td><td class="money">${fmt(i.price)}</td><td><span class="stock-indicator ${sc}">${st}</span></td><td>${usage}</td><td><button class="btn btn-outline btn-sm" onclick="editInventory('${i.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteInventory('${i.id}')">🗑️</button></td></tr>`;
+      }).join('');
+    }
+    function openInventoryModal(i=null) { $('inventoryModal').classList.add('active'); $('invModalTitle').textContent=i?'Редактировать':'Добавить'; $('invEditId').value=i?.id||''; $('invName').value=i?.name||''; $('invCategory').value=i?.category||'Другое'; $('invSku').value=i?.sku||''; $('invCost').value=i?.cost||''; $('invPrice').value=i?.price||''; $('invInStock').value=i?.inStock||0; $('invReserved').value=i?.reserved||0; $('invToOrder').value=i?.toOrder||0; $('invOrdered').value=i?.ordered||0; $('invDescription').value=i?.description||''; currentPhotoBase64=i?.photo||null; updatePhotoPreview(); $('inventoryForm').onsubmit=handleInventorySubmit; }
+    function closeInventoryModal() { $('inventoryModal').classList.remove('active'); }
+    function handlePhotoUpload(input) { if(input.files[0]){const r=new FileReader(); r.onload=e=>{currentPhotoBase64=e.target.result; updatePhotoPreview();}; r.readAsDataURL(input.files[0]);} }
+    function updatePhotoPreview() { $('photoPreview').innerHTML=currentPhotoBase64?`<img src="${currentPhotoBase64}" style="max-width:150px;border-radius:8px">`:''; }
+    function handleInventorySubmit(e) { e.preventDefault(); const id=$('invEditId').value||generateId(), isNew=!$('invEditId').value; const item={id,name:$('invName').value,category:$('invCategory').value,sku:$('invSku').value,cost:+$('invCost').value||0,price:+$('invPrice').value||0,inStock:+$('invInStock').value||0,reserved:+$('invReserved').value||0,toOrder:+$('invToOrder').value||0,ordered:+$('invOrdered').value||0,description:$('invDescription').value,photo:currentPhotoBase64,updatedAt:Date.now()}; const idx=inventory.findIndex(x=>x.id===id); if(idx>-1) inventory[idx]=item; else{inventory.push(item); if(isNew) addCoins(COIN_REWARDS.ADD_PART,'📦');} saveLocalData(); closeInventoryModal(); renderInventory(); }
+    function editInventory(id) { const i=inventory.find(x=>x.id===id); if(i) openInventoryModal(i); }
+    function deleteInventory(id) { if(confirm('Удалить?')){inventory=inventory.filter(x=>x.id!==id); saveLocalData(); renderInventory();} }
+    function openCsvImport() { pendingCsvData=[]; $('csvImportStep1').classList.remove('hidden'); $('csvImportStep2').classList.add('hidden'); $('csvFileInput').value=''; $('csvImportModal').classList.add('active'); }
+    function closeCsvImport() { $('csvImportModal').classList.remove('active'); } function cancelCsvImport() { closeCsvImport(); }
+    function setupCsvDragDrop() { const z=$('csvDropZone'); z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')}); z.addEventListener('dragleave',()=>z.classList.remove('dragover')); z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.csv'))processCsvFile(f)}); }
+    function handleCsvFile(input) { if(input.files[0]) processCsvFile(input.files[0]); }
+    function processCsvFile(file) { const r=new FileReader(); r.onload=e=>{try{pendingCsvData=parseCsv(e.target.result);if(!pendingCsvData.length){alert('❌ Пусто');return}showCsvPreview()}catch(err){alert('❌ '+err.message)}}; r.readAsText(file,'UTF-8'); }
+    function parseCsv(t) { const dl=t.split('\n')[0].includes(';')?';':','; return t.split('\n').slice(1).filter(l=>l.trim()).map(l=>{const v=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===dl&&!q){v.push(c.trim());c=''}else c+=ch;}v.push(c.trim());return v[0]?{name:v[0],sku:v[1],category:v[2]||'Другое',cost:+v[3]||0,price:+v[4]||0,inStock:+v[5]||0,reserved:+v[6]||0,toOrder:+v[7]||0,ordered:+v[8]||0,description:v[9]||'',photo:null,updatedAt:Date.now()}:null}).filter(Boolean); }
+    function showCsvPreview() { $('csvImportStep1').classList.add('hidden'); $('csvImportStep2').classList.remove('hidden'); $('csvStats').innerHTML=`<div class="import-stat"><div class="label">Записей</div><div class="val">${pendingCsvData.length}</div></div>`; let h='<table><thead><tr>Название;Артикул;Цена;Наличие</tr></thead><tbody>'; pendingCsvData.slice(0,10).forEach(i=>h+=`<tr><td>${i.name}</td><td>${i.sku}</td><td>${fmt(i.price)}</td><td>${i.inStock}</td></tr>`); $('csvPreview').innerHTML=h+'</tbody></table>'; }
+    function confirmCsvImport() { if(!pendingCsvData.length)return; let a=0,u=0; pendingCsvData.forEach(n=>{const i=inventory.findIndex(x=>x.sku&&x.sku===n.sku||x.name===n.name);if(i>-1){inventory[i]={...inventory[i],...n};u++}else{n.id=generateId();inventory.push(n);a++}}); saveLocalData(); closeCsvImport(); renderInventory(); alert(`✅ +${a}, ~${u}`); }
+    function downloadTemplate() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeffНазвание;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание\nДисплей;DISP-01;Дисплеи;1500;3000;5;0;2;0;Пример'])); a.download='template.csv'; a.click(); }
 
-      let items = inventory.filter(i => {
-        const mS = !search || i.name.toLowerCase().includes(search) || (i.sku||'').toLowerCase().includes(search);
-        const mC = !cat || i.category === cat;
-        const av = i.inStock - i.reserved;
-        let mF = true; if(fil==='in-stock') mF=av>5; else if(fil==='low-stock') mF=av>0&&av<=5; else if(fil==='out-stock') mF=av<=0;
-        return mS && mC && mF;
-      });
-      if (!items.length) { empty.classList.remove('hidden'); tbody.innerHTML = ''; return; }
-      empty.classList.add('hidden');
-      tbody.innerHTML = items.map(i => {
-        const av = i.inStock - i.reserved; let sc='ok', st=`${av} шт.`;
-        if(av<=0){sc='none'; st='Нет';} else if(av<=5){sc='low'; st=`${av} шт.`;}
-        const img = i.photo ? `<img src="${i.photo}" class="inv-thumb">` : `<div class="inv-no-photo">📦</div>`;
-        
-        const usage = usageMap[i.name.trim().toLowerCase()] || [];
-        const usageHtml = usage.length > 0
+    async function checkChatConnection() { const el=$('chatConnectionStatus'); if(!el||!supabaseClient)return; try{const{error}=await supabaseClient.from('support_messages').select('id').limit(1);if(error)throw error;el.textContent='● Онлайн';el.className='chat-status online'}catch{el.textContent='● Офлайн';el.className='chat-status offline'} }
+    function openSupportChat() { $('supportChatModal').classList.add('active'); const s=localStorage.getItem('chat_username'); if(s){$('chatUsername').value=s; if(s==='ТЕХПОДДЕРЖКА'){$('chatUsername').classList.add('support-mode'); $('chatUsername').disabled=true;}} checkChatConnection(); loadChatHistory(); subscribeToNewMessages(); $('chatInput')?.focus(); }
+    function closeSupportChat() { $('supportChatModal').classList.remove('active'); if(chatSubscription){supabaseClient?.removeChannel(chatSubscription); chatSubscription=null;} }
+    async function loadChatHistory() { const c=$('chatMessages'); if(!supabaseClient){c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';return;} c.innerHTML='<div style="text-align:center;padding:20px">🔄...</div>'; const {data,error}=await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); if(error){c.innerHTML='❌ '+error.message;return;} renderChatMsgs(data||[]); }
+    function renderChatMsgs(msgs) { const c=$('chatMessages'); if(!msgs.length){c.innerHTML='<div class="chat-system">👋 Чат пуст</div>';return;} c.innerHTML=msgs.map(m=>{if(m.user_meta?.type==='system_context')return ''; const isSup=m.is_user===false||m.user_meta?.is_support===true; const rc=isSup?'support':'user'; const dn=isSup?'ТЕХПОДДЕРЖКА':(m.user_name||'Аноним'); return `<div class="chat-msg-row ${rc}"><div class="chat-name">${dn}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></div>`;}).join(''); c.scrollTop=c.scrollHeight; }
+    function subscribeToNewMessages() { if(!supabaseClient||chatSubscription)return; chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{if(p.new.user_meta?.type==='system_context')return; const c=$('chatMessages'),t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), isSup=p.new.is_user===false||p.new.user_meta?.is_support===true, rc=isSup?'support':'user', dn=isSup?'ТЕХПОДДЕРЖКА':(p.new.user_name||'Аноним'); c.insertAdjacentHTML('beforeend',`<div class="chat-msg-row ${rc}"><div class="chat-name">${dn}${isSup?' <span style="color:var(--success);font-size:0.6rem">✓</span>':''}</div><div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div><span class="chat-time">${t}</span></div>`); c.scrollTop=c.scrollHeight; }).subscribe(); }
+    async function sendChatMessage() { const i=$('chatInput'), n=$('chatUsername'), t=i?.value?.trim(), name=n?.value?.trim(); if(!t||!name) return; let isSup=false, dn=name; if(name===SUPPORT_SECRET){isSup=true; dn='ТЕХПОДДЕРЖКА'; if(n){n.value=dn; n.classList.add('support-mode'); n.disabled=true;}} else {if(n){n.classList.remove('support-mode'); n.disabled=false;}} localStorage.setItem('chat_username',dn); if(!supabaseClient){alert('❌');return;} const b=i.nextElementSibling; b.disabled=true; try{const{error}=await supabaseClient.from('support_messages').insert({user_name:dn,message:t,is_user:!isSup,user_meta:{appVersion:'v7.1',ua:navigator.userAgent.substring(0,50),is_support:isSup}}); if(error) throw error; i.value='';}catch(err){alert('❌ '+err.message);}finally{b.disabled=false; i?.focus();} }
+
+    function openScanner() { $('scannerModal').classList.add('active'); html5QrCode=new Html5Qrcode("reader"); html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250}},onScanSuccess,onScanFailure).catch(err=>{alert('❌ Камера недоступна'); closeScanner();}); }
+    function closeScanner() { $('scannerModal').classList.remove('active'); if(html5QrCode){html5QrCode.stop().then(()=>{html5QrCode.clear(); html5QrCode=null;}).catch(()=>{});} $('scanResult').classList.remove('show','found','not-found'); }
+    function onScanSuccess(text) { html5QrCode.stop(); const f=inventory.find(i=>(i.sku&&i.sku.toLowerCase()===text.toLowerCase())||i.name.toLowerCase().includes(text.toLowerCase())); const rd=$('scanResult'), rt=$('scanResultText'); if(f){rd.className='scan-result show found'; rt.innerHTML=`<strong style="color:var(--success)">✅ Найдено</strong><br>${f.name} | ${fmt(f.price)} | ${f.inStock} шт.<br><button class="btn btn-primary btn-sm" onclick="closeScanner();openInventoryModal(inventory.find(x=>x.id==='${f.id}'))">✏️</button>`;} else {rd.className='scan-result show not-found'; rt.innerHTML=`<strong style="color:var(--danger)">❌ Не найдено</strong><br>${text}<br><button class="btn btn-primary btn-sm" onclick="closeScanner();openInventoryModal()">+ Добавить</button>`;} }
+    function onScanFailure() {}
+
+    async function initApp() {
+      initSupabase();
+      ['filterType','type'].forEach(id=>{const el=$(id); if(!el) return; TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;el.appendChild(o);});});
+      ['filterStatus','status'].forEach(id=>{const el=$(id); if(!el) return; STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;el.appendChild(o);});});
+      loadLocalData(); await fetchCloudOrders();
+      $('repairCost').oninput=$('transportCost').oninput=calcTotals;
+      $('secretInput')?.addEventListener('keyup',e=>{if(e.key==='Enter'&&e.target.value.trim()===SECRET_CODE){addCoins(COIN_REWARDS.SECRET,'🤫');e.target.value='';}});
+      $('inventoryForm').onsubmit=handleInventorySubmit; setupCsvDragDrop(); if(supabaseClient) await checkChatConnection();
+      const last=localStorage.getItem('last_login_date'), today=new Date().toISOString().split('T')[0];
+      if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Вход');localStorage.setItem('last_login_date',today);}
+    }
+
+    window.onload = async () => {
+      currentUser = getCurrentUser();
+      if (!currentUser) $('userSelectModal').classList.remove('hidden');
+      else { updateUserBadge(); await initApp(); }
+    };
+  </script>
+</body>
+</html>
