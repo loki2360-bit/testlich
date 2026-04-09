@@ -114,6 +114,9 @@
       font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; 
       background: #dbeafe; color: #1e40af; margin-left: 4px; 
     }
+    .sync-status { font-size: 0.7rem; color: var(--muted); margin-left: 8px; }
+    .sync-status.ok { color: var(--success); }
+    .sync-status.error { color: var(--danger); }
 
     .modal { position: fixed; inset: 0; background: rgba(15,23,42,0.45); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; padding: 16px; z-index: 100; }
     .modal.active { display: flex; }
@@ -468,7 +471,7 @@
         <div class="brand-text">
           <span class="brand-title">AVITO SELLER</span>
           <span class="brand-sub">Система учёта ремонтов</span>
-          <span class="brand-badge">v7.0 • Cloud Sync</span>
+          <span class="brand-badge">v7.1 • Stable</span>
         </div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -477,6 +480,7 @@
           <span id="currentUserIcon">👤</span>
           <span id="currentUserLabel">Пользователь</span>
         </div>
+        <span id="syncStatus" class="sync-status">🔄</span>
         <button class="btn btn-outline" onclick="openAchievements()">🛒 Магазин</button>
         <button class="btn btn-primary" onclick="openModal()">+ Новая заявка</button>
         <button class="btn btn-outline" onclick="openSettings()">⚙️ Профиль</button>
@@ -706,7 +710,7 @@
       </div>
       <div class="landing-free-badge"><span class="free-label">✨</span><span class="free-text">Полностью бесплатно • Без подписок • Без скрытых платежей</span><span class="free-label">✨</span></div>
       <div class="landing-cta"><button class="btn-start" id="startButton"><span class="btn-text">Начать пользоваться бесплатно</span><span class="btn-arrow">→</span></button><p class="landing-note">Данные хранятся в вашем браузере • Никакой регистрации не требуется</p></div>
-      <div class="landing-footer"><span class="version-badge">v7.0 • Cloud Sync</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
+      <div class="landing-footer"><span class="version-badge">v7.1 • Stable</span><span class="made-with">Сделано с ❤️ для мастеров</span></div>
     </div>
     <div class="landing-decoration decoration-1"></div><div class="landing-decoration decoration-2"></div><div class="landing-decoration decoration-3"></div>
   </div>
@@ -718,15 +722,15 @@
     const STATUS_CLASSES = {'Принят':'Принят','Диагностика':'Диагностика','В работе':'В-работе','Ожидание запчастей':'Ожидание-запчастей','Готово':'Готово','Выдан':'Выдан'};
     const PART_STATUS = {search:'В поиске',ordered:'Заказана',bought:'Куплена',in_stock:'В наличии'};
     
-    // Supabase configuration
+    // Supabase configuration - ЗАМЕНИТЕ НА СВОИ КЛЮЧИ
     const SUPABASE_URL = 'https://wdbjpcpodkydaitotqqr.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkYmpwY3BvZGt5ZGFpdG90cXFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NTM4NDksImV4cCI6MjA5MTEyOTg0OX0.REToOamR3fU6cZcaa8DsHd0OORMyYy5AkErHweLihz4';
     
     // Local storage keys
-    const DB_KEY = 'repair_db_v11'; // now for INVENTORY only
     const INVENTORY_KEY = 'repair_inventory_v2';
     const SETTINGS_KEY = 'repair_settings_v8';
     const USER_KEY = 'repair_user_v1';
+    const CLOUD_ORDERS_CACHE_KEY = 'repair_cloud_orders_cache_v1';
     
     // Secrets
     const SECRET_CODE = 'AVITO2026';
@@ -764,8 +768,9 @@
     let inventory = [];
     let settings = {};
     
-    // Cloud data (shared)
+    // Cloud data (shared) - с кэшем
     let cloudOrders = [];
+    let isCloudSynced = false;
 
     // Helpers
     const $ = id => document.getElementById(id);
@@ -776,12 +781,16 @@
 
     // === SUPABASE INIT ===
     function initSupabase() {
-      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) return false;
+      if (SUPABASE_URL.includes('your-project') || SUPABASE_ANON_KEY.includes('your-anon')) {
+        console.warn('⚠️ Supabase keys not configured');
+        return false;
+      }
       try { 
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); 
+        console.log('✅ Supabase initialized');
         return true; 
       } catch(e) { 
-        console.error('Supabase init error:', e);
+        console.error('❌ Supabase init error:', e);
         return false; 
       }
     }
@@ -809,7 +818,6 @@
     }
 
     function openUserSelect() {
-      // Show modal to change user (for demo - in production add confirmation)
       if (confirm('Сменить пользователя? Локальные данные (склад, настройки) останутся у текущего пользователя.')) {
         $('userSelectModal').classList.remove('hidden');
       }
@@ -828,8 +836,25 @@
       }
     }
 
+    function updateSyncStatus(ok, msg = '') {
+      const el = $('syncStatus');
+      if (!el) return;
+      if (ok) {
+        el.textContent = '✅';
+        el.className = 'sync-status ok';
+        el.title = msg || 'Синхронизировано';
+      } else {
+        el.textContent = '⚠️';
+        el.className = 'sync-status error';
+        el.title = msg || 'Ошибка синхронизации';
+      }
+      setTimeout(() => { if (el.textContent === '✅') el.textContent = '🔄'; }, 3000);
+    }
+
     // === LOCAL DATA MANAGEMENT (per-user) ===
     function loadLocalData() {
+      if (!currentUser) return;
+      
       // Load inventory (local only)
       const invKey = `${INVENTORY_KEY}_${currentUser?.id || 'default'}`;
       inventory = JSON.parse(localStorage.getItem(invKey) || '[]');
@@ -851,13 +876,43 @@
       localStorage.setItem(setKey, JSON.stringify(settings));
     }
 
-    // === CLOUD ORDERS MANAGEMENT ===
+    // === CLOUD ORDERS WITH LOCAL FALLBACK ===
+    function saveOrdersToCache() {
+      try {
+        localStorage.setItem(CLOUD_ORDERS_CACHE_KEY, JSON.stringify(cloudOrders));
+        console.log(`💾 Кэш заявок сохранён: ${cloudOrders.length} записей`);
+      } catch (e) {
+        console.warn('⚠️ Не удалось сохранить кэш заявок:', e);
+      }
+    }
+
+    function loadOrdersFromCache() {
+      try {
+        const cached = localStorage.getItem(CLOUD_ORDERS_CACHE_KEY);
+        if (cached) {
+          cloudOrders = JSON.parse(cached);
+          console.log(`📦 Загружено ${cloudOrders.length} заявок из локального кэша`);
+          return true;
+        }
+      } catch (e) {
+        console.warn('⚠️ Не удалось загрузить кэш заявок:', e);
+      }
+      cloudOrders = [];
+      return false;
+    }
+
     async function fetchCloudOrders() {
+      // Сначала загружаем из кэша для мгновенного отображения
+      loadOrdersFromCache();
+      renderTable();
+      updateUI();
+      
       if (!supabaseClient) {
-        console.warn('Supabase not initialized, using empty orders');
-        cloudOrders = [];
+        console.warn('⚠️ Supabase не инициализирован, используем кэш');
+        updateSyncStatus(false, 'Облако недоступно');
         return;
       }
+      
       try {
         const { data, error } = await supabaseClient
           .from('orders')
@@ -865,19 +920,49 @@
           .order('created_at', { ascending: false });
         
         if (error) throw error;
+        
         cloudOrders = data || [];
-        console.log(`📥 Загружено ${cloudOrders.length} заявок из облака`);
+        console.log(`✅ Загружено ${cloudOrders.length} заявок из облака`);
+        
+        // Сохраняем свежий кэш
+        saveOrdersToCache();
+        isCloudSynced = true;
+        updateSyncStatus(true, 'Синхронизировано');
+        
+        // Перерисовываем таблицу с актуальными данными
+        applyFilters();
+        updateUI();
+        
       } catch (err) {
-        console.error('Ошибка загрузки заявок:', err);
-        cloudOrders = [];
+        console.error('❌ Ошибка загрузки заявок:', err);
+        updateSyncStatus(false, 'Ошибка подключения');
+        // Данные уже загружены из кэша, пользователь видит их
       }
     }
 
     async function syncOrderToCloud(order) {
+      // 1. Обновляем локальный массив немедленно
+      const idx = cloudOrders.findIndex(o => o.id === order.id);
+      if (idx > -1) {
+        cloudOrders[idx] = { ...cloudOrders[idx], ...order, updated_at: new Date().toISOString() };
+      } else {
+        cloudOrders.unshift({ ...order, created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+      }
+      
+      // 2. Сохраняем в кэш немедленно (гарантия сохранности)
+      saveOrdersToCache();
+      
+      // 3. Перерисовываем интерфейс
+      applyFilters();
+      updateUI();
+      
+      // 4. Пробуем синхронизировать с облаком (асинхронно, не блокируя интерфейс)
       if (!supabaseClient) {
-        console.warn('Supabase not available, order saved locally only');
+        console.warn('⚠️ Supabase недоступен, заявка сохранена локально');
+        updateSyncStatus(false, 'Локально');
         return false;
       }
+      
       try {
         const { data, error } = await supabaseClient
           .from('orders')
@@ -885,15 +970,28 @@
         
         if (error) throw error;
         console.log('✅ Заявка синхронизирована с облаком');
+        updateSyncStatus(true);
         return true;
       } catch (err) {
-        console.error('Ошибка синхронизации заявки:', err);
+        console.error('❌ Ошибка синхронизации с облаком:', err);
+        updateSyncStatus(false, 'Не синхронизировано');
+        // Заявка уже сохранена в кэше, данные не потеряны
         return false;
       }
     }
 
     async function deleteOrderFromCloud(orderId) {
-      if (!supabaseClient) return false;
+      // Удаляем из локального массива и кэша
+      cloudOrders = cloudOrders.filter(x => x.id !== orderId);
+      saveOrdersToCache();
+      applyFilters();
+      updateUI();
+      
+      if (!supabaseClient) {
+        console.warn('⚠️ Supabase недоступен, заявка удалена только локально');
+        return false;
+      }
+      
       try {
         const { error } = await supabaseClient
           .from('orders')
@@ -903,7 +1001,7 @@
         console.log('✅ Заявка удалена из облака');
         return true;
       } catch (err) {
-        console.error('Ошибка удаления заявки:', err);
+        console.error('❌ Ошибка удаления из облака:', err);
         return false;
       }
     }
@@ -968,13 +1066,13 @@
     function getPartUsageMap() {
       const map = {};
       cloudOrders.forEach(o => {
-        o.parts?.forEach(p => {
+        (o.parts||[]).forEach(p => {
           const key = p.name.trim().toLowerCase();
           if (!map[key]) map[key] = [];
           const exists = map[key].find(x => x.fullId === o.id);
           if (!exists) {
             map[key].push({
-              shortId: o.id.slice(-6).toUpperCase(),
+              shortId: (o.id||'').slice(-6).toUpperCase(),
               fullId: o.id,
               status: o.status
             });
@@ -1089,6 +1187,11 @@
     }
 
     // === MAIN FUNCTIONS ===
+    let currentTab = 'orders';
+    let currentDetailId = null;
+    let currentPhotoBase64 = null;
+    let pendingCsvData = [];
+
     function switchTab(tab) {
       currentTab = tab;
       document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -1124,7 +1227,7 @@
     
     function getCreatorBadge(order) {
       const creator = order.createdBy || 'unknown';
-      const user = USERS[creator] || { name: 'Неизвестно', class: '' };
+      const user = USERS[creator] || { name: 'Неизвестно', class: '', icon: '👤' };
       return `<span class="creator-badge ${user.class}" title="Создано: ${user.name}">${user.icon} ${user.name}</span>`;
     }
     
@@ -1137,7 +1240,7 @@
       }
       empty.classList.add('hidden');
       
-      data.sort((a,b)=>(b.created_at||b.createdAt)-(a.created_at||a.createdAt)).forEach(o => {
+      data.sort((a,b)=>(b.created_at||b.createdAt||0)-(a.created_at||a.createdAt||0)).forEach(o => {
         const partsSum = (o.parts||[]).reduce((s,p)=>s+(parseFloat(p.cost)||0),0);
         const exp = partsSum + (parseFloat(o.transport)||0);
         const profit = (parseFloat(o.cost)||0) - exp;
@@ -1177,8 +1280,6 @@
       if (newStatus === 'Выдан') addCoins(COIN_REWARDS.COMPLETE, '✅ Быстрый статус');
       
       await syncOrderToCloud(order);
-      updateUI(); 
-      applyFilters();
     }
     
     function applyFilters() {
@@ -1335,16 +1436,11 @@
         transport: parseFloat($('transportCost').value) || 0, 
         parts: newParts, 
         createdAt: cloudOrders.find(o => o.id === id)?.createdAt || Date.now(),
-        createdBy: currentUser.id,  // FIXED: Always use current user
+        createdBy: currentUser.id,
         creatorName: currentUser.name
       };
       
-      // Update local cloudOrders array
-      const idx = cloudOrders.findIndex(o => o.id === id);
-      if (idx > -1) cloudOrders[idx] = order; 
-      else cloudOrders.push(order);
-      
-      // Sync to Supabase
+      // Синхронизация с облаком (с локальным кэшем)
       await syncOrderToCloud(order);
       
       // Inventory sync (local only)
@@ -1368,8 +1464,6 @@
       if (fieldsFilled && !isEdit) addCoins(COIN_REWARDS.QUALITY_FIELDS, '📝 Полная заявка');
       
       closeModal(); 
-      applyFilters(); 
-      updateUI();
     }
     
     async function revertOrder() {
@@ -1395,9 +1489,7 @@
       if (order && order.status !== 'Выдан') {
          syncInventoryStock([], order.parts);
       }
-      cloudOrders = cloudOrders.filter(x=>x.id!==id); 
       await deleteOrderFromCloud(id);
-      applyFilters(); updateUI(); 
     }
 
     function openDetail(id) {
@@ -1456,7 +1548,7 @@
       r.onload = e => { 
         try { 
           const d=JSON.parse(e.target.result); 
-          if(d.orders) cloudOrders=d.orders; 
+          if(d.orders) { cloudOrders = d.orders; saveOrdersToCache(); }
           if(d.inventory) { inventory=d.inventory; saveLocalData(); }
           if(d.settings) { settings=d.settings; saveLocalData(); }
           if(d.currentUser) setCurrentUser(d.currentUser);
@@ -1487,307 +1579,4 @@
         const img = i.photo ? `<img src="${i.photo}" class="inv-thumb">` : `<div class="inv-no-photo">📦</div>`;
         
         const usage = usageMap[i.name.trim().toLowerCase()] || [];
-        const usageHtml = usage.length > 0 
-          ? usage.map(u => `<span class="order-link" onclick="event.stopPropagation(); openDetail('${u.fullId}')" title="Статус: ${u.status}">#${u.shortId}</span>`).join('') 
-          : '<span style="color:var(--muted); font-size:0.7rem">—</span>';
-
-        return `<tr><td>${img}</td><td><strong>${i.name}</strong>${i.description?`<br><small style="color:var(--muted)">${i.description.substring(0,50)}${i.description.length>50?'...':''}</small>`:''}</td><td>${i.sku||'—'}</td><td>${i.category||'—'}</td><td class="money"><strong>${fmt(i.price)}</strong><br><small style="color:var(--muted)">${fmt(i.cost)}</small></td><td><span class="stock-indicator ${sc}">${st}</span></td><td>${usageHtml}</td><td><button class="btn btn-outline btn-sm" onclick="editInventory('${i.id}')">✏️</button><button class="btn btn-danger btn-sm" onclick="deleteInventory('${i.id}')">🗑️</button></td></tr>`;
-      }).join('');
-    }
-    
-    function openInventoryModal(i=null) {
-      $('inventoryModal').classList.add('active'); $('invModalTitle').textContent = i?'Редактировать запчасть':'Добавить запчасть';
-      $('invEditId').value = i?.id||''; $('invName').value = i?.name||''; $('invCategory').value = i?.category||'Другое'; $('invSku').value = i?.sku||'';
-      $('invCost').value = i?.cost||''; $('invPrice').value = i?.price||''; $('invInStock').value = i?.inStock||0; $('invReserved').value = i?.reserved||0;
-      $('invToOrder').value = i?.toOrder||0; $('invOrdered').value = i?.ordered||0; $('invDescription').value = i?.description||'';
-      currentPhotoBase64 = i?.photo||null; updatePhotoPreview(); $('inventoryForm').onsubmit = handleInventorySubmit;
-    }
-    function closeInventoryModal() { $('inventoryModal').classList.remove('active'); }
-    function handlePhotoUpload(input) { if(input.files[0]) { const r = new FileReader(); r.onload=e=>{currentPhotoBase64=e.target.result; updatePhotoPreview();}; r.readAsDataURL(input.files[0]); } }
-    function updatePhotoPreview() { $('photoPreview').innerHTML = currentPhotoBase64 ? `<img src="${currentPhotoBase64}" style="max-width:150px;max-height:100px;border-radius:8px;border:1px solid var(--border)">` : ''; }
-    function handleInventorySubmit(e) {
-      e.preventDefault(); const id = $('invEditId').value || generateId(); const isNew = !$('invEditId').value;
-      const item = { id, name:$('invName').value, category:$('invCategory').value, sku:$('invSku').value, cost:parseFloat($('invCost').value)||0, price:parseFloat($('invPrice').value)||0, inStock:parseInt($('invInStock').value)||0, reserved:parseInt($('invReserved').value)||0, toOrder:parseInt($('invToOrder').value)||0, ordered:parseInt($('invOrdered').value)||0, description:$('invDescription').value, photo:currentPhotoBase64, updatedAt:Date.now() };
-      const idx = inventory.findIndex(x=>x.id===id); if(idx>-1) inventory[idx]=item; else { inventory.push(item); if(isNew) addCoins(COIN_REWARDS.ADD_PART, '📦 Новая запчасть'); }
-      saveLocalData(); closeInventoryModal(); renderInventory();
-    }
-    function editInventory(id) { const i=inventory.find(x=>x.id===id); if(i) openInventoryModal(i); }
-    function deleteInventory(id) { if(confirm('Удалить запчасть?')) { inventory=inventory.filter(x=>x.id!==id); saveLocalData(); renderInventory(); } }
-    
-    function openCsvImport() { pendingCsvData=[]; $('csvImportStep1').classList.remove('hidden'); $('csvImportStep2').classList.add('hidden'); $('csvFileInput').value=''; $('csvImportModal').classList.add('active'); }
-    function closeCsvImport() { $('csvImportModal').classList.remove('active'); pendingCsvData=[]; }
-    function cancelCsvImport() { closeCsvImport(); }
-    function setupCsvDragDrop() { const z=$('csvDropZone'); z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('dragover')}); z.addEventListener('dragleave',()=>z.classList.remove('dragover')); z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('dragover');const f=e.dataTransfer.files[0];if(f&&(f.name.endsWith('.csv')||f.name.endsWith('.txt')))processCsvFile(f)}); }
-    function handleCsvFile(input) { if(input.files[0]) processCsvFile(input.files[0]); }
-    function processCsvFile(file) { const r=new FileReader(); r.onload=e=>{try{pendingCsvData=parseCsv(e.target.result);if(!pendingCsvData.length){alert('❌ Пусто');return}showCsvPreview()}catch(err){alert('❌ '+err.message)}}; r.readAsText(file,'UTF-8'); }
-    function parseCsv(text) { const dl=text.split('\n')[0].includes(';')?';':','; return text.split('\n').slice(1).filter(l=>l.trim()).map(l=>{const v=[];let c='',q=false;for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"')q=!q;else if(ch===dl&&!q){v.push(c.trim());c=''}else c+=ch;}v.push(c.trim());return v[0]?{name:v[0]||'',sku:v[1]||'',category:v[2]||'Другое',cost:parseFloat(v[3])||0,price:parseFloat(v[4])||0,inStock:parseInt(v[5])||0,reserved:parseInt(v[6])||0,toOrder:parseInt(v[7])||0,ordered:parseInt(v[8])||0,description:v[9]||'',photo:null,updatedAt:Date.now()}:null}).filter(Boolean); }
-    function showCsvPreview() { $('csvImportStep1').classList.add('hidden'); $('csvImportStep2').classList.remove('hidden'); $('csvStats').innerHTML=`<div class="import-stat"><div class="label">Записей</div><div class="val">${pendingCsvData.length}</div></div>`; let h='<table><thead><tr>Название;Артикул;Категория;Закупка;Продажа;Наличие</tr></thead><tbody>'; pendingCsvData.slice(0,10).forEach(i=>h+=`<tr><td>${i.name}</td><td>${i.sku||'—'}</td><td>${i.category}</td><td>${fmt(i.cost)}</td><td>${fmt(i.price)}</td><td>${i.inStock}</td></tr>`); $('csvPreview').innerHTML=h+'</tbody></table>'; }
-    function confirmCsvImport() { if(!pendingCsvData.length)return; let a=0,u=0; pendingCsvData.forEach(n=>{const i=inventory.findIndex(x=>x.sku&&x.sku===n.sku||x.name===n.name);if(i>-1){inventory[i]={...inventory[i],...n};u++}else{n.id=generateId();inventory.push(n);a++}}); saveLocalData(); closeCsvImport(); renderInventory(); alert(`✅ Добавлено: ${a}, Обновлено: ${u}`); }
-    function downloadTemplate() { const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeffНазвание;Артикул;Категория;Цена закупки;Цена продажи;В наличии;В резерве;Нужно заказать;Заказано;Описание\nДисплей;DISP-01;Дисплеи;1500;3000;5;0;2;0;Пример'])); a.download='template.csv'; a.click(); }
-
-    async function checkChatConnection() { const el=$('chatConnectionStatus'); if(!el||!supabaseClient)return; try{const{error}=await supabaseClient.from('support_messages').select('id').limit(1);if(error)throw error;el.textContent='● Онлайн';el.className='chat-status online'}catch{el.textContent='● Офлайн';el.className='chat-status offline'} }
-    
-    function openSupportChat() { 
-      $('supportChatModal').classList.add('active'); 
-      const s = localStorage.getItem('chat_username'); 
-      if(s) {
-        $('chatUsername').value = s;
-        if (s === 'ТЕХПОДДЕРЖКА') {
-          $('chatUsername').classList.add('support-mode');
-          $('chatUsername').disabled = true;
-        }
-      }
-      if (!$('chatHint')) {
-        const hint = document.createElement('div');
-        hint.id = 'chatHint';
-        hint.className = 'chat-hint';
-        hint.innerHTML = '';
-        $('chatUsername').insertAdjacentElement('afterend', hint);
-      }
-      checkChatConnection(); 
-      loadChatHistory(); 
-      subscribeToNewMessages(); 
-      $('chatInput')?.focus(); 
-    }
-    
-    function closeSupportChat() { 
-      $('supportChatModal').classList.remove('active'); 
-      if(chatSubscription){
-        supabaseClient?.removeChannel(chatSubscription);
-        chatSubscription=null;
-      } 
-    }
-    
-    async function loadChatHistory() { 
-      const c=$('chatMessages'); 
-      if(!supabaseClient){
-        c.innerHTML='<div class="chat-system">⚠️ Чат не настроен</div>';
-        return
-      } 
-      c.innerHTML='<div style="text-align:center;padding:20px">🔄 Загрузка...</div>'; 
-      const { data, error } = await supabaseClient.from('support_messages').select('*').order('created_at',{asc:true}).limit(100); 
-      if(error){
-        c.innerHTML='❌ '+error.message;
-        return
-      } 
-      renderChatMsgs(data||[]); 
-    }
-    
-    function renderChatMsgs(msgs) { 
-      const c = $('chatMessages'); 
-      if(!msgs.length) { 
-        c.innerHTML = '<div class="chat-system">👋 Чат пуст</div>'; 
-        return 
-      } 
-      c.innerHTML = msgs.map(m => {
-        if(m.user_meta?.type === 'system_context') return '';
-        const isSupportMsg = m.is_user === false || m.user_meta?.is_support === true;
-        const rowClass = isSupportMsg ? 'support' : 'user';
-        const displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (m.user_name || 'Аноним');
-        return `<div class="chat-msg-row ${rowClass}">
-          <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
-          <div class="chat-bubble">${m.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
-          <span class="chat-time">${new Date(m.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span>
-        </div>`;
-      }).join(''); 
-      c.scrollTop = c.scrollHeight; 
-    }
-    
-    function subscribeToNewMessages() { 
-      if(!supabaseClient||chatSubscription)return; 
-      chatSubscription=supabaseClient.channel('all_msg').on('postgres_changes',{event:'INSERT',schema:'public',table:'support_messages'},p=>{
-        if(p.new.user_meta?.type==='system_context')return;
-        const c=$('chatMessages'),
-              t=new Date(p.new.created_at).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),
-              isSupportMsg = p.new.is_user === false || p.new.user_meta?.is_support === true,
-              displayName = isSupportMsg ? 'ТЕХПОДДЕРЖКА' : (p.new.user_name || 'Аноним'),
-              rowClass = isSupportMsg ? 'support' : 'user',
-              m=`<div class="chat-msg-row ${rowClass}">
-                <div class="chat-name">${displayName}${isSupportMsg ? ' <span style="color:var(--success);font-size:0.6rem">✓</span>' : ''}</div>
-                <div class="chat-bubble">${p.new.message.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>
-                <span class="chat-time">${t}</span>
-              </div>`;
-        c.insertAdjacentHTML('beforeend',m);
-        c.scrollTop=c.scrollHeight
-      }).subscribe(); 
-    }
-    
-    async function sendChatMessage() { 
-      const i = $('chatInput'), n = $('chatUsername'), t = i?.value?.trim(), name = n?.value?.trim(); 
-      if(!t || !name) { if(!n?.value) n?.focus(); return } 
-      let isSupport = false;
-      let displayName = name;
-      if (name === SUPPORT_SECRET) {
-        isSupport = true;
-        displayName = 'ТЕХПОДДЕРЖКА';
-        if (n) {
-          n.value = displayName;
-          n.classList.add('support-mode');
-          n.disabled = true;
-          n.title = 'Режим техподдержки активен';
-        }
-      } else {
-        if (n) {
-          n.classList.remove('support-mode');
-          n.disabled = false;
-          n.title = '';
-        }
-      }
-      localStorage.setItem('chat_username', displayName); 
-      if(!supabaseClient) { 
-        alert('❌ Чат не настроен'); 
-        return 
-      } 
-      const b = i.nextElementSibling; 
-      b.disabled = true; 
-      try {
-        const { error } = await supabaseClient.from('support_messages').insert({
-          user_name: displayName,
-          message: t,
-          is_user: !isSupport,
-          user_meta: { 
-            appVersion: 'v7.0', 
-            ua: navigator.userAgent.substring(0, 50),
-            is_support: isSupport
-          }
-        });
-        if(error) throw error;
-        i.value = ''
-      } catch(err) { 
-        alert('❌ ' + err.message) 
-      } finally { 
-        b.disabled = false; 
-        i?.focus() 
-      } 
-    }
-
-    // === SCANNER FUNCTIONS ===
-    function openScanner() {
-      const modal = $('scannerModal');
-      if (!modal) return;
-      modal.classList.add('active');
-      html5QrCode = new Html5Qrcode("reader");
-      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-      html5QrCode.start(
-        { facingMode: "environment" },
-        config,
-        onScanSuccess,
-        onScanFailure
-      ).catch(err => {
-        console.error("Ошибка запуска сканера:", err);
-        alert('❌ Не удалось запустить камеру. Проверьте разрешения.');
-        closeScanner();
-      });
-    }
-
-    function closeScanner() {
-      const modal = $('scannerModal');
-      if (modal) modal.classList.remove('active');
-      if (html5QrCode) {
-        html5QrCode.stop().then(() => {
-          html5QrCode.clear();
-          html5QrCode = null;
-        }).catch(err => console.error("Ошибка остановки сканера:", err));
-      }
-      $('scanResult').classList.remove('show', 'found', 'not-found');
-    }
-
-    function onScanSuccess(decodedText, decodedResult) {
-      html5QrCode.stop();
-      const foundPart = inventory.find(item => 
-        (item.sku && item.sku.toLowerCase() === decodedText.toLowerCase()) ||
-        item.name.toLowerCase().includes(decodedText.toLowerCase())
-      );
-      const resultDiv = $('scanResult');
-      const resultText = $('scanResultText');
-      if (foundPart) {
-        resultDiv.className = 'scan-result show found';
-        resultText.innerHTML = `
-          <strong style="color: var(--success); display: block; margin-bottom: 8px;">✅ Найдено!</strong>
-          <div><strong>Название:</strong> ${foundPart.name}</div>
-          <div><strong>Артикул:</strong> ${foundPart.sku || '—'}</div>
-          <div><strong>В наличии:</strong> <span style="color: ${foundPart.inStock > 0 ? 'var(--success)' : 'var(--danger)'}; font-weight: bold;">${foundPart.inStock} шт.</span></div>
-          <div><strong>Цена:</strong> ${fmt(foundPart.price)}</div>
-          <div style="margin-top: 8px;">
-            <button class="btn btn-primary btn-sm" onclick="closeScanner(); openInventoryModal(inventory.find(x => x.id === '${foundPart.id}'))">✏️ Редактировать</button>
-          </div>
-        `;
-      } else {
-        resultDiv.className = 'scan-result show not-found';
-        resultText.innerHTML = `
-          <strong style="color: var(--danger); display: block; margin-bottom: 8px;">❌ Не найдено</strong>
-          <div>Штрихкод: <code>${decodedText}</code></div>
-          <div style="margin-top: 8px;">
-            <button class="btn btn-primary btn-sm" onclick="closeScanner(); openInventoryModal()">+ Добавить новую запчасть</button>
-          </div>
-        `;
-      }
-    }
-
-    function onScanFailure(error) {
-      console.warn(`Код не распознан: ${error}`);
-    }
-
-    // === INIT ===
-    let currentTab = 'orders';
-    let currentDetailId = null;
-    let currentPhotoBase64 = null;
-    let pendingCsvData = [];
-
-    async function initApp() {
-      initSupabase();
-      
-      // Populate selects
-      const selType=$('filterType'),selStatus=$('filterStatus'),typeSel=$('type'),statusSel=$('status');
-      TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;selType.appendChild(o);typeSel.appendChild(o.cloneNode(true))});
-      STATUSES.forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;selStatus.appendChild(o);statusSel.appendChild(o.cloneNode(true))});
-      
-      // Load local data
-      loadLocalData();
-      
-      // Load cloud orders
-      await fetchCloudOrders();
-      
-      // Setup UI
-      if($('masterName')) $('masterName').value=settings.master||currentUser?.name||'Мастер';
-      updateUI(); 
-      renderTable(); 
-      renderInventory();
-      $('repairCost').oninput=$('transportCost').oninput=calcTotals;
-      $('secretInput')?.addEventListener('keyup',e=>{if(e.key==='Enter'&&e.target.value.trim()===SECRET_CODE){addCoins(COIN_REWARDS.SECRET,'🤫 Секрет');e.target.value=''}});
-      $('inventoryForm').onsubmit=handleInventorySubmit; setupCsvDragDrop();
-      if(supabaseClient) await checkChatConnection();
-
-      // Daily login bonus (local)
-      const last=localStorage.getItem('last_login_date'), today=new Date().toISOString().split('T')[0];
-      if(last!==today){addCoins(COIN_REWARDS.DAILY_LOGIN,'👋 Ежедневный вход');localStorage.setItem('last_login_date',today)}
-    }
-
-    // === LANDING LOGIC ===
-    (function(){
-      const KEY='avito_seller_landing_seen_v2';
-      const ov=$('landingOverlay'), btn=$('startButton');
-      if(localStorage.getItem(KEY)!=='true' && ov){
-        document.body.classList.add('landing-active');
-        btn?.addEventListener('click',e=>{e.preventDefault(); ov.classList.add('hiding'); localStorage.setItem(KEY,'true'); setTimeout(()=>{ov.style.display='none';document.body.classList.remove('landing-active')},300)});
-      } else if(ov) ov.style.display='none';
-      window.resetLanding=()=>{localStorage.removeItem(KEY);console.log('🔄 Сброшено')};
-    })();
-
-    // === APP STARTUP ===
-    window.onload = async () => {
-      // Check if user is selected
-      currentUser = getCurrentUser();
-      
-      if (!currentUser) {
-        // Show user selection modal
-        $('userSelectModal').classList.remove('hidden');
-      } else {
-        // User already selected, init app
-        updateUserBadge();
-        await initApp();
-      }
-    };
-  </script>
-</body>
-</html>
+        const usageHtml = usage.length > 0
